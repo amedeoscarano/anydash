@@ -3,6 +3,9 @@
 Resume point for any new session. Read `MISSION.md` (local only, gitignored) first.
 
 ## Current phase
+GATE 2 (2026-10-27): waiting for owner OK on the rulebook. Review copy: `GATE2.md` (local, gitignored). Commit 4025fd0 on m1-foundations (local, not pushed).
+
+### History
 Phase 2 running (2026-10-27). GATE 1 passed: owner logged in, verified by title/URL on all 3 tabs. ffmpeg + gitleaks install approved.
 Workflow `dash-portal-explore` (run wf_4ed64365-889): per portal explore → completeness critic → gap fill → PII + evidence verify. Resume with its scriptPath + resumeFromRunId if interrupted.
 DHL onboarding interview (6.5) sent to owner early; answers pending.
@@ -45,4 +48,4 @@ Phase 3 running on branch m1-foundations: wf_2041dd65-eaa (comparison.md → rul
 - `~/dash-research/{shopify,dhl,cloudflare,docs}/pages/` (private)
 
 ## Next step
-Platform facts for Phase 4 in `~/dash-research/platform-facts.md` (Claude Code 2.1.209 here: validate marketplace and plugin separately). Wait for wf_2041dd65-eaa, review gate2-draft.md, present GATE 2. Fold DHL interview answers into rules/frameworks/dhl-simplicity.md when they arrive.
+Platform facts for Phase 4 in `~/dash-research/platform-facts.md` (Claude Code 2.1.209 here: validate marketplace and plugin separately). Owner reviews GATE 2. GATE 3 proposal drafted in `GATE3.md` (local): 10 commands, 28 skills, root layout, v0.1 after M3. Build starts only after both OKs. Fold DHL interview answers into rules/frameworks/dhl-simplicity.md when they arrive.

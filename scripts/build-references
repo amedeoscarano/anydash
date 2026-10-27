@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+// Generate rules/RULEBOOK.md (and, once skills exist, each skill's references/rules.md) from rules/source.
+// Usage: scripts/build-references [--check]   --check fails if a generated file is out of date.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadRules, AREAS } from './lib/rules.mjs';
+import { renderRulebook, renderSkillRules } from './lib/render.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const check = process.argv.includes('--check');
+const { rules, errors } = loadRules(root);
+if (errors.length) { for (const e of errors) console.error(`ERROR ${e}`); process.exit(1); }
+
+const outputs = [[path.join(root, 'rules', 'RULEBOOK.md'), renderRulebook(rules, Object.keys(AREAS))]];
+
+// Each skill lists its areas in skills/<name>/references/areas.txt (one area per line, or "all").
+const skillsDir = path.join(root, 'skills');
+if (fs.existsSync(skillsDir)) {
+  for (const name of fs.readdirSync(skillsDir).sort()) {
+    const areasFile = path.join(skillsDir, name, 'references', 'areas.txt');
+    if (!fs.existsSync(areasFile)) continue;
+    const wanted = fs.readFileSync(areasFile, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean);
+    const unknown = wanted.filter((a) => a !== 'all' && !(a in AREAS));
+    if (unknown.length) { console.error(`ERROR skills/${name}: unknown areas ${unknown.join(', ')}`); process.exit(1); }
+    const areas = wanted.includes('all') ? Object.keys(AREAS) : wanted;
+    outputs.push([path.join(skillsDir, name, 'references', 'rules.md'), renderSkillRules(name, rules, areas)]);
+  }
+}
+
+let stale = 0;
+for (const [file, text] of outputs) {
+  const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
+  if (current === text) continue;
+  if (check) { console.error(`STALE ${path.relative(root, file)}`); stale++; continue; }
+  fs.writeFileSync(file, text);
+  console.log(`wrote ${path.relative(root, file)}`);
+}
+if (stale) { console.error('run scripts/build-references'); process.exit(1); }
+if (check) console.log(`build-references: ${outputs.length} files up to date`);
