@@ -1,0 +1,206 @@
+area: detail
+prefix: DET
+rules:
+  - id: DET-001
+    title: Way back to the parent list
+    rule: Show a back control or breadcrumb to the parent list above or beside the object title on every detail page.
+    why: Detail pages are usually reached from a filtered list or a link deep in another page; a visible way up keeps users oriented and spares them the browser back button, which may lose list state.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: Any page that shows one record (order, product, service, integration, customer) below a list or hub page.
+    exceptions: A top-level page with no parent (home, a single account overview) needs none. On narrow screens the breadcrumb may collapse to a single back arrow with the parent name.
+    do: "Back arrow plus the parent name (\"Orders\") above the title; or breadcrumb \"Settings / Integrations / <name>\" with the last crumb not a link."
+    dont: A detail page whose only way out is the sidebar or the browser back button.
+    check_static: The detail template renders a back link or a nav element with aria-label "breadcrumb" before the h1, and its href points to the parent list route.
+    check_live: Open a detail page from its list; find a link or button named after the parent list (or "Back") above the h1 or in the breadcrumb nav; click it and assert the URL is the parent list route.
+
+  - id: DET-002
+    title: Previous and next within the list
+    rule: When users process records one after another, add previous and next controls on the detail page that follow the order of the list they came from.
+    why: Working through a queue (orders to ship, items to review) is a sequence of detail views; stepping sideways avoids a round trip to the list for every record.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: medium
+    applies_when: Records that are reviewed or processed in bulk from a list (orders, products, tickets, shipments).
+    exceptions: Long-lived configuration objects that are opened one at a time (a service, a tunnel, a domain) do not need it; one reference has none on such pages. When the detail page carries a completion action (print, approve), an "action and next" or "action and close" variant may sit with it.
+    do: "Two icon buttons \"Previous order\" and \"Next order\" next to the title, disabled at the ends of the list."
+    dont: Previous and next that ignore the list's filter and sort and jump to an unrelated record.
+    check_static: The detail route receives the list context (filter, sort, position or cursor) and computes previous and next ids from it; both controls have accessible names and a disabled state.
+    check_live: Open the second record of a sorted, filtered list; click Next; assert the URL and title change to the third record of that same list; on the last record assert Next is disabled.
+
+  - id: DET-003
+    title: Title names the object
+    rule: Use the object's human-readable name or public reference as the page h1, and move internal ids into a details section.
+    why: Users recognise objects by name or by the number they share with customers, not by a generated id; the title is also what the browser tab, breadcrumb and history show.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: medium
+    applies_when: Every detail page.
+    exceptions: When the name alone is ambiguous in daily work, add one or two short qualifiers (for example reference, customer and destination) in the title; keep the whole title on one line at desktop width.
+    do: "h1 \"#1042\" for an order, \"Spring linen shirt\" for a product, the service name for a service; the generated UUID appears under \"Details\" with a copy button."
+    dont: "h1 \"3f2c9e1a-7b4d-...\" or \"Edit record\"."
+    check_static: The detail template binds the h1 to the name or public reference field, never to the primary key; the document title contains the same text.
+    check_live: On three detail pages, read the h1 text and document.title; assert neither is a UUID or a generic label such as "Detail" or "Edit", and that the internal id, if shown, sits outside the h1.
+
+  - id: DET-004
+    title: Status badges beside the title
+    rule: Show the object's current state as one or more badges directly next to the title, one badge per independent state dimension.
+    why: State decides what the user can do next; putting it at the title means it is read before any action, and separate badges keep combined states (paid but unfulfilled) unambiguous.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: medium
+    applies_when: Objects with a lifecycle or health state (draft, active, archived; paid, fulfilled; healthy, down).
+    exceptions: Infrastructure objects whose state is a live metric may show it as the first tile of a key-figure strip at the top of the overview instead (see DET-011); one reference does this and puts only the plan badge by the name. Objects with no state need no badge.
+    do: "\"#1042\" followed by badges \"Paid\" and \"Unfulfilled\"; a discount title followed by \"Active\"."
+    dont: Status only as a field halfway down the side column, or one merged badge "Paid-Unfulfilled-Partially refunded".
+    check_static: The header component renders a badge list in the same row as the h1; each badge maps to one state field and has a text label (not colour alone).
+    check_live: At 1440 px, getBoundingClientRect() of each status badge has a top within the h1's vertical span and a left within 24 px after the h1's right edge (or wraps directly below it); each badge has visible text.
+
+  - id: DET-005
+    title: Few header actions, the rest in overflow
+    rule: Put at most one primary and three secondary page-wide actions in the detail header, and move every other page-wide action into a single "More actions" overflow menu there.
+    why: A short, stable action row keeps the main task obvious; an overflow menu in a fixed place lets rare actions (duplicate, archive, delete, print) stay reachable without crowding.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: medium
+    applies_when: Actions that apply to the whole object (edit, duplicate, share, view live, archive, delete, print).
+    exceptions: A detail page whose only job is to finish a queue item may put the completion action (for example "Print and close") in a sticky footer, as one reference does; keep the overflow in the header even then. Objects whose actions all belong to sections (see DET-006) may have no header actions at all, as on one reference.
+    do: "Header right: \"Duplicate\", \"View\", \"More actions\"; the overflow holds Archive and Delete."
+    dont: Seven buttons across the header, or delete as a standalone button next to the primary.
+    check_static: The header renders at most 1 primary and 3 secondary buttons; any further action is an item of a menu button named "More actions" (aria-haspopup="menu") in the header.
+    check_live: On each detail page, count visible buttons in the header region (excluding back and previous/next); assert at most 4, at most one with primary styling; open "More actions" and assert it is a role "menu" with at least one item, and that no delete or archive button sits in the header outside it.
+
+  - id: DET-006
+    title: Section actions stay in their section
+    rule: Place an action that affects one part of the object (add a line, add a variable, edit an address) inside that part's section heading or toolbar, not in the page header.
+    why: Users find an action where they see the data it changes, and the header stays reserved for actions on the whole object.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: Detail pages built from sections or cards that each own a list or a group of fields.
+    exceptions: An action needed from every section (save all) belongs to the page-level save model, not to each section.
+    do: "Section \"Replicas\" with \"Add a replica\" in its own header; section \"Customs details\" with an \"Edit\" button on its right."
+    dont: "Header button \"Add variable\" far from the variables list it changes."
+    check_static: Each section's add and edit controls are rendered inside that section's container; the page header renders no action whose handler changes only one section's data.
+    check_live: For each section that holds a list or editable group, assert its add or edit control is a descendant of that section (same card or region as the section heading).
+
+  - id: DET-007
+    title: Tabs for objects with several independent areas
+    rule: Split an object detail page into tabs only when it has several independent areas of similar weight (overview, metrics, logs, settings), open on the overview or most used tab, and keep tabs as URL routes.
+    why: A long single page mixing live metrics, logs and configuration is hard to scan, while tabs on a simple record hide content that should be seen together.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: detail}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: Services, integrations and other long-lived objects with their own metrics, logs, deployments or settings.
+    exceptions: Records with one main body plus metadata (order, product, customer, discount) use one scrolling page in two columns instead (see LAY-004); one reference uses no tabs on any record detail.
+    do: "Tabs \"Overview\", \"Metrics\", \"Deployments\", \"Logs\", \"Settings\", each with its own URL; Overview selected on arrival."
+    dont: Tabs "General" and "Other" on a product with six fields; tab state kept only in memory, so reload returns to the first tab.
+    check_static: Each tab maps to a route or query parameter; the first tab is an overview or the most used view; a tablist has at most 8 tabs.
+    check_live: Open the detail page, click the third tab, reload; assert the same tab is selected and its content shown; assert the tablist has role tablist and arrow keys move between tabs.
+
+  - id: DET-008
+    title: The object's own history on its page
+    rule: Show a chronological history of the object's events (created, changed, status changes, messages sent, deployments) on the object's detail page, newest first, with the actor and time on each entry.
+    why: Users check what happened to this record and who did it while looking at it; an account-wide log alone forces a filtered search for each record.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: Objects that change over time or are touched by several people, integrations or the system.
+    exceptions: Placement varies with the page structure, at the end of the main column, as a collapsible "History" section, or as a dedicated tab (deployments, live logs) on tabbed objects. A comment box for internal notes inside the timeline was seen in one reference only; add it when teams discuss records.
+    do: "\"Timeline\" at the bottom of the main column; heading \"October 19\"; entries \"Payment refunded by <actor>\", each with time and a link to the related email or document."
+    dont: History reachable only from a global audit log filtered by record id.
+    check_static: The detail page includes a history component fed by an events query scoped to this object id, sorted descending by time, with actor and timestamp per entry.
+    check_live: Change one field on a record; reload the detail page; assert a new top entry names the change, your user and a time from today.
+
+  - id: DET-009
+    title: Read first, edit in place
+    rule: Show each field's current value on the detail page and let users edit a field or small section in place (inline field, popover or side panel), without a separate edit page.
+    why: Most visits to a record are to read it or fix one value; in-place editing keeps context and avoids a full form for a single change.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: medium
+    applies_when: Fields and short groups (name, address, tags, notes, status, one setting) on a record that users mostly read.
+    exceptions: Structural edits that change many related values at once (editing an order's line items) may open a dedicated edit mode from a header "Edit" button. Large forms open in a page, not a modal.
+    do: "Value \"Delivered at Place\" shown as text with an edit affordance; pencil \"Edit tunnel name\" turns the name into a field with Save and Cancel."
+    dont: All fields shown as empty-looking inputs, or a single "Edit" button that opens a separate page to change one tag.
+    check_static: Each editable field component has a read state (value text) and an edit state, toggled in place; it has an accessible name such as "Edit <field>"; saving follows the page's save model.
+    check_live: On a detail page, activate the edit control of one field; assert the URL does not change and the field becomes editable in place; press Escape and assert the original value is shown unchanged.
+
+  - id: DET-010
+    title: Identifiers with a copy button
+    rule: Show system identifiers and contact values that users paste elsewhere (ids, tokens, emails, addresses) in a details area, each with a one-click copy button.
+    why: These values are copied into tickets, APIs and other tools; selecting long strings by hand is error-prone.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: absent, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: Any detail page with an id, key, email, address or similar value used outside the dashboard.
+    exceptions: Secrets show a copy button only at creation or behind an explicit reveal; never place them in plain text.
+    do: "\"Tunnel ID 3f2c...\" with a button \"Copy ID\"; customer email with \"Copy email\"."
+    dont: An id rendered in a disabled input that cannot be selected, or no way to copy it at all.
+    check_static: Id and contact fields render a copy button with an accessible name "Copy <field>" that writes the full value with navigator.clipboard.writeText and announces success.
+    check_live: Click each copy button on a detail page; read the clipboard (or intercept writeText) and assert it equals the full displayed value; assert a status or toast message confirms the copy.
+
+  - id: DET-011
+    title: Key figures at the top of the overview
+    rule: Open a detail overview with a short strip of the object's key figures (three to five), each labelled and with a definition available on demand.
+    why: A few numbers answer "how is this object doing" before the user scrolls into configuration or line items.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: absent, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: Objects that accumulate activity (customers, services, campaigns, connections).
+    exceptions: Transactional records whose meaning is their content (a shipment being prepared, an order) show their content first; one reference has no figures on its record detail.
+    do: "Strip \"Amount spent | Orders | Customer since | Segment\", each label opening its definition; or \"Active replicas | Routes | Status | Uptime\"."
+    dont: Ten unlabeled numbers, or metrics only reachable through a separate analytics page.
+    check_static: The overview renders a figures component with 3-5 items, each with a label, a value and either an info button or a definition popover.
+    check_live: On the overview at 1440 px, assert the figures strip is the first content block under the header, has 3-5 items, and each label's info control opens a definition.
+
+  - id: DET-012
+    title: Danger zone at the end of object settings
+    rule: Collect the object's destructive or disruptive actions (delete, pause, remove, rotate, clear) in a separate, clearly titled section at the end of its settings or overview, each with a line stating the consequence.
+    why: Placing them last and apart prevents misclicks among routine settings while keeping them easy to find when needed.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: detail}
+      - {portal: dhl, status: absent, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: low
+    applies_when: Objects with their own settings area or tab and at least one irreversible or service-disrupting action.
+    exceptions: Records without a settings area may put delete or archive in the header overflow menu instead (see DET-005). Confirmation follows SAV-006.
+    do: "Last settings section \"Danger zone\" with \"Delete service: removes all deployments and routes\"; an overview ending in \"Advanced actions\" with Pause and Remove."
+    dont: A red Delete button between two ordinary settings, or Pause in the middle of a list of metrics.
+    check_static: Destructive actions of an object appear only in a section rendered last in its settings or overview (or in the header overflow), each with consequence text and the critical variant.
+    check_live: Scroll to the end of the object's settings; assert the last section heading names the danger or advanced actions; assert no destructive button appears above it outside the header overflow.

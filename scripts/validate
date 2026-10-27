@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+// Validate the repo: rule files, framework references, private data. Exit 1 on any error.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadRules, frameworkRefs, scanPrivate } from './lib/rules.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// One private term per line (account ids, store and brand names). Gitignored, so CI runs only the generic patterns.
+const termsFile = path.join(root, '.private-terms');
+const terms = fs.existsSync(termsFile) ? fs.readFileSync(termsFile, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean) : [];
+
+const { rules, errors } = loadRules(root);
+errors.push(...frameworkRefs(root, new Set(rules.map((r) => r.id))));
+const publicDirs = ['rules', 'skills', 'docs', 'examples', 'evals', 'scripts', '.claude-plugin', 'README.md', 'CHANGELOG.md', 'ROADMAP.md'];
+for (const hit of scanPrivate(root, publicDirs, terms)) errors.push(`private data pattern at ${hit}`);
+
+const byConf = rules.reduce((a, r) => ((a[r.confidence] = (a[r.confidence] || 0) + 1), a), {});
+console.log(`rules: ${rules.length} (${Object.entries(byConf).map(([k, v]) => `${k} ${v}`).join(', ')})${terms.length ? '' : ' | .private-terms missing: generic privacy scan only'}`);
+if (errors.length) { for (const e of errors) console.error(`ERROR ${e}`); process.exit(1); }
+console.log('validate: ok');

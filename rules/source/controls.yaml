@@ -1,0 +1,202 @@
+area: controls
+prefix: CTL
+rules:
+  - id: CTL-001
+    title: Checkbox for a boolean saved with a form
+    rule: Use a checkbox for a yes/no option that is committed together with the rest of the form by an explicit Save.
+    why: A checkbox reads as "part of this form, applied on Save", so users are not surprised when nothing happens until they submit.
+    source: documented
+    evidence:
+      # shopify: settings, settings-checkout (checkbox + inline description in save forms); also documented (checkbox = explicit submission), which carries confidence high
+      - {portal: shopify, status: observed, page_type: settings_page}
+      # dhl: settings-options, integration-shopify-advanced (every boolean is a checkbox + sticky Save)
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: zone-ssl-configure puts a switch inside a Save form instead
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: high
+    applies_when: The page or section has an explicit Save, Submit or Deploy button and the option is a single on/off value.
+    exceptions: Options that apply the moment they are toggled (see CTL-002). Options that need a long explanation or a sub-form may instead be a summary row that opens its own editor.
+    do: '"Automatically archive the order" checkbox with a one-line description, saved by the page Save bar.'
+    dont: An on/off switch sitting in a form whose changes only persist after pressing Save.
+    check_static: In each form that has a submit/Save button, every boolean input is input[type=checkbox] (or role=checkbox), not role=switch.
+    check_live: Tick a checkbox in a form and reload without saving; the old value must return. Tick it, press Save, reload; the new value must persist.
+
+  - id: CTL-002
+    title: Switch only for instant changes
+    rule: Use a switch only for a setting that takes effect immediately on toggle, and never place a switch in a form that has a Save button.
+    why: A switch looks like a physical toggle that acts at once; mixing it with Save leaves users unsure whether the change already applied.
+    source: documented
+    evidence:
+      # shopify: documented (switch = binary setting that applies at once, never with Save). Live: no switch in core admin; only in an embedded preferences page, apply model not observed
+      - {portal: shopify, status: documented, page_type: settings_page}
+      # dhl: 0 switch roles; immediate actions are buttons
+      - {portal: dhl, status: absent, page_type: settings_page}
+      # cloudflare: switches with no Save nearby (zone-ssl-edge-certs, zone-security-settings, profile-notifications); instant apply inferred, not tested; breaks it once in zone-ssl-configure
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: The product has settings that persist on toggle (feature flags, notification opt-ins, security toggles) and can confirm the change with a toast or inline status.
+    exceptions: A product that saves everything through explicit forms needs no switches at all; use checkboxes (CTL-001). A risky instant toggle should still ask for confirmation before applying.
+    do: A "Development mode" switch that applies on click, shows a toast "Development mode on", and has no Save button in its card.
+    dont: A card with two switches and a Save button underneath.
+    check_static: No element with role=switch is a descendant of a <form> (or card/section) that also contains a submit or "Save" button.
+    check_live: Toggle a switch and watch the network panel; a persisting request must fire without any further click, and a reload must keep the new state.
+
+  - id: CTL-003
+    title: Checkboxes for multi-select
+    rule: Use a group of checkboxes when the user may pick several options from a visible set, and never use switches or radios for it.
+    why: Checkboxes are the only common control that signals independent, combinable choices; switches imply instant actions and radios imply exclusivity.
+    source: observed
+    evidence:
+      # shopify: checkbox rows in index tables (products, orders)
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: column toggles (orders-toggle-columns), notification stages per checkbox (also documented in help center)
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: protocol and filter checkboxes (zt-traffic-settings, security-center)
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: Zero, one or several of a small-to-medium set of options can be on at once (columns, notification stages, protocols, row selection).
+    exceptions: When the set is long or open-ended, use a searchable multi-select combobox or tag input (CTL-006).
+    do: '"Send email at:" with checkboxes Shipped, Out for delivery, Delivered.'
+    dont: A stack of switches for which delivery stages trigger an email inside a form with Save.
+    check_static: Every multi-value choice from a fixed set is rendered as a fieldset/group of checkboxes with a group label (legend or aria-labelledby).
+    check_live: Select two options, save or apply, reload; both must remain selected. In the accessibility tree the checkboxes sit inside a group whose name is the visible group label.
+
+  - id: CTL-004
+    title: Radios for a small exclusive set to compare
+    rule: Use a radio group, each option with a short description of its outcome, when the user must choose exactly one of about 2 to 6 options that need comparing.
+    why: Radios keep every option and its consequence visible at once, which matters when choices are strategies or modes rather than plain values.
+    source: documented
+    evidence:
+      # shopify: documented (choice list for a small defined set, labels describe the outcome, group title poses a question). Live: no radio role (only menuitemradio in a view menu); small sets sit behind value buttons that open pickers
+      - {portal: shopify, status: documented, page_type: settings_page}
+      # dhl: 2-6 exclusive strategies with descriptions (settings-packaging, settings-checkout-rates-settings, settings-packing-slip-packing-summaries); radios there have no accessible name
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: 5 radio cards with descriptions and a "(recommended)" option (zone-ssl-configure); described port-inspection radios (zt-traffic-settings)
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: One option is required, there are roughly 2 to 6 options, and each one changes behaviour in a way the user should read before choosing. Give the group a title phrased as a question and mark the recommended option.
+    exceptions: Plain values with no explanation needed (units, sort order) may use a select even below 4 options when space is tight. Above about 6 options use a select (CTL-005); above about 20, a searchable combobox (CTL-006).
+    do: '"How should packages be chosen?" with radios "Single package by item weight", "Best fit by dimensions", each with one line saying what happens.'
+    dont: A dropdown hiding five encryption modes whose differences are only explained in a separate docs page.
+    check_static: Each radiogroup has 2-6 radios, a group label, and every radio has an accessible name plus a description (aria-describedby or label text) of its effect.
+    check_live: With a screen reader or the accessibility tree, each radio announces its name and description; arrow keys move the selection within the group.
+
+  - id: CTL-005
+    title: Select for standard closed lists
+    rule: Use a select for one choice from a closed list of standard values, typically 4 or more options such as units, currency or label format.
+    why: Standard values are recognised rather than compared, so a compact select saves space without hiding information users need.
+    source: documented
+    evidence:
+      # shopify: select-style for unit system, default weight unit, backup region (settings-general)
+      - {portal: shopify, status: observed, page_type: settings_page}
+      # dhl: units, currency, timezone, country, label format (settings-options, settings-printing)
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: combobox-role selects for caching level, browser TTL, language, timezone (zone-caching-config, profile)
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: The list is fixed, known in advance, and its values are self-explanatory; 4 to about 20 options, or fewer when space is tight.
+    exceptions: Lists that are long enough to need typing (all countries, timezones) should be searchable (CTL-006). Options that need a description go to radios (CTL-004).
+    do: '"Weight unit" select with kg, g, lb, oz, defaulted to the account locale.'
+    dont: A radio group of 30 timezones, or a free text field where the user types "kg".
+    check_static: Every single-choice field over a fixed set of 4-20 options without per-option descriptions is a native select or a role=combobox with a listbox, and has a selected default or a placeholder option.
+    check_live: Open each select by keyboard (Enter/Space/Alt+Down), move with arrows, confirm; the chosen value shows in the closed control.
+
+  - id: CTL-006
+    title: Searchable combobox for long or dynamic lists
+    rule: Use a combobox with type-to-filter when the list is long, comes from user data, or lets the user create a new value.
+    why: Scrolling a long or growing dropdown is slow and error-prone; filtering by typing scales to any size and allows creation in place.
+    source: observed
+    evidence:
+      # shopify: "Find or create tags" (order-detail), "Tag values" (collection-detail)
+      - {portal: shopify, status: observed, page_type: detail}
+      # dhl: no creatable or searchable combobox seen
+      - {portal: dhl, status: absent, page_type: index}
+      # cloudflare: rule-builder Field combobox with a separate "Show options" trigger (zone-custom-rule-builder); typing/filtering not exercised, only the structure was seen
+      - {portal: cloudflare, status: observed, page_type: form}
+    confidence: medium
+    applies_when: More than about 20 options, options that grow with user data (tags, products, fields, locations), or the user may add a value not yet in the list.
+    exceptions: Short fixed lists stay a plain select (CTL-005). Multi-value creatable lists render chosen values as removable tags.
+    do: '"Tags" combobox: typing "win" filters to "winter", "winter-sale" and offers "Create winter-26".'
+    dont: A plain dropdown listing 300 product types in alphabetical order with no filter.
+    check_static: Fields bound to user-generated or >20-item collections use role=combobox with aria-autocomplete and aria-controls pointing to a listbox; creatable ones have a visible "Create" option.
+    check_live: Type 2-3 characters; the list narrows to matching items, arrow keys move the active option, Enter selects, Escape closes without changing the value.
+
+  - id: CTL-007
+    title: Units outside the value
+    rule: Show the unit of a numeric field as a fixed, non-editable prefix or suffix (or in the label), keep only the number in the value, and enforce min, max and step.
+    why: Users should never type or delete the unit, and validation needs a clean number; showing the unit next to the value prevents wrong-scale input.
+    source: documented
+    evidence:
+      # shopify: unit in the label ("Price €"; product-detail). Weight/dimension labels carry no unit in the ARIA capture. Also documented (non-editable prefix/suffix, min/max/step), which carries confidence high
+      - {portal: shopify, status: observed, page_type: detail}
+      # dhl: unit in label, column header or prefix ("Weight (kg)", "L (CM)"; settings-checkout-rates-tools, settings-packaging)
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: no unit field; durations as select options ("4 hours"; zone-caching-config, list not opened); range shown only as placeholder (zt-traffic-settings)
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: high
+    applies_when: A free numeric value has a unit (weight, size, money, percent, duration, URL prefix).
+    exceptions: When only a few preset amounts are valid (cache durations, retention periods), use a select whose options carry the unit ("4 hours"). When the user may pick the unit, pair the number field with a unit select.
+    do: 'Number field "Weight" with suffix "kg", min 0, step 0.01, and helper text "Between 0 and 70".'
+    dont: A text field with value "0.5 kg", or an allowed range shown only as placeholder text that disappears on typing.
+    check_static: Numeric inputs use type=number or inputmode=decimal, declare min/max/step where they apply, and render the unit as a separate adornment or in the label, not inside the value.
+    check_live: Type a value outside the range or with letters; the field shows an inline error and Save refuses it. The unit stays visible while typing.
+
+  - id: CTL-008
+    title: Segmented control for views, not settings
+    rule: Use a segmented control (pressed button group or tabs) only to switch how the current page shows data, such as a time range or grid/list view, not to change a saved setting.
+    why: Segmented controls act instantly and read as view state; using them for persisted configuration hides that a lasting change was made.
+    source: observed
+    evidence:
+      # shopify: grid/list pressed toggle (collection-detail)
+      - {portal: shopify, status: observed, page_type: detail}
+      # dhl: no segmented control seen
+      - {portal: dhl, status: absent, page_type: index}
+      # cloudflare: 24h / 7d / 30d time-range tabs on an overview (zone-overview)
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: 2 to about 5 mutually exclusive views of the same data on the same page (time range, layout, chart metric).
+    exceptions: For more than about 5 ranges, or custom ranges, use a select or date-range picker.
+    do: '"24 hours | 7 days | 30 days" above a traffic chart, with the active segment marked as selected.'
+    dont: A segmented control choosing the account's default currency.
+    check_static: Every segmented control is a role=tablist or a group of aria-pressed buttons with 2-5 items, and its handler only changes view state or the URL query, never calls a settings save endpoint.
+    check_live: Click each segment; the data view changes, no "saved" toast appears, and the network panel shows only read requests.
+
+  - id: CTL-009
+    title: Every control has its own accessible name
+    rule: Give every checkbox, switch, radio and select a unique accessible name taken from its visible label, and link its description programmatically.
+    why: Generic or repeated names ("Switch", the same label on every row, unnamed radios) make settings unusable with a screen reader and untestable by automation.
+    source: inferred
+    evidence:
+      # shopify: settings checkboxes are named by visible text (settings, settings-checkout), but index row checkboxes repeat one generic name ("Select Page" x20, "Select segment" x14) or use raw ids; no doc finding on accessible names
+      - {portal: shopify, status: absent, page_type: index}
+      # dhl: defects: notification checkboxes all share one name (settings-tracking-notifications), packaging and checkout-rates radios unnamed
+      - {portal: dhl, status: absent, page_type: settings_page}
+      # cloudflare: defects: many switches named only "Switch" (zt-traffic-settings, zone-security-settings, zt-access-settings)
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: low
+    applies_when: Always, for every form control.
+    exceptions: None.
+    do: 'Switch announced as "Always use HTTPS, switch, on", with its helper sentence read as description.'
+    dont: Ten switches each announced as "Switch", or a radio group whose radios have no name.
+    check_static: Run an accessibility linter (axe rules label, aria-toggle-field-name, duplicate names within a page section); every input has a <label for>, aria-label or aria-labelledby, and helper text is wired with aria-describedby.
+    check_live: Dump the accessibility tree of each settings page; no checkbox, switch, radio or combobox has an empty, generic ("Switch", "Checkbox") or duplicated name.
+
+  - id: CTL-010
+    title: On/off gates its dependent options
+    rule: When a feature switch or checkbox controls further options, keep those options next to it and disable or reveal them according to its state.
+    why: Users see at a glance which options matter now, and cannot edit values that have no effect while the feature is off.
+    source: observed
+    evidence:
+      # shopify: not observed
+      - {portal: shopify, status: absent, page_type: settings_page}
+      # dhl: a checkbox in the same card stays visible but disabled while other print options are on, with a sentence saying how to enable it (settings-packing-slip). "Enable X" reveals fields (H16) is still unverified
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: switch off + dependent radiogroup disabled (zone-tiered-cache, zt-traffic-settings)
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: A master on/off has 1 or more sub-options that only matter when it is on.
+    exceptions: Prefer disabled-but-visible when users need to know the options exist (for example to decide whether to turn the feature on); prefer hidden when the sub-form is long.
+    do: '"Inspect traffic" switch off; the "Ports" radio group below it stays visible but disabled.'
+    dont: Sub-options that stay editable while the feature they configure is off.
+    check_static: Each dependent control's disabled or hidden state is derived from its parent toggle's value, and it sits directly under that toggle in the same card.
+    check_live: Turn the parent off; dependent controls become disabled (aria-disabled or disabled) or hidden. Turn it on; they become editable without a reload.

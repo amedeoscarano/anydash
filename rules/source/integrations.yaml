@@ -1,0 +1,206 @@
+area: integrations
+prefix: INT
+rules:
+  - id: INT-001
+    title: One list of connected integrations
+    rule: "Give connected integrations one list page that shows every connection as a row with its name, the account or resource it is linked to, and row actions to open its settings or remove it."
+    why: "People need one place to answer 'what is connected to this account' before they change, debug or remove anything; a scattered set of connections cannot be audited."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: integration}
+    confidence: high
+    applies_when: "The product connects to at least one external system (store platform, carrier, identity provider, file transfer, webhook target)."
+    exceptions: "A product with exactly one fixed, non-removable connection may show it as a card on its settings page instead of a table. Very large catalogs of connections of one kind may be split per product area, but each area still gets its own list."
+    do: "Integrations page: search box, table with columns Integration / Linked account / Actions (Settings, Remove), and an 'Add integration' action above the table."
+    dont: "Connections found only by opening several unrelated settings pages, with no page that lists them together."
+    check_static: "Find the integrations list page in the route map or spec. Confirm it renders one row per connection, each row shows a name and the linked account or resource, and each row exposes an open-settings action and a remove action (inline or in a row menu)."
+    check_live: "Connect two test integrations, open the integrations page, and confirm both appear as separate rows with name, linked account, and working open-settings and remove actions."
+
+  - id: INT-002
+    title: Adding starts from a catalog of providers
+    rule: "Make 'Add integration' open a catalog of available providers, each tile or row leading to that provider's own setup form."
+    why: "Each provider needs different credentials and options; choosing the provider first keeps every setup form short and specific."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: documented, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: integration}
+    confidence: high
+    applies_when: "More than one provider or connection type can be added."
+    exceptions: "When the catalog lives in an external marketplace, the add action may link out, but it must say so (external link icon or text) and return the user to the integrations list after installation."
+    do: "'Add an identity provider' opens a grid of provider tiles with a 'Back to integrations' link; each tile opens a form only for that provider."
+    dont: "One generic 'New connection' form with a provider dropdown at the top that reshapes twenty fields depending on the choice."
+    check_static: "Trace the 'Add' action on the integrations list. It must route to a catalog view listing providers, and each provider entry must route to a provider-specific setup page or dialog. If the catalog is external, the link must be marked as external."
+    check_live: "Click 'Add integration', confirm a catalog of providers appears with a way back to the list, pick one provider and confirm the form shows only that provider's fields."
+
+  - id: INT-003
+    title: Each integration has its own detail page
+    rule: "Give each connected integration its own detail page that holds all of its configuration, its log and its maintenance tools, reached from its row in the list."
+    why: "All decisions about one connection are made while looking at that connection; spreading them across global settings hides which connection an option belongs to."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: integration}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: "An integration has more than a single on/off option."
+    exceptions: "Options shared by every integration (for example a global auto-import schedule) may stay on the integrations list page, above or below the table. A connection with its own day-to-day user interface may instead get its own navigation group with its own 'Settings' item (see INT-011)."
+    do: "Detail page with a breadcrumb Settings > Integrations > Provider, H1 with the provider name, and tabs Settings / Field mapping / Logs / Tools."
+    dont: "Per-connection options placed on a global settings page behind a 'Choose integration' dropdown."
+    check_static: "For each integration type, confirm one route renders its detail page with a breadcrumb back to the list, and that no global settings page needs an integration picker before its fields can be edited."
+    check_live: "From the integrations list, open one row's settings; confirm the URL identifies that connection, the breadcrumb returns to the list, and configuration, logs and tools for that connection are all reachable on that page."
+
+  - id: INT-004
+    title: Test the connection on the spot
+    rule: "Put a 'Test connection' action next to the credentials of every connection, available right after the connection is saved or authorized, and show a pass or fail result that names the cause without discarding the form."
+    why: "A connection that saves without error can still fail at the first real sync; testing at setup time turns a silent failure hours later into an immediate, fixable message."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: integration}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: integration}
+    confidence: medium
+    applies_when: "The connection uses credentials, an authorization step, a host or an endpoint that can be wrong or expire."
+    exceptions: "Integrations installed and authorized entirely by the other platform, with no credentials the user can edit, may rely on the status indicator (INT-005) instead of a test action."
+    do: "Numbered setup steps ending with 'Authorize, then click Test connection'; the Test button sits beside Save and shows 'Connected: 3 orders found' or 'Failed: authentication rejected' under the form."
+    dont: "Only a Save button, with the first sign of a wrong password being an empty order list the next day."
+    check_static: "On every connection form or connection row, find a test action. Confirm it is enabled once saved values exist, calls a real connectivity check, and shows success or the provider's error message without clearing the form values."
+    check_live: "Save a connection with a deliberately wrong test credential, click the test action, and confirm a specific failure message appears without leaving the page; fix the credential, test again, and confirm success."
+
+  - id: INT-005
+    title: Visible status per connection
+    rule: "Show each connection's current status (for example Connected, Needs attention, Disconnected) as a status label in the list row and on the detail page, with a status filter when the list can grow long."
+    why: "Without a status at the list level, a broken connection is found only by reading logs, so failures go unnoticed until downstream work stops."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: integration}
+      - {portal: dhl, status: absent, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: low
+    applies_when: "Connections run continuously or on a schedule, so they can break after setup."
+    exceptions: "Two reference portals show no connection status label in their integration lists; one relies only on a run log with an error column, which works only when the log is one click away and every run is listed. Prefer a status label anyway."
+    do: "Connections table with a Status column ('Healthy', 'Needs attention') and a 'Filter by status' select; detail page header strip: Status, last successful sync, uptime."
+    dont: "A list that shows only the provider name and linked account while the last ten syncs have failed."
+    check_static: "Confirm the list row and the detail header both render a status value derived from the connection's last run or heartbeat, with distinct text (not color only) for each state. If the list paginates, confirm a status filter exists."
+    check_live: "Break a test connection (revoke its token or stop its endpoint), wait for the next sync or heartbeat, and confirm the list and detail page both change to a failure status in text."
+
+  - id: INT-006
+    title: Sync log beside the integration
+    rule: "Put a log of recent sync runs on the integration's own page, with time, duration, items processed, run type and error, plus a link to the full log and a way to look up why one record did or did not sync."
+    why: "Self-service troubleshooting needs the evidence next to the settings that caused it; a log hidden elsewhere sends people to support for questions the data already answers."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: integration}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: "The integration imports, exports or syncs data, or runs jobs on a schedule."
+    exceptions: "Real-time connections with no discrete runs (for example a tunnel or a login provider) may show a live event log instead of a run table. The per-record lookup was observed in one portal only; skip it when records are not identifiable by the user."
+    do: "Detail page tab 'Logs': timezone note, Refresh, table Time / Duration / Imported / Type (auto or manual) / Error for the last 10 runs, 'View all logs' link; a search by record number that shows the outcome reason, such as 'skipped: no items found'."
+    dont: "A single global log page with no filter by integration, and no link to it from the integration."
+    check_static: "On the integration detail page, find a log tab or section whose rows include timestamp, outcome and error text, and confirm it links to the full log pre-filtered to this integration. Confirm read-only log tabs do not show a Save bar."
+    check_live: "Trigger one sync on a test connection, open its detail page, and confirm the new run appears in the log with time and outcome; follow 'View all logs' and confirm the full log opens filtered to the same integration."
+
+  - id: INT-007
+    title: Surface sync failures outside the log
+    rule: "When a connection fails or becomes incompatible, show a page-level warning on the integrations pages that names the connection, the impact and the fix, and let people subscribe to alerts for status changes."
+    why: "Errors that exist only as a cell in a log are found by people who already suspect a problem; everyone else learns about them from missing orders or locked-out users."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: other}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: "A connection can fail or degrade without any user action (expired token, provider API change, remote outage)."
+    exceptions: "Transient single-run errors that the next scheduled run recovers from may stay in the log only; escalate after repeated failures."
+    do: "Warning banner: 'Store connection is not compatible with the new shipping model. It may stop working on 1 July. Learn more.' and a 'Configure alerts' card on the detail page linking to alert settings for this connection's status changes."
+    dont: "One failed run among fifty rows in a log table, with no banner, badge, email or alert."
+    check_static: "Find the code path that handles a failed or incompatible connection state. Confirm it renders a page-level banner with the connection name, consequence and an action, and that the detail page links to an alert or notification setup for status changes."
+    check_live: "Force a test connection into a failed state across several runs; reload the integrations list and detail page and confirm a warning banner appears with a next step; open the alert link and confirm it pre-selects this connection."
+
+  - id: INT-008
+    title: Field mapping as an explicit list with defaults
+    rule: "Show which data the integration reads and writes as an explicit mapping list of labeled checkboxes and selects, pre-set to sensible defaults, with write-back to the other system as its own clearly labeled option."
+    why: "Users must know which of their fields cross the boundary and in which direction; an explicit list with defaults lets most people accept it as is and lets the rest change one field."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: integration}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: absent, page_type: integration}
+    confidence: low
+    applies_when: "The integration copies records or fields between systems (orders, products, customers, tracking numbers)."
+    exceptions: "Authentication-only integrations (login providers) exchange identity, not records, and need no mapping list."
+    do: "Card 'Field mapping': 'Import order tags' [x], 'Import variant names' [x], 'Map order notes to' [Delivery instructions v]; card 'Write-back': 'Send tracking numbers back to the store' [x] with a sentence saying when it happens."
+    dont: "Hard-coded, undocumented mapping, or a write-back that is on with no visible option and no explanation."
+    check_static: "On the integration detail page, confirm a mapping section lists each imported or exported field with a control and a default value, and that write-back to the remote system is a separate labeled control whose helper text says when it runs."
+    check_live: "Open a new test integration without changing anything, confirm the mapping options show pre-set defaults, untick one mapped field, save, run a sync, and confirm that field is no longer imported."
+
+  - id: INT-009
+    title: Run-now and maintenance actions act immediately
+    rule: "Place run-now and maintenance actions (Import now, Refresh, Clear cache, Rotate token) as buttons in their own card or tools tab that act immediately, separate from the configuration form and its Save bar."
+    why: "Mixing one-off jobs into a Save form makes people unsure whether clicking Save also runs the job, or whether the job uses unsaved values."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: integration}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: "An integration offers manual sync, re-import, cache reset, credential rotation or similar one-off jobs."
+    exceptions: "A test-connection action may sit beside Save on the credentials form (see INT-004), because it checks the values being saved."
+    do: "'Tools' tab with cards: 'Manual import' (days field + Import now), 'Product cache' (Clear product cache), each card with one sentence explaining its effect."
+    dont: "An 'Import all orders now' checkbox inside the settings form that runs only when the user clicks Save."
+    check_static: "List every one-off job an integration offers. Confirm each is a button outside the Save-bar form, with its own helper text, and that it does not depend on unsaved form state."
+    check_live: "Edit a field without saving, click a run-now action, and confirm the job runs immediately with feedback (toast or log row) and that the unsaved edit is neither saved nor lost silently."
+
+  - id: INT-010
+    title: Credentials masked, rotation explained
+    rule: "Show keys, tokens and signing secrets masked by default with Copy and Reveal actions, and put Rotate or Regenerate next to a sentence that says what breaks when the old value stops working."
+    why: "Secrets on screen leak through screenshots and screen sharing; and rotating a secret silently breaks every client that still uses the old one."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: low
+    applies_when: "The integrations area displays any API key, access token, webhook signing secret or password."
+    exceptions: "A newly created secret may be shown once in full, with a notice that it will not be shown again. Only the rotation warning was observed; masking was not, and two reference portals show secrets in plain text, which this rule treats as a defect."
+    do: "'API key ******** [Copy] [Reveal]'; section 'Refresh token' with 'Rotating invalidates the current token. Update every connected instance with the new one.' and a 'Rotate token' button that asks for confirmation."
+    dont: "A webhook signing secret or API key printed in plain text in a paragraph, with a bare 'Regenerate' button and no warning."
+    check_static: "Search the integrations and API pages for fields that render secrets. Confirm each renders masked by default, offers copy and reveal, and that every rotate or regenerate action has adjacent consequence text and a confirmation step."
+    check_live: "Open each page that holds a key or secret, confirm no secret is readable without clicking Reveal, then click Rotate on a test credential and confirm a dialog states the consequence before anything changes."
+
+  - id: INT-011
+    title: Integration placement follows what it adds
+    rule: "Give an integration its own navigation group only when it brings its own day-to-day screens; keep integrations that only feed data or identity under settings, in a connections group, or under the product area they serve."
+    why: "Navigation is for daily work; a data feed that people configure once would add a permanent menu item nobody uses, while an app with its own work screens would be buried if it lived only in settings."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: settings_index}
+      - {portal: cloudflare, status: observed, page_type: integration}
+    confidence: high
+    applies_when: "Deciding where a new integration appears in the navigation."
+    exceptions: "The three reference portals place integrations differently (injected nav group, settings only, product-scoped); this rule is the condition that explains all three, but it is inferred from that split, not documented. When an integration has its own nav group, the global settings list should still list it and link to its own Settings item."
+    do: "A third-party reviews app adds a nav group 'Reviews' with items Reviews, Analytics, Settings; a store connector that only imports orders lives at Settings > Connections > Integrations; a login provider lives under the access product's Integrations item."
+    dont: "A top-level menu item for an order-import connector that is configured once and then only produces log rows."
+    check_static: "For each integration, list its screens. If it has screens for daily work, confirm it has a nav group that includes a Settings item and that the global settings list of integrations links to it. If it has only configuration and logs, confirm it has no top-level nav item and sits under settings or its product area."
+    check_live: "Install one work-surface integration and one data-feed integration in a test account; confirm only the first adds a navigation group, and both are reachable from the settings list of integrations."
+
+  - id: INT-012
+    title: Disconnect is secondary, confirmed and recorded
+    rule: "Offer disconnect or uninstall as a secondary row or overflow action, confirm it in a dialog that names the connection and states what stops and what data is kept or deleted, and keep a list of removed integrations."
+    why: "Disconnecting stops imports, write-back or logins at once; a confirmation that states the consequence prevents accidental outages, and a removed-list lets people reconnect or audit later."
+    source: documented
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: absent, page_type: integration}
+    confidence: high
+    applies_when: "A connection can be removed by the user."
+    exceptions: "Destructive bulk actions on data the integration imported (for example 'Delete all unshipped orders') are separate from disconnecting and need their own confirmation; they must not share a button or dialog with Remove. The confirmation dialogs themselves were not opened in the reference portals; the dialog content follows documented destructive-modal guidance."
+    do: "Row action 'Remove integration' opens 'Remove store connection? Orders will stop importing and tracking will no longer be sent back. Imported orders stay in your account.' with buttons [Cancel] [Remove integration] (critical style); the list has tabs Installed / Uninstalled."
+    dont: "A primary-styled 'Disconnect' button at the top of the detail page that removes the connection on one click with an 'Are you sure? OK' dialog."
+    check_static: "Find every disconnect, remove or uninstall action. Confirm it is styled as secondary or critical (never primary), lives in a row action or overflow menu, opens a confirmation whose primary button repeats the verb and whose text names the connection and its consequences, and that removed connections remain listed in a separate view."
+    check_live: "On a test connection, click remove; confirm a dialog names the connection and the consequence, Cancel leaves everything unchanged, and confirming moves the connection to an uninstalled or removed view rather than erasing all trace of it."

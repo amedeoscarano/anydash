@@ -1,0 +1,24 @@
+# Private research material: never in the public repo
+research/
+recordings/
+.gstack/
+*.har
+*.webm
+*.mp4
+trace.zip
+*.trace.zip
+# Browser profiles
+chrome-profile/
+*-profile/
+.chrome*/
+# Secrets
+.env*
+!.env.example
+# Tooling
+node_modules/
+.DS_Store
+
+# Contains private account IDs
+MISSION.md
+.private-terms
+GATE2.md

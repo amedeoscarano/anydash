@@ -1,0 +1,172 @@
+area: navigation
+prefix: NAV
+rules:
+  - id: NAV-001
+    title: Work areas first, account last
+    rule: Fill the main menu with the core objects or jobs of the product, ordered by how often they are used in daily work, and place account and admin entries last, visually separated.
+    why: Users open the dashboard to do recurring work; putting the daily queue at the top and rare administration at the bottom shortens the most common path and keeps configuration out of the way.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Any dashboard with a persistent left sidebar.
+    exceptions: Products organised as a catalogue of independent services may order groups by product family instead of frequency, but still keep account administration last.
+    do: "Home, Orders, Products, Customers, Reports ... then a separator, then Settings at the bottom."
+    dont: "Billing, Users and API keys mixed between Orders and Products in the main list."
+    check_static: In the nav config or screenshot, list top-level items in order; verify the first item is the landing page or the main work queue, that no settings, billing, members, API or account entry appears above the last core work item, and that those entries sit after a separator or in a bottom block.
+    check_live: Open the dashboard at 1440 px; read the sidebar top to bottom in the accessibility tree; confirm account/settings entries are the last group and separated (separator element, gap or footer region).
+
+  - id: NAV-002
+    title: Noun labels in sentence case
+    rule: Label every menu item with a short noun or noun phrase for the object or task area, in sentence case, never with a verb.
+    why: Menu items name places to go, while verbs belong to buttons; noun labels stay stable as features grow and match the page title users land on.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: All sidebar items, group labels and sub-items.
+    exceptions: Proper product names keep their own capitalisation.
+    do: "Orders, Pickups, Traffic policies, Address book."
+    dont: "Create shipment, Manage Users, VIEW REPORTS."
+    check_static: Grep the nav definition for labels; flag any label starting with a verb (create, add, manage, view, edit, go) or written in Title Case or ALL CAPS; verify each label matches the H1 of its target page.
+    check_live: Read every sidebar link name in the accessibility tree and confirm none starts with a verb and none is in Title Case or ALL CAPS (proper names excepted); then click each top-level item and confirm the page H1 uses the same words, singular/plural included.
+
+  - id: NAV-003
+    title: Icons and collapsible icon rail
+    rule: Give each top-level item an icon and let users collapse the sidebar to an icon rail that keeps the same icons, with the label available as a tooltip and accessible name.
+    why: A collapsed rail returns width to dense pages without hiding navigation, and stable icons let users find items in both states.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Desktop and tablet widths with a persistent sidebar.
+    exceptions: Small utility links in a bottom block (logs, support) may be text-only while expanded, but they still need an icon if they stay visible in the rail.
+    do: "Toggle button labelled \"Collapse navigation\" / \"Expand navigation\"; rail shows the same icons; hover shows the label."
+    dont: "Collapsed rail with unlabeled icons that have no tooltip or aria-label, or a rail that drops items."
+    check_static: Verify every top-level nav item has an icon prop; verify a collapse toggle exists with an aria-label and aria-expanded; verify rail items keep the label as aria-label or visually hidden text.
+    check_live: Click the collapse toggle at 1440 px; confirm all top-level items remain as icons, each has an accessible name in the accessibility tree, a tooltip with the label appears on hover and on keyboard focus, and the toggle's aria-expanded flips.
+
+  - id: NAV-004
+    title: Clear active state
+    rule: Mark the current destination with a filled highlight on the item itself, set aria-current="page" on it, and keep its parent expanded when the active page is a sub-item.
+    why: Users must always know where they are; a highlighted item plus an expanded parent replaces the need for a breadcrumb on top-level pages.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Every page reachable from the sidebar, including detail pages of an object (highlight the object's list item).
+    exceptions: None.
+    do: "Orders > Drafts open: Orders expanded, Drafts highlighted, Drafts has aria-current=page."
+    dont: "Highlight shown only by a colour change of the icon, or no item highlighted on a detail page."
+    check_static: Verify the nav component sets an active class and aria-current="page" based on the current route, including route prefixes for detail pages; verify the active style differs by more than colour alone (background fill or weight).
+    check_live: Open a list page, a detail page and a sub-item page; in the accessibility tree confirm exactly one link has aria-current=page (or is the selected item), and its parent shows expanded.
+
+  - id: NAV-005
+    title: Group and nest only when the menu is large
+    rule: Keep the menu as a flat list when it has about ten or fewer destinations; above that, add labeled groups, and show sub-items only under their parent through a disclosure.
+    why: Small tools work faster with one flat list, while large multi-product consoles need labeled groups and nesting to stay scannable.
+    source: inferred
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: low
+    applies_when: Deciding the menu structure; the threshold is inferred from a flat 9-item menu versus a large labeled product menu.
+    exceptions: Products with dozens of services may nest deeper than one level; then give every group a label and keep a search over all pages. Installable extensions get their own group regardless of size (see NAV-010).
+    do: "9 jobs as one flat list; a 40-destination console split into labeled groups like Build and Protect, each with collapsible items."
+    dont: "Three-level nesting in a menu with 8 destinations, or 30 ungrouped items in one list."
+    check_static: Count top-level destinations in the nav config; if more than about 10, verify group labels exist; verify sub-items render only inside a disclosure under their parent and that depth beyond 2 levels has a written justification.
+    check_live: Expand every group; record max depth and items per group; confirm sub-items are hidden until the parent is opened or active, and disclosure buttons expose aria-expanded.
+
+  - id: NAV-006
+    title: Drawer on narrow screens
+    rule: Below tablet width, hide the sidebar behind a single menu control that opens a drawer, instead of keeping a sidebar that squeezes the content.
+    why: On phones every pixel of width goes to the task; a persistent rail or expanded menu pushes tables and forms into horizontal scroll.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Viewports below about 768 px; between 768 px and 1024 px an icon rail is acceptable.
+    exceptions: None for the main nav; secondary navs (settings, product sub-nav) follow the same rule.
+    do: "At 390 px: a labelled \"Menu\" button opens a drawer with focus trapped and a close control; content uses the full width."
+    dont: "At 390 px an icon rail plus an expanded settings sidebar leave the form a third of the screen."
+    check_static: Verify CSS/layout breakpoints switch the sidebar to a drawer below the mobile breakpoint, with a toggle that has aria-expanded and aria-controls, and that the drawer traps focus and closes on Escape.
+    check_live: Load home and a settings page at 390 px and 768 px; confirm no sidebar is visible at 390 px, the menu button opens a drawer, Escape closes it, focus returns to the button, and the page has no horizontal scroll.
+
+  - id: NAV-009
+    title: Sidebar swaps for child scope
+    rule: When the user enters a child scope (one site, project or zone inside an account), replace the sidebar with that scope's menu, headed by a back link to the parent list.
+    why: Child scopes have their own feature set; swapping the menu keeps it short and tells users which level they are configuring.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: detail}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: low
+    applies_when: Products with nested scopes where each child has many feature pages.
+    exceptions: When a child scope only changes values (for example a market or region overriding defaults), handle it inside the page with inherited versus customised states, not by swapping the sidebar.
+    do: "Inside one zone: sidebar headed \"Back to Domains\" plus the zone name, then the zone's own groups."
+    dont: "Account-level and zone-level items mixed in one menu with no indication of the level."
+    check_static: Verify child-scope routes render a separate nav config whose first item is a back link to the parent list and whose header names the child scope.
+    check_live: Open a child scope from its list; confirm the sidebar changes, shows the child name and a back link, and the back link returns to the parent list with the original sidebar.
+
+  - id: NAV-010
+    title: Separate slot for extensions
+    rule: Put items added by installed apps or extensions in a labeled, collapsible group below the core items, and let users pin, reorder or unpin them.
+    why: Extensions vary per customer; a dedicated slot keeps the core menu stable and stops third-party items from pushing core work down.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: integration}
+      - {portal: cloudflare, status: absent, page_type: global}
+    confidence: low
+    applies_when: Products where third parties or users can install apps, channels or plugins that have their own pages.
+    exceptions: Integrations that only sync data and have no pages add no menu items; they live in settings.
+    do: "\"Apps >\" group under core items; an open app shows its own sub-items (including its Settings) under its entry, and an app's own sub-menu shows at most 6 items before \"View more\"."
+    dont: "Each installed app appended to the core list, or extension pages reachable only through settings."
+    check_static: Verify extension nav items come from a separate registry rendered in its own labeled, collapsible group after the core items, with pin/unpin actions, and that an open extension's sub-items render only under its own entry.
+    check_live: Install or enable an extension in a test account; confirm it appears only in the extension group, can be pinned and unpinned, and core item order is unchanged.
+
+  - id: NAV-011
+    title: Counts only for work queues
+    rule: Use numeric badges only for actionable queues (items waiting for the user), use text pills for lifecycle labels such as New or Beta, and keep counts visible at every width.
+    why: A number in the menu is a call to act; showing it for non-actionable totals trains users to ignore it, and losing it on small screens hides pending work.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Any item with a queue of work (unfulfilled orders, items to print, reviews to approve).
+    exceptions: Queue products may show per-state counters as tabs on the list page instead of a menu badge; then the same counts must survive narrow layouts.
+    do: "Orders badge \"3\" = 3 orders to fulfil, with accessible name \"Orders, 3 to fulfil\"; feature pill \"Beta\"."
+    dont: "Badge with total customers; counters that disappear below 768 px with no replacement."
+    check_static: List every badge source; verify numeric badges map to an actionable query, have an accessible text including what is counted, and are not hidden by a responsive CSS rule.
+    check_live: Create one pending item in a test account; confirm the badge increments, its accessible name says what is counted, and it is still visible (or in the drawer) at 768 px and 390 px.
+
+  - id: NAV-012
+    title: Personalise without breaking the core
+    rule: Let users pin, hide or reach recent items in the menu, keep core items fixed in place, and store the choice per user, not per browser.
+    why: Different roles use different parts of a product; personalisation trims noise, while fixed core positions keep shared instructions and muscle memory valid. Per-user storage is inferred, because the one observed hide preference was saved per browser only.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Menus with more items than a single role uses daily, or with installable extensions.
+    exceptions: Home and Settings can never be hidden.
+    do: "Pin a page to a Pinned/Recents block; hide unused items from a preference page; preference follows the user to another device."
+    dont: "Hide preference saved only in this browser, or drag-reordering that moves Home and Settings."
+    check_static: Verify pin/hide/recents state is persisted through a user preference API, not localStorage alone; verify Home and Settings are excluded from hide/reorder.
+    check_live: Pin and hide an item, log out, log in from a fresh browser profile; confirm the same menu appears and that Home and Settings cannot be hidden.

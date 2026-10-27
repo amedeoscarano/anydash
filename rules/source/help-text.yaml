@@ -1,0 +1,172 @@
+area: help-text
+prefix: HLP
+rules:
+  - id: HLP-001
+    title: Visible description for non-obvious settings
+    rule: Show a one-line visible description under every setting whose effect is not obvious from its label.
+    why: Admins scan settings to decide what to change; a description that is always visible answers "what does this do" without a click, hover or trip to the docs.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: Checkboxes, switches, selects and number fields in settings or object configuration whose label names a feature but not its effect.
+    exceptions: Self-explanatory fields such as name, title or email (see HLP-008).
+    do: "Switch 'Development mode' with the line 'Temporarily bypass the cache so you see origin changes in real time.' directly below."
+    dont: A switch labelled only 'Development mode' with the explanation hidden behind an info icon.
+    check_static: In the spec or component tree, list every checkbox, switch, radio group, select and number field on settings pages; flag each one with an empty description/helpText/details prop unless its label is a plain data field (name, title, email, quantity).
+    check_live: On each settings page, list every checkbox, switch, radio group and select; for each, confirm a text paragraph is rendered within the same field group without hover or click.
+
+  - id: HLP-002
+    title: Consequences in visible text, never only in a tooltip
+    rule: State side effects, risks and irreversibility in visible text next to the control or action that causes them.
+    why: A user who never hovers must still see that an action degrades performance, breaks a flow or cannot be undone; hidden warnings are missed exactly when they matter.
+    source: documented
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: Any control or button whose effect reaches beyond the field itself (cost, load, data loss, downstream behaviour such as tax or redirects) or cannot be reversed.
+    exceptions: None. A tooltip may repeat the warning but must not be its only location.
+    do: "Under 'Purge everything': 'Note: purging may temporarily degrade performance and increase load on your origin.'"
+    dont: A destructive button with its warning available only in a hover tooltip or the docs.
+    check_static: For every destructive or side-effect action in the spec, find its warning copy and confirm it is a rendered paragraph or inline note, not a tooltip/title attribute.
+    check_live: Without hovering or focusing anything, read the text around each destructive or risky control; the consequence sentence must be visible in the page text (get innerText) near the control.
+
+  - id: HLP-003
+    title: Tooltips and popovers only for definitions
+    rule: Use an info icon tooltip or popover only for short, non-essential definitions such as metric names, column headers and technical terms.
+    why: Definitions are needed once and would clutter a dense data view if always visible; anything required to act correctly does not belong in content that can be missed.
+    source: documented
+    evidence:
+      - {portal: shopify, status: observed, page_type: other}
+      - {portal: dhl, status: absent, page_type: other}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: Analytics cards, table column headers, KPI tiles and other dense data views where a label needs a definition.
+    exceptions: A form-heavy tool that already gives every control a visible description may skip tooltips entirely; never put errors, required instructions or key facts in a tooltip.
+    do: "Metric card title 'Returning customer rate' with a button 'Open definition for Returning customer rate' that opens a two-line definition."
+    dont: A tooltip on a settings field that says 'Required, or orders will not import'.
+    check_static: List every tooltip/popover in the code; each one's content is under about 40 words, is a definition, and contains no error, required step or warning.
+    check_live: Tab to each info trigger; it must be a focusable button with an accessible name naming the term, open on focus or Enter, and close on Escape; read the opened text and flag it if it is over about 40 words or contains 'required', 'must', an error or a warning.
+
+  - id: HLP-004
+    title: Procedures in docs links, steps or disclosures
+    rule: Move multi-step procedures out of inline help into a docs link, numbered steps beside the form, or a collapsible how-to section.
+    why: Inline help works for one sentence; a procedure squeezed into a description or tooltip is unreadable and pushes the controls off screen.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: Help content that has more than two sentences, more than one step, or worked examples (file formats, rule syntax, integration setup).
+    exceptions: A single required step that the user must do now stays visible inline or in a banner (HLP-007).
+    do: "An integration setup card with a numbered list of 4 steps in the side column and a collapsed 'How do rate rules work?' section."
+    dont: A 120-word paragraph of setup instructions under a single checkbox.
+    check_static: Flag any description or tooltip string longer than two sentences or containing a numbered sequence; it should be a link, an ordered list or a disclosure.
+    check_live: Measure the rendered help under each control; no help block taller than three lines unless it is an ordered list, a collapsed disclosure or a link.
+
+  - id: HLP-005
+    title: One page-level docs link in a fixed place
+    rule: Give each index and settings page one docs link in the same position on every page, and add control-level links only where a control has its own procedure or risk.
+    why: A predictable location teaches users where to look for more; a link on every card adds noise and dilutes the few links that matter.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: medium
+    applies_when: Index pages and settings pages of a feature that has public documentation.
+    exceptions: "Placement differs across reference products (page footer, page header, inside one card); pick one and keep it. Pages with no matching docs topic get no link."
+    do: "A footer line 'Learn more about locations' at the end of the Locations settings page, and the same footer on every other settings page."
+    dont: A 'For more information see our guide' link repeated in each of five cards on one page.
+    check_static: For each page template, count docs links outside individual controls; expect exactly one, in the agreed slot (header or footer).
+    check_live: Visit every index and settings page; record the position of the page-level docs link; all pages that have one place it in the same slot, and none repeat it per card.
+
+  - id: HLP-006
+    title: Explain disabled and locked controls in place
+    rule: When a control is disabled or locked, show next to it why, and what unlocks it (another setting, a permission or a plan).
+    why: A greyed-out control with no reason looks broken; naming the blocker turns a dead end into a next step.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: medium
+    applies_when: Controls disabled by a dependency on another setting, by role permissions, or by plan limits.
+    exceptions: Controls disabled only while a form is pristine or saving (for example a Save button) need no explanation.
+    do: "Disabled checkbox 'Show multiple orders per page' with the line 'Turn off automatic packing-slip printing to enable this option.'"
+    dont: A disabled switch with no text, or an explanation only in a hover tooltip on the disabled element.
+    check_static: For every control with a disabled/locked state in the spec, find the reason copy and the unlock path; flag disabled states without both.
+    check_live: Find all elements with disabled or aria-disabled; for each non-Save control, confirm a visible text or adjacent action (link or 'Upgrade plan' button) in the same field group names the reason.
+
+  - id: HLP-007
+    title: Banners only for status or required action
+    rule: Use a banner only to report a status or ask for a required action, with one message and one clear next-step button; let users dismiss it unless the action is required.
+    why: Banners interrupt the page; reserving them for status and required actions keeps them noticed instead of ignored like decoration.
+    source: documented
+    evidence:
+      - {portal: shopify, status: observed, page_type: other}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: absent, page_type: other}
+    confidence: high
+    applies_when: Account or page states that block or degrade work (security setup missing, integration failing, plan limit reached).
+    exceptions: Feature explanations, tips and definitions never go in a banner; use a description (HLP-001) or a tooltip (HLP-003).
+    do: "Section banner 'Add an extra layer of security. Turn on two-step authentication to use your account.' with the button 'Set up two-step authentication'."
+    dont: A permanent info banner at the top of a settings page that describes what the page is for.
+    check_static: List every banner in the spec; each has exactly one message, at least one action, a status tone, and is dismissible unless the action is required.
+    check_live: For each role=alert/status or banner region, check it contains one heading or sentence plus a button or link; click dismiss where present and confirm it stays dismissed after reload.
+
+  - id: HLP-008
+    title: No help on self-explanatory fields
+    rule: Leave fields whose label fully explains them (name, title, email, quantity) without description or tooltip.
+    why: Help on obvious fields trains users to skip help text, so they also skip it where it matters.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: low
+    applies_when: Plain data-entry fields on object detail or create forms.
+    exceptions: Fields with format, length or visibility constraints (for example 'shown to customers', 'max 70 characters') get a short description; a product whose audience is non-expert may describe every control.
+    do: A 'Title' text field with label and placeholder only.
+    dont: "A 'Title' field with the description 'Enter the title.'"
+    check_static: Flag every helpText that starts with 'Enter the', 'Enter your' or 'Type the', or whose content words are all contained in its label.
+    check_live: Read each form's label/description pairs; no description should repeat the label words without adding a constraint, consequence or audience.
+
+  - id: HLP-009
+    title: Help text close to its control and announced
+    rule: Place each description directly under or beside its label inside the same field group, and link it to the control so screen readers announce it.
+    why: Help that sits apart from its control is read as page text, and help that is not programmatically linked is lost to screen-reader users.
+    source: documented
+    evidence:
+      - {portal: shopify, status: documented, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: documented, page_type: settings_page}
+    confidence: high
+    applies_when: Every control that has a description (HLP-001, HLP-002, HLP-006).
+    exceptions: Page-level docs links and banners are not field help and need no association.
+    do: "<input aria-describedby=\"tz-help\"> followed by <p id=\"tz-help\">Used for order dates and reports.</p> in the same field wrapper."
+    dont: Descriptions collected in a separate column far from the controls, or checkboxes in a list that all share the same accessible name.
+    check_static: In components, every helpText/description prop renders an element whose id is referenced by the control's aria-describedby; no two controls on a page share an accessible name.
+    check_live: With an accessibility tree or screen reader, focus each described control and confirm its description is announced; confirm the description is within about 8px vertically of the control or its label.
+
+  - id: HLP-010
+    title: Docs links name their topic
+    rule: Write docs links as 'Learn more about <topic>' or name the topic in the link, never a bare 'Learn more' or 'click here'.
+    why: Users scanning links, and screen-reader users listing them, need to know where each link goes before following it.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: low
+    applies_when: Every link from the product UI to documentation or a help center.
+    exceptions: A bare 'Learn more' is acceptable only directly after a sentence that names the topic and when the accessible name still includes the topic.
+    do: "'Learn more about domains' or 'About markdown conversion' as link text."
+    dont: "'For more information, please read our support guide' repeated identically on every page."
+    check_static: Grep link labels for exact 'Learn more', 'here', 'support guide' or 'documentation' without a topic; each must carry the topic in visible text or aria-label.
+    check_live: List all links whose href points to a docs/help domain; every accessible name must contain a topic noun, and no two point to different URLs with the same name.

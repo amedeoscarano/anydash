@@ -1,0 +1,62 @@
+# Control selection matrix
+
+Answers research questions 6 (tick vs pick from a list), 8 (which input control) and 15 (save model).
+Decide the save model first, then the shape of the value, then the option count (inferred ordering: documented by Polaris, not observed as a stated rule in any portal).
+Every cell points to a rule in `rules/source/*.yaml`. "No rule yet" marks a gap. *Inferred* marks a step no portal showed directly.
+
+## Step 1: save model of the page or section
+
+| Situation | Model | Rules |
+|---|---|---|
+| Several fields committed together | Sticky save bar, wakes on change, Save + Discard, leave guard | SAV-001, SAV-004, SAV-005 |
+| Unrelated sections on one page, or a one-field section (name, email) | Save per section, or a summary row that opens its own editor | SAV-003, SET-010 |
+| Single on/off, independent, safe to apply without review | Instant apply + toast, no Save anywhere near it | SAV-002, CTL-002, FDB-001 |
+| Run-now, purge, sync, test | Action button, commits at once, no Discard | INT-009, SAV-004 (exception) |
+| Delete, disconnect, cancel | Separate button, consequence stated, confirm dialog | SAV-006, DET-012, INT-012 |
+| Long job after commit | Background status line | SAV-009, STA-003 |
+| Read-only tab (logs, history) | No save controls | SAV-007 |
+| Change proposed by the assistant | Staged in the normal save path | SAV-011, AI-004 |
+| Undo after an instant or destructive change | **No rule yet**: documented in Polaris toasts only, observed in no portal (only a rich-text editor undo). Audit log is the observed substitute | SAV-008 |
+
+A page never mixes models inside one form: no switch under a Save (CTL-002, SAV-002). Both DHL (instant Show/Hide on a page with a Save bar) and Cloudflare (switch inside a Save form) break this; treat those as defects, not precedent.
+
+## Step 2: control by value shape and save model
+
+| Value shape | Explicit save (form, section) | Instant apply |
+|---|---|---|
+| One boolean | Checkbox (CTL-001) | Switch (CTL-002); risky toggle still confirms (CTL-002 exception, SAV-006) |
+| Boolean that gates sub-options | Checkbox + sub-options beside it, disabled or revealed (CTL-010) | Switch + same gating (CTL-010) |
+| Boolean whose two states each need explanation | **No rule yet**: DHL uses an Enable/Disable radio pair, Cloudflare a switch, Shopify a status row + modal; no majority. *Inferred*: treat as CTL-004 with 2 options | same gap |
+| Several of a visible set (0..n) | Checkbox group (CTL-003); never switches or radios | Checkbox group (CTL-003); instant multi-select not observed, **no rule yet** |
+| Several of a long or open set | Searchable multi-select combobox, chosen values as removable tags (CTL-006 exception) | not observed, **no rule yet** |
+| Exactly one of ~2-6 that need comparing | Radio group, description per option, question title, recommended marked (CTL-004) | **No rule yet**: no instant radio was tested in any portal |
+| Exactly one of ~4-20 self-explanatory values | Select (CTL-005) | **No rule yet**: instant select not tested (Cloudflare combobox apply model *inferred*) |
+| Exactly one of >20, user data, or creatable | Searchable combobox (CTL-006) | same gap as select |
+| Free number with a unit | Number field, unit as fixed prefix/suffix or in label, min/max/step (CTL-007) | not observed, **no rule yet** |
+| Few preset amounts (TTL, retention) | Select with unit in each option (CTL-007 exception) | same gap as select |
+| Number + user-chosen unit | Number field + unit select (CTL-007 exception) | not observed |
+| Colour | Swatch + hex field with its role (BRD-007) | not observed |
+| How the page shows data (time range, grid/list) | Not a setting: segmented control, never saved (CTL-008) | Segmented control applies at once by nature (CTL-008) |
+| More than ~5 ranges, or custom range | Select or date-range picker (CTL-008 exception); date-range picker itself has **no rule yet** (not inspected) | same |
+
+Segmented control for a saved setting: **no rule allows it** (CTL-008 forbids). Use radios (CTL-004) or a select (CTL-005).
+
+## Step 3: tie-breaks on option count
+
+- 2-3 plain values (units, sort order), tight space: select allowed below 4 (CTL-004 exception). DHL uses a 2-option select; the docs say 4+.
+- 6 options that each need a description: radios still (CTL-004 allows ~6; DHL observed 6; hypothesis H6 said 2-5).
+- List grows with user data even when short today: combobox from the start (CTL-006, *inferred* to avoid a later control swap).
+
+## Always, whatever the cell
+
+- Accessible name from the visible label, description linked (CTL-009).
+- Visible description when the outcome is not obvious; consequences never only in a tooltip (HLP-001, HLP-002).
+- Disabled or locked control explains why in place (HLP-006, VIS-006).
+- Field error under the field (FDB-003).
+
+## Evidence strength
+
+- Strong (3/3 portals or docs + 2 portals): checkbox in save forms, checkboxes for multi-select, select for standard lists, unit outside the value.
+- Weak: switch = instant. Documented by Polaris; Shopify core admin and DHL have no switches; Cloudflare uses them but no switch was toggled live, so instant apply is *inferred*.
+- Untested everywhere: save bars, modals, toasts and confirm dialogs were never triggered.
+- DHL onboarding interview not answered; nothing here depends on it.

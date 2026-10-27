@@ -1,0 +1,190 @@
+area: branding
+prefix: BRD
+rules:
+  - id: BRD-001
+    title: One brand source for every customer surface
+    rule: "Keep logo, favicon, colours, store name and social links in one brand page, and make every customer-facing surface (emails, tracking page, portals) read from it."
+    why: "When each surface has its own logo and colour fields, they drift apart and the merchant has to repeat every brand change in several places."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: branding}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: medium
+    applies_when: "The product sends or hosts two or more things the end customer sees (emails, a tracking or status page, a returns or self-service portal, documents)."
+    exceptions: "A product whose only customer-facing output is one hosted page (for example a custom error page) can keep its look inside that page's editor."
+    do: "Settings > Brand holds logo, colours and social links. The email editor and the tracking page editor show a line 'Logo and colours come from Brand' with a link to it."
+    dont: "A returns portal tab with its own logo upload and its own header and accent colours, next to a brand page that already holds a logo and colours."
+    check_static: "List every field that sets a logo, favicon, colour or social link. Each must exist in exactly one place, the brand page; any surface editor that repeats one of them fails."
+    check_live: "Change the primary colour on the brand page and save. Open the preview of each customer surface (email, tracking page, portal); every one must show the new colour without any further edit."
+
+  - id: BRD-002
+    title: Say where brand assets appear
+    rule: "On the brand page, list the customer surfaces or channels that use these assets, and say when a surface renders them differently."
+    why: "The merchant cannot judge the effect of a logo or colour change unless they know which customer touchpoints it reaches."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: branding}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: medium
+    applies_when: "Any brand page or any shared content block (for example a notice banner) that is reused on more than one customer surface."
+    exceptions: "None known."
+    do: "Under the page title: 'Used on: order emails, tracking page, returns portal.' A shared notice block says 'Shown on tracking page, emails and returns portal.'"
+    dont: "A brand page with only a 'Logo' field and no word on where the logo will be shown."
+    check_static: "Read the brand page spec or screenshot. It must name every surface that consumes the assets; compare that list with the actual list of customer surfaces in the product."
+    check_live: "Open the brand page and each shared block. Visible text (not a tooltip) must name the surfaces; follow each named surface and confirm it really uses the asset."
+
+  - id: BRD-003
+    title: Rendered preview with sample data
+    rule: "Give every editable customer-facing template a rendered preview with realistic sample data, reachable from the editor in one click."
+    why: "Templates mix brand assets, variables and optional blocks, and only the rendered result shows broken layout, empty variables or wrong colours before customers see them."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: medium
+    applies_when: "Email templates, tracking or status pages, customer portals, printable documents (packing slips, invoices), hosted error pages."
+    exceptions: "Plain-text single-line content (a subject line alone) can rely on its field value; a downloadable document can preview as a sample PDF if an inline render is not possible."
+    do: "Email editor with the form on the left and a live rendered preview on the right, using a sample order; subject line shown above the preview."
+    dont: "An email editor whose only way to see the result is to send a test email, or a preview that sits two levels deeper on a separate route and saves settings when opened."
+    check_static: "For each customer-facing template in the spec, find its preview. Fail if there is none, if it uses placeholder tokens instead of sample values, or if it needs more than one click from the editor."
+    check_live: "Open each template editor, change a text field without saving, and open the preview. It must render the unsaved change with sample data, and the settings audit log or network panel must show no write caused by opening the preview."
+
+  - id: BRD-004
+    title: Send a test message
+    rule: "Next to every customer email template, offer 'Send test' to an address the merchant chooses, using the current unsaved content."
+    why: "Email clients render HTML differently from the admin preview, so a real message in a real inbox is the final check."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: medium
+    applies_when: "Any template that is delivered as an email or SMS to the end customer."
+    exceptions: "Messages the product cannot send outside a live event (for example a carrier-generated message) may say so instead of offering a test."
+    do: "Header action 'Send test'; a small dialog with the recipient pre-filled with the signed-in user's address, editable."
+    dont: "A 'Send test email' button that stays disabled with no hint that an address must be typed first."
+    check_static: "For each customer email template, confirm a test-send action exists, that the recipient is editable, and that the disabled state has a visible reason."
+    check_live: "Edit an email template, click the test action, send to your own inbox, and confirm the received message matches the preview and includes the unsaved change."
+
+  - id: BRD-005
+    title: Customer emails listed by lifecycle stage
+    rule: "List customer messages grouped by the stage of the customer journey that triggers them, and give each row its trigger in one line and its on/off state."
+    why: "Merchants think in terms of what the customer is going through (ordered, shipped, delivered, returned), and the trigger line answers 'when does this go out?' without opening the template."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: medium
+    applies_when: "The product sends three or more automatic messages to end customers."
+    exceptions: "A product with one or two messages can show them as cards without groups."
+    do: "Group 'Delivery': 'Shipped - sent when a label is created' [on], 'Out for delivery - sent when the carrier reports the last mile' [off]. Clicking the name opens the editor."
+    dont: "An alphabetical list of template names with no trigger, or checkboxes whose accessible name is the same 'Edit template' text on every row."
+    check_static: "Inspect the message list. Each row needs a name, a one-line trigger ('Sent when ...'), an on/off state and a link to its editor; rows are grouped by journey stage; every control has a unique accessible name."
+    check_live: "Open the list with a screen reader or accessibility inspector. Each on/off control must announce the message name. Toggle one message off and confirm the state persists after reload."
+
+  - id: BRD-006
+    title: Sender identity and deliverability in one place
+    rule: "Show the sender name and address with the sending domain's authentication status, the exact records to fix it, and the fallback sender used until it is fixed."
+    why: "Unauthenticated sender domains send customer emails to spam; the merchant must see the problem and its fix where they set the sender."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: low
+    applies_when: "The product sends email to end customers from an address or domain the merchant supplies."
+    exceptions: "If the product always sends from its own domain and the merchant can only set a display name, show only the display name and the reply-to address."
+    do: "Sender card: 'From: Store name <hello@brand.example>' with a status badge 'Domain not verified', a 'View DNS records' link, and 'Until verified, emails go out from a shared address.'"
+    dont: "A From email field with an SPF hint repeated under it twice, and no status saying whether the domain is actually authenticated."
+    check_static: "Find every place where a sender address can be set. Each must show an authentication status, a link or panel with the required DNS records, and the fallback sender text."
+    check_live: "Enter a sender address on an unverified domain. A visible warning status must appear with the required records; after adding the records, the status must change without contacting support."
+
+  - id: BRD-007
+    title: Colour fields with role, swatch and hex
+    rule: "Name each brand colour by its role, pair a swatch picker with an editable hex field, and state where that role is used."
+    why: "A role name ('Text', 'Links', 'Background') tells the merchant what will change, and the hex field lets them paste exact brand values."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: branding}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: low
+    applies_when: "Any setting that changes a colour on a customer-facing surface."
+    exceptions: "A single accent colour can skip the role name if the page already says where it appears."
+    do: "'Primary - buttons and headings' [swatch] [#1A3A5F] [Reset]; 'Contrasting - text on primary' [swatch] [#FFFFFF]. Warn when the pair fails a 4.5:1 contrast ratio."
+    dont: "'Colour 1', 'Colour 2' swatches with no hex field, or a hex field whose accessible name is the placeholder '#000000'."
+    check_static: "For every colour setting, check for a role label, a swatch, an editable hex text input whose accessible name contains the role (not a placeholder such as '#000000'), and a line saying where the role is used."
+    check_live: "Type a valid hex value; the swatch must update. Pick a colour with the swatch; the hex field must update. Type an invalid value such as '#12'; a field-level error must appear and Save must not store it."
+
+  - id: BRD-008
+    title: Upload fields state formats, size and current file
+    rule: "Next to every image upload, show the current image as a thumbnail, the accepted formats and the recommended size, with Replace and Remove actions."
+    why: "Logos are reused at many sizes; saying the formats and minimum size up front avoids blurry or cropped output and failed uploads."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: branding}
+      - {portal: dhl, status: absent, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: low
+    applies_when: "Logo, square logo, favicon, cover, promotion and any other image the end customer will see."
+    exceptions: "None known."
+    do: "'Square logo - may be cropped into a circle. SVG, PNG or JPG, at least 512x512 px.' [thumbnail] [Change] [Remove]."
+    dont: "A bare 'Choose file' button with no thumbnail of the logo in use and no size guidance."
+    check_static: "For each image input in the spec, verify thumbnail, format list, recommended pixel size, and Replace/Remove actions; also a note when the image may be cropped."
+    check_live: "Upload a valid image; the thumbnail must show the new file. Click Remove; the thumbnail must disappear. Upload a file in an unsupported format; it must be rejected with a field error that names the allowed formats."
+
+  - id: BRD-009
+    title: Reset to default and visible fallback
+    rule: "Give every brand value and template a 'Reset to default' action, and state what the customer sees when the value is empty or the feature is off."
+    why: "Merchants experiment with customer-facing looks; a one-click way back, and knowing the fallback, makes those changes safe."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: branding}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: low
+    applies_when: "Colours, logos, template content and on/off choices for customer surfaces."
+    exceptions: "Free-text fields with no product default (slogan, social links) need only Remove, not Reset."
+    do: "'If no template is selected, customers see the carrier's standard tracking page.' Each colour row ends with a 'Reset Primary to default' icon button; a 'Reset to default' for the whole editor sits in the save bar, and a reset only stages the change until Save."
+    dont: "Clearing the logo field with no indication of what will appear in emails instead."
+    check_static: "For every brand value and template, check for a reset or remove action with a specific accessible name, and for a sentence describing the empty or off state."
+    check_live: "Change a colour and a template block, then use Reset. The values must return to defaults, and the preview must match. Turn a customer surface off and confirm the page states what replaces it."
+
+  - id: BRD-010
+    title: Customer messages apart from staff alerts
+    rule: "Keep messages sent to end customers in their own list, separate from alerts sent to staff, partners or webhooks."
+    why: "Editing a customer email has brand and legal impact; mixing it with internal alerts invites changing the wrong thing."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: low
+    applies_when: "The product sends both customer-facing messages and internal notifications."
+    exceptions: "If internal alerts are only account alerts about the product itself (billing, outages), they belong in account or profile settings, not next to customer messages at all."
+    do: "Notifications page with three links: 'Customer notifications', 'Staff notifications', 'Webhooks'."
+    dont: "One list where 'Order confirmation' (to customer) sits between 'New order alert' (to staff) and 'Webhook failed'."
+    check_static: "List every message template and its recipient type. Fail if a single list mixes end-customer recipients with staff or system recipients."
+    check_live: "Open the customer message list and confirm every entry is received by the end customer; open each internal list and confirm none is."
+
+  - id: BRD-011
+    title: Optional blocks behind an enable checkbox
+    rule: "In a customer template editor, show each optional content block (notice, contact, promotion, footer) as a section with an 'Enable' checkbox that reveals its fields, and say that empty fields are hidden from the customer."
+    why: "Merchants build a template by turning blocks on and off; the checkbox makes the template's structure readable and blank blocks never leak to customers."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: branding}
+      - {portal: cloudflare, status: absent, page_type: branding}
+    confidence: low
+    applies_when: "Form-based template editors with a fixed set of optional sections."
+    exceptions: "Code-based template editors (raw HTML or a template language) control blocks in code instead."
+    do: "'Promotion block' heading, one-line purpose, [ ] Enable promotion block; when checked, image and link fields appear. Note: 'Fields left blank are not shown.'"
+    dont: "All optional fields always visible with no way to tell whether the block will appear to customers."
+    check_static: "In each template editor spec, every optional section has a heading, a purpose line, an enable checkbox and a statement on blank fields."
+    check_live: "Toggle each enable checkbox; its fields must appear and disappear, and the preview must add and remove the block."
+

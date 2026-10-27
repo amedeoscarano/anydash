@@ -1,0 +1,189 @@
+area: global-chrome
+prefix: CHR
+rules:
+  - id: CHR-001
+    title: Global search always in the chrome
+    rule: Put one global search entry in the persistent chrome so it is visible and reachable from every page, in the same place on every page.
+    why: Search is the escape hatch when the menu does not match the user's mental model; if it lives only on some pages, users must first navigate to find the thing that helps them navigate.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Any dashboard with more than a handful of pages or with searchable objects (orders, products, records).
+    exceptions: Placement varies (top of the sidebar or the top bar); pick one and keep it fixed. A product whose only searchable object is one record type may scope the global search to that type, but it must say so in the placeholder.
+    do: "A \"Search\" button at the top of the sidebar on every page, including settings and detail pages."
+    dont: "Search only as a field on the home page, or only as a menu item that leads to a separate search page."
+    check_static: In the layout/shell component, verify the search trigger is rendered by the shared chrome (not by individual pages); verify every route uses that shell, including settings and scoped sub-areas.
+    check_live: Visit home, an index, a detail and a settings page at 1440 px; on each, find a control named "Search" (or a combobox/searchbox) in the banner or sidebar landmark, at the same position.
+
+  - id: CHR-002
+    title: Cmd/Ctrl+K opens search everywhere
+    rule: Open global search with Cmd+K on macOS and Ctrl+K elsewhere from any page, show the hint next to the trigger, and also accept "/" when focus is not in a text field.
+    why: A single well-known hotkey turns search into the fastest route to any page or record, and showing the hint on the trigger teaches it without documentation.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Desktop web dashboards with a global search or command palette.
+    exceptions: Do not capture "/" or the hotkey while the user is typing in an input, textarea or contenteditable; on touch-only layouts the hint is hidden.
+    do: "Trigger reads \"Search... ⌘K\"; pressing Cmd+K on a settings page opens the same dialog with the input focused."
+    dont: "A search icon with no hotkey, or a hotkey that only works on the home page."
+    check_static: Grep for a global keydown handler registered in the app shell for meta/ctrl+k and "/"; verify it ignores events whose target is an editable element; verify the trigger renders a kbd hint.
+    check_live: On three different pages press Cmd/Ctrl+K; a dialog opens with focus in a combobox/searchbox; press Escape and focus returns to the previously focused element; type "/" inside a form field and confirm it types a slash and does not open search.
+
+  - id: CHR-003
+    title: Search dialog that guides before typing
+    rule: Show recent items and search scopes or filters as soon as the search dialog opens, group results by type with a breadcrumb or parent label, and show keyboard hints in the dialog footer.
+    why: An empty input gives no clue about what can be found; recents cover the most common repeat visits, scopes narrow large result sets, and parent labels disambiguate items with the same name.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Any global search or command palette that searches pages, settings and records together.
+    exceptions: A search limited to one object type can skip scope chips but still shows recents.
+    do: "On open: \"Recents\" group (5 items, each with its area name), a row of scope chips (Orders, Products, Customers, Settings), footer \"↑ ↓ to navigate, ↵ to select, Esc to close\"."
+    dont: "A blank input with no suggestions, and a flat result list where two \"Settings\" entries cannot be told apart."
+    check_static: In the search component, verify an initial state that renders recents (and scopes/filters) without a query, result items with a group and a parent/breadcrumb label, loading and empty states, and a footer with key hints.
+    check_live: Open search without typing; confirm a listbox with at least a "Recents" group is present; type a term that matches pages in two areas and confirm results are grouped and each shows its parent; type nonsense and confirm an explicit "no results" message; use arrow keys and Enter to open a result.
+
+  - id: CHR-004
+    title: Discoverable keyboard shortcut map
+    rule: When the product has keyboard shortcuts, open a dialog listing all of them on "?", and use two-key sequences with a consistent first letter per intent (g for go to, a or c for add or create).
+    why: Shortcuts nobody can find are dead weight; a "?" sheet is the convention power users try first, and consistent prefixes make shortcuts guessable.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Dashboards used daily by the same people, with recurring navigation or creation tasks.
+    exceptions: Task-specific keys (Enter to print in a scan workflow, Space and arrows for drag and drop) may live only in their own screen, but they still appear in the "?" sheet under that screen's group.
+    do: "\"?\" opens \"Keyboard shortcuts\": Go to (g h Home, g o Orders, g s Settings), Create (a p Add product), Page (s focus Save bar, f focus filters)."
+    dont: "Undocumented single letters scattered per page, or the same first letter meaning \"settings\" in one place and \"switch\" in another."
+    check_static: Verify a single shortcut registry (one file or table) that both the key handler and the "?" dialog read from; check that every sequence's first key maps to one intent only.
+    check_live: Press "?" outside a text field; a dialog lists shortcuts grouped by intent; try two listed sequences (one navigation, one action) and confirm each does what the sheet says; press Escape to close.
+
+  - id: CHR-005
+    title: Shortcuts and search follow renames
+    rule: Generate shortcut labels, shortcut targets and the search index from the same navigation config, and keep the old name as a search alias after a rename.
+    why: Hand-maintained shortcut maps drift; after an area is renamed or a page removed, shortcuts keep the old name or lead to a redirect or a not-found page, which erodes trust in every shortcut.
+    source: documented
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: documented, page_type: global}
+    confidence: low
+    applies_when: Any product with keyboard shortcuts or a search index of pages.
+    exceptions: Shortcuts for actions that are not pages (focus filters, toggle sidebar) are defined in the registry directly.
+    do: "Area renamed from \"Marketing\" to \"Growth\": the shortcut sheet says \"Go to Growth\", and searching \"marketing\" still finds Growth."
+    dont: "Shortcut sheet still says \"Go to Marketing\"; a settings shortcut redirects to a different section; a shortcut points to a page that returns 404 because the feature is not installed."
+    check_static: Verify shortcut and search entries are derived from the nav/route config (no duplicated label strings); write a test that every shortcut target resolves to an existing route and its label equals the current nav label.
+    check_live: Open the "?" sheet and trigger every navigation shortcut; each must land on a page whose H1 matches the label in the sheet, with no redirect and no 404; search an old area name and confirm the renamed area is returned.
+
+  - id: CHR-006
+    title: Users can turn shortcuts off
+    rule: Offer a personal preference to turn off (or remap) single-character keyboard shortcuts, stored per user in the profile settings.
+    why: Single-key shortcuts fire by accident for speech-input and keyboard-only users and for people typing fast; an off switch is the accessible fallback (WCAG 2.1.4 Character Key Shortcuts).
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: low
+    applies_when: Any product that uses shortcuts made of letters, digits or punctuation without a modifier key.
+    exceptions: Shortcuts that need a modifier (Cmd/Ctrl+K) or that are active only while a specific widget has focus do not need the switch.
+    do: "Profile > Preferences: switch \"Keyboard shortcuts\" with helper text \"Turn off single-key shortcuts such as g h\"."
+    dont: "Letter shortcuts that are always on with no way to disable them."
+    check_static: Verify a user preference flag exists and that the global shortcut handler checks it before handling non-modifier keys.
+    check_live: Turn the preference off, reload, press "?" and "g" then "h" outside a field; nothing happens; Cmd/Ctrl+K still opens search; turn it back on and confirm shortcuts work again.
+
+  - id: CHR-007
+    title: Scope switcher at the top of the sidebar
+    rule: When a user can belong to more than one account, store or workspace, show the current scope by name in one fixed sidebar position, preferably the sidebar header, as a button that opens a searchable list of scopes with a create option.
+    why: The scope changes what every page shows, so it must be visible before the user reads any data, and a fixed sidebar slot (ideally the header) is where users look for "where am I"; search keeps the list usable at dozens of scopes.
+    source: observed
+    evidence:
+      - {portal: shopify, status: documented, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Multi-account, multi-store or multi-workspace products, or any user who has access to more than one scope.
+    exceptions: Single-account products show the account name in the user menu instead of a switcher. A second, nested scope (for example a site inside an account) can be switched from the scoped area's header or by a shortcut, but must still show its current name.
+    do: "Sidebar header button \"Switch account\" showing the current account name; dialog with \"Search for an account\", a listbox with the current one selected, a count, and \"Create account\"."
+    dont: "Current scope visible only inside the profile menu, or a switcher that is a plain unsearchable dropdown of 40 names."
+    check_static: Verify the shared sidebar renders the current scope name in one fixed slot (header preferred) and, when the user has more than one scope, a button with aria-haspopup/aria-expanded that opens a list with a search input, a selected state and a create action.
+    check_live: With a user that has 2+ scopes, confirm the current scope name is visible in the same sidebar position on every page; open the switcher, type part of a name to filter, select another scope, and confirm the sidebar and page content change and the name updates.
+
+  - id: CHR-008
+    title: One user menu for identity, preferences and logout
+    rule: Group the signed-in identity, personal preferences (theme, language, display) and Log out in a single user menu that is reachable from every page, with Log out as the last item.
+    why: Users look for one place that answers "who am I signed in as" and "how do I leave"; spreading these across the chrome makes logout and account checks slow and error-prone on shared machines.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Every authenticated dashboard.
+    exceptions: Position may be bottom of the sidebar (when there is no top bar) or top right (when there is a top bar); pick one. Account-wide administration (members, billing) belongs in settings, not in this menu, apart from links to those pages.
+    do: "Button labelled with the user's name opens a menu: \"Signed in as ...\", account and plan line, separator, Manage account, Theme, Help center, Log out."
+    dont: "Logout inside settings, theme toggle in the footer, and the signed-in email shown nowhere."
+    check_static: Verify a single user-menu component in the shell that contains the identity text, preference items and a Log out item as the last menuitem; verify no second logout control exists elsewhere.
+    check_live: On any page open the user menu by keyboard (Tab to it, Enter); confirm role=menu, the signed-in identity is shown, Log out is the last item, and Escape closes the menu and returns focus to its button.
+
+  - id: CHR-009
+    title: Bell only for a real alert feed; toasts for action feedback
+    rule: Add a notification bell only when the product has a persistent feed of time-sensitive items the user must act on; report the outcome of the user's own actions with toasts in a single named live region instead.
+    why: A bell implies there is something to check; with no real feed it trains users to ignore it, while action feedback belongs next to the action and disappears on its own.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Deciding whether to put a notifications entry in the chrome.
+    exceptions: Alert rules and delivery settings (what to notify, by email or webhook) are a settings page, not a chrome item. Products with a feed show an unread count on the bell only for unread items.
+    do: "Alerts entry with a count for payment disruptions and failed jobs; \"Rule saved\" appears as a toast in a region named \"Notifications\"."
+    dont: "A bell that only ever shows \"Rule saved\" history, or saves confirmed with a modal."
+    check_static: If the chrome has a bell, verify it is backed by a stored feed (API/model), not by the toast queue; verify the app root renders exactly one toast container with role=region/status and an accessible name.
+    check_live: Perform a save; a toast appears inside one named live region (accessibility tree shows region or status) and disappears or can be dismissed; if a bell exists, open it and confirm it lists items that persist after reload.
+
+  - id: CHR-011
+    title: Persistent help and support entry
+    rule: Provide one help and support entry in the chrome on every page that leads to documentation and to contacting support (and to service status when one exists), kept separate from the AI assistant.
+    why: Users who are stuck need a path to a human or to the docs from wherever they are; a single entry avoids hunting through pages, and keeping it separate from AI keeps a human route available.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Every dashboard.
+    exceptions: Position varies (sidebar bottom, top bar, or inside the user menu); inside the user menu is acceptable only if the menu is always visible. Links that leave the product open in a new tab and say so.
+    do: "Sidebar-bottom button \"Support\" opening a menu: Knowledge base, Submit a ticket, System status."
+    dont: "Support reachable only from a footer link on the home page, or only through the AI chat."
+    check_static: Verify a help/support control in the shared shell; verify its targets include docs and a contact or ticket route; verify external links have target=_blank with rel and an "opens in new tab" cue.
+    check_live: From a detail page and a settings page, find a control named "Help" or "Support" in a landmark (banner, navigation or complementary) or inside the always-visible user menu; open it and confirm it offers docs and a way to contact support.
+
+  - id: CHR-012
+    title: Chrome survives narrow widths with names intact
+    rule: At narrow widths, move chrome items into icon buttons or a drawer without dropping any of them, and keep each one's accessible name and tooltip.
+    why: Phones and split screens are where users most need search and support quickly; unnamed icons are invisible to screen readers and ambiguous to everyone else.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: absent, page_type: global}
+    confidence: low
+    applies_when: Any width below about 768 px, and tablets in portrait.
+    exceptions: Keyboard hints (⌘K) and label text may be hidden; the control itself may not.
+    do: "At 390 px: \"Menu\", \"Expand search\", \"Support\", \"Open assistant\" and the user menu are icon buttons, each with an aria-label."
+    dont: "Search vanishes from the chrome below 768 px, or the AI and Support buttons render as bare icons without names."
+    check_static: For each chrome control, verify the narrow-width variant keeps an aria-label or visually hidden text; verify no chrome item is display:none at small breakpoints without a drawer/overflow equivalent.
+    check_live: Set the viewport to 390 px; read the accessibility tree of banner and navigation; confirm search, help, user menu, scope switcher and assistant (if any) are each present with a non-empty accessible name, directly or inside the opened menu drawer.

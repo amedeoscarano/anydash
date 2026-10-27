@@ -1,0 +1,189 @@
+area: home
+prefix: HOM
+rules:
+  - id: HOM-001
+    title: Home type follows the job
+    rule: Give a multi-area product an overview home, but land a single-queue operational tool directly on its work queue instead of a dashboard.
+    why: Users who open the tool to process one stream of work every day lose a click and a context switch on an overview page; users who manage many areas need one place that shows where attention is needed.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: home}
+      - {portal: dhl, status: observed, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: high
+    applies_when: Deciding the landing page after sign-in.
+    exceptions: If the queue tool later gains several independent work areas, add a home that summarises each queue instead of picking one.
+    do: "A shipping tool opens on 'New orders' with state tabs and counts; a commerce or infrastructure console opens on a home with tasks, KPIs and quick links."
+    dont: "A one-queue tool that opens on a chart page, so every session starts with a click to the list."
+    check_static: In the router config, find the post-login default route and count the top-level nav areas that hold items waiting on the user; if there is exactly one, the default route must be that queue's list, and if there are several, it must be a home route whose blocks each link into one of those areas.
+    check_live: Sign in and note the first page rendered; for a queue landing, confirm the list and its state counters are visible without any click; for a home landing, confirm every block links into a work area.
+
+  - id: HOM-002
+    title: Open work as counted links to filtered lists
+    rule: Show each kind of pending work as a short label with its count, and make it a link to the list already filtered to exactly those items.
+    why: A count tells users whether there is work, and a pre-filtered link removes the step of rebuilding the filter by hand, so the home becomes the start of the job rather than a report about it.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: home}
+      - {portal: dhl, status: observed, page_type: index}
+      - {portal: cloudflare, status: absent, page_type: home}
+    confidence: medium
+    applies_when: The product has items that wait on the user (orders to fulfil, labels to print, returns, reviews to approve).
+    exceptions: Products with no user-owned queue (pure monitoring or configuration consoles) skip this block and lead with quick links and metrics.
+    do: "'Fulfil orders 1' linking to the orders list with open, unfulfilled filters applied; lifecycle tabs 'New 1 · Printed 0 · Shipped 0'."
+    dont: "'You have pending orders' with no number, or a count that links to the unfiltered list."
+    check_static: For each task item in the home spec or component, verify it renders a numeric count and an href whose query string carries the filter that produces that count; the count and the list must use the same query.
+    check_live: Click each counted task; confirm the target list shows a filter chip or active tab and that its row total equals the count shown on the home.
+
+  - id: HOM-003
+    title: Small KPI strip with trend and one time range
+    rule: Show a small set of key metrics (about 4 to 6) as tiles with value, change against the previous period and one shared time-range control, and mark a metric with no data as "No data" with no change indicator.
+    why: A few metrics with a delta answer "is it going well?" at a glance, a single range keeps the tiles comparable, and an explicit no-data state stops users from reading an empty source as a real zero.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: A home exists and the product produces measurable outcomes (sales, traffic, errors).
+    exceptions: Queue-first landings (HOM-001) show state counters instead of trend metrics.
+    do: "Range button 'Last 30 days' above four tiles: Sessions 1,200 +8%, Orders 40 +5%; a tile with no source reads 'Errors 0 · No data' with no arrow."
+    dont: "Ten charts, each with its own date picker, and a blank tile that shows 0 with a green arrow."
+    check_static: In the home component, count the metric tiles (4 to 6), verify each has value, delta and direction, that a single range state feeds all of them, and that a null-data branch renders "No data" text and no delta or direction arrow.
+    check_live: Change the time range once and confirm every tile reloads with the new range; point a tile at a metric with no data and confirm it says "No data" and shows no delta.
+
+  - id: HOM-004
+    title: User-chosen metrics
+    rule: Let users add, remove or swap the metrics on the home and remember their choice per user.
+    why: The right four numbers differ by role and business stage; letting users choose avoids building one metric set that fits nobody.
+    source: observed
+    evidence:
+      - {portal: shopify, status: documented, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: The KPI strip of HOM-003 is present and more metrics exist than fit in it.
+    exceptions: Products with one obvious metric set for every user may ship a fixed strip.
+    do: "An 'Add metric' button at the end of the strip and a 'Tile options' menu on each tile with Replace and Remove."
+    dont: "A fixed strip whose only customisation is a settings page three levels deep."
+    check_static: Verify the home spec has an add-metric control and a per-tile options menu, and that the selected metric list is persisted server-side per user (not only in local storage).
+    check_live: Add a metric, remove another, reload the page and sign in from a second browser; confirm the custom set appears in both.
+
+  - id: HOM-005
+    title: Setup checklist grouped by goal with progress
+    rule: For an account that is not set up yet, show setup tasks grouped by goal, each group with "N of M complete" and one "Get started" link, and remove the block once every task is done.
+    why: Goal-based groups tell new users why each step matters, the progress count shows how far they are, and removing the block afterwards gives the space back to daily work.
+    source: observed
+    evidence:
+      - {portal: shopify, status: documented, page_type: home}
+      - {portal: dhl, status: absent, page_type: wizard}
+      - {portal: cloudflare, status: observed, page_type: other}
+    confidence: medium
+    applies_when: New accounts, or a newly enabled product area, with required configuration before first value.
+    exceptions: When the platform can pre-provision everything except one or two inputs, a short first-run wizard can replace the checklist. Removal on completion is documented, not observed (all observed accounts were already set up).
+    do: "'Replace my VPN · 0 of 3 complete · Get started'; the block is gone once all groups reach M of M."
+    dont: "A permanent 'Getting started' card that still shows 8 of 8 complete months later."
+    check_static: In the home component, verify the checklist renders only while completed < total, and that each group shows a completed/total count and exactly one primary link to the next unfinished task.
+    check_live: With a fresh test account, complete one task and confirm the count increments without a manual refresh; complete all tasks and confirm the block disappears from the home.
+
+  - id: HOM-006
+    title: Suggestions dismissible, required work not
+    rule: Let users dismiss suggestions, promotions and onboarding prompts on the home, but never let them dismiss a card that represents work they must do.
+    why: Dismissing advice keeps the home clean for experienced users, while hiding a required task by mistake would make real work invisible.
+    source: documented
+    evidence:
+      - {portal: shopify, status: documented, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: high
+    applies_when: Any card, banner or pill on the home.
+    exceptions: A required-action card may be snoozed for a short time if the task cannot be done right now, but it returns automatically.
+    do: "A small 'Onboard your agent' pill with a 'Don't show this again' button; the 'Fulfil orders' card with no close control."
+    dont: "A close icon on the 'Payments failing' card that hides it forever."
+    check_static: For every home card type, check its definition for a dismiss control and a category; flag any required-action or task card that has dismiss, and any suggestion card that has none.
+    check_live: Dismiss a suggestion, reload, and confirm it stays gone; confirm task and required-action cards show no close control in the accessibility tree.
+
+  - id: HOM-007
+    title: Recommendations at the scope they change
+    rule: Show recommendations next to the object or area they improve, each with one sentence describing the action and a link or toggle that applies it, plus an "N of M complete" count when there are several.
+    why: Advice placed where the setting lives can be acted on at once and its effect is clear; a count turns a vague list into finishable work.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: low
+    applies_when: The product can detect settings or habits that would help the user.
+    exceptions: Account-wide insights that span several objects may appear on the home as a dismissible feed (HOM-006) instead.
+    do: "On a site overview, a 'Recommendations' card: 'Turn on recommended image, content, and protocol settings' with a button to that setting; on a product overview, 'Recommendations 5 of 8 complete'."
+    dont: "A generic 'Tips for you' carousel on the home that links to help articles."
+    check_static: For each recommendation in the spec, verify it names its target object, has one action that applies or opens the exact setting, and that a set of recommendations shows a completed/total count.
+    check_live: Open an object with a pending recommendation; apply it from the card and confirm the setting changes and the count increments.
+
+  - id: HOM-008
+    title: Quick access to the user's own objects
+    rule: Include short lists of the user's own recent and starred objects on the home, each entry linking straight to the object.
+    why: Most sessions return to the same few objects; one click from the home beats searching or drilling through the menu.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: low
+    applies_when: Users own many long-lived objects (sites, projects, services) and switch between them.
+    exceptions: Queue-first tools, where users work on fresh items each day, do not need it.
+    do: "Three compact lists, Sites, Projects and Recents, each with at most 5 rows and a heading that links to the full list; the starred filter is remembered."
+    dont: "A 'Recently viewed' list that also contains settings pages and help articles mixed with objects."
+    check_static: Verify the home spec has recent and starred lists limited to about 5 rows each, with links to object detail routes and a link to the full list.
+    check_live: Open three objects, return to the home and confirm they appear in Recents in most-recent-first order; star one and confirm the starred list or filter persists after reload.
+
+  - id: HOM-009
+    title: Counts and KPIs survive narrow screens
+    rule: Keep task counts and KPI values visible at tablet and phone widths, reflowing them into a stack or a scrollable row instead of dropping the numbers.
+    why: People check the home on a phone mainly to see whether there is work; links without their counts remove the one fact they came for.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: Any home or queue landing with counters or KPI tiles.
+    exceptions: Secondary charts (sparklines, globes) may be hidden on phones as long as the number stays.
+    do: "At 390 px the four KPI tiles stack and 'Fulfil orders 1' stays with its count."
+    dont: "At 768 px the state tabs 'New 1 · Printed 0' become plain links 'New · Printed' with no counts."
+    check_static: In the responsive CSS or component, verify no breakpoint hides the count or value element of a task or tile (no display:none on the number at small widths).
+    check_live: Load the home at 1440, 768 and 390 px; read the accessibility tree at each width and confirm every task count and KPI value present at 1440 is present at 390.
+
+  - id: HOM-010
+    title: Blocks load independently
+    rule: Render the home frame at once and load each counter and tile independently, showing an in-place placeholder until its value arrives and letting a failed tile retry on its own.
+    why: One slow metric must not block the whole page; placeholders keep the layout stable and tell users which number is still coming.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: home}
+      - {portal: dhl, status: observed, page_type: index}
+      - {portal: cloudflare, status: absent, page_type: home}
+    confidence: low
+    applies_when: Any home or landing with more than one counter or metric.
+    exceptions: A single counter that comes in the same response as the page needs no placeholder.
+    do: "State tabs render as 'Printed …' and fill in one by one; a tile whose query failed shows 'Couldn't load · Retry' while the other tiles keep their values."
+    dont: "A full-page spinner until every metric query has returned, or tabs that render 'Printed 0' before the count is known."
+    check_static: Verify each counter and tile fetches its own data (separate query or suspense boundary) and has a loading branch that renders a placeholder ("…" or skeleton) instead of 0.
+    check_live: Throttle the network, load the home and confirm the page frame and headings appear before the numbers, each number fills in on its own, and blocking one metric request leaves the others working; unblock it, use that tile's retry, and confirm only that tile re-fetches.
+
+  - id: HOM-011
+    title: One entry point at the top of the home
+    rule: Make the home's main block a short action-oriented heading directly followed by one entry field (search or ask) that reaches any object or action.
+    why: When the home cannot show everything, a prominent way to jump anywhere covers the long tail of tasks without adding more blocks.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: home}
+      - {portal: dhl, status: absent, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: Products with a home and more objects or actions than the home can list.
+    exceptions: Queue-first landings put the queue's own search or filter at the top instead.
+    do: "H1 'Let's get to work.' with an inline search field and its keyboard shortcut hint right below."
+    dont: "A marketing banner as the first block, with search only as an icon in the corner."
+    check_static: In the home layout, verify the first content block after the H1 is a search or ask input with an accessible name, that no banner or chart sits between them, and that the H1 is a short sentence (at most about 10 words), not the product name.
+    check_live: Load the home, press Tab from the top of main and confirm the entry field is among the first focusable elements; type an object name and confirm results link to it.

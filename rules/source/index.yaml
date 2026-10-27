@@ -1,0 +1,222 @@
+area: index
+prefix: IDX
+rules:
+  - id: IDX-001
+    title: One list toolbar above the table
+    rule: Put search, filters and the view selector together in a single toolbar directly above the table.
+    why: Users scan one predictable strip to narrow a list; scattering search, filters and views around the page makes them hunt for the controls that change what the table shows.
+    source: observed
+    evidence:
+      # shopify: orders, orders-views, products (view dropdown + "Search and filter" + Reset view + Save, then table); page actions (Export, Import, Add) in the header
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders-new, orders-printed, orders-archived ("Select view" + "Filter orders" then table); products, address-book (searchbox + actions then table); orders also puts Import/Create in the same toolbar row
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: zt-access-apps (search + Filters + Views), zone-dns-records (search + Filters, with Import/Export/Add record in the same row), tunnels (search + status filter + Edit columns)
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: Any list or table page with more than one screen of records or more than one way to narrow it.
+    exceptions: A short fixed list (under about 10 rows, no filtering need) can skip the toolbar entirely.
+    do: 'Toolbar row: view selector, search field, "Filters" button, column picker; table immediately below.'
+    dont: Search in the page header, filters in a side panel and the view switcher below the table.
+    check_static: On each index page the search input, filter trigger and view selector share one container that is the previous sibling (or first child of the same section) of the table element.
+    check_live: At 1440 px, open each list page; the search, filter and view controls sit in one horizontal row between the page header and the first table row, with no other content between them and the table.
+
+  - id: IDX-002
+    title: Search placeholder names the searchable fields
+    rule: Label the list search field with the fields it actually matches, such as "Search by name or code", instead of a bare "Search".
+    why: Users cannot guess whether a list search matches IDs, names, emails or tags; naming the fields prevents empty results that look like missing data.
+    source: observed
+    evidence:
+      # shopify: orders, products use a generic "Search and filter" field
+      - {portal: shopify, status: absent, page_type: index}
+      # dhl: products "Search by SKU", address-book "Search by name or code", reports "Search by report type"; orders keeps generic "Filter orders"
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: domains-overview "Search by domain name", zt-access-apps "Search by app name or domain", tunnels "Search ... by name prefix", members "Search by email"
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: medium
+    applies_when: The list search matches a limited set of fields, or matches by prefix rather than substring.
+    exceptions: A combined search-and-filter field that parses free text and filter tokens may use a generic label if it shows the matched fields as suggestions while typing.
+    do: '"Search by email" on a members list; "Search by name prefix" when only prefix matching is supported.'
+    dont: A field labelled "Search" that silently matches only the record ID.
+    check_static: Every list search input has a placeholder or accessible name that names at least one field ("by ..."), and the named fields match the fields the backend query uses.
+    check_live: Type a value that appears only in a field not named in the placeholder; the list must return no match, confirming the label is accurate. Type a value from a named field; it must match.
+
+  - id: IDX-003
+    title: Saved views in a selector
+    rule: Offer a view selector in the list toolbar with preset views, and let users save the current filters, sort and columns as a named view.
+    why: People return to the same slices of a list every day; a named view turns a multi-step filter into one click and keeps the default list uncluttered.
+    source: observed
+    evidence:
+      # shopify: orders-views ("Select a view" menu with presets + custom views; Save and Reset view disabled until the view is changed)
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders-new "Select view" combobox exists but could not be opened; presets and saving not confirmed, no doc finding (downgraded)
+      - {portal: dhl, status: absent, page_type: index}
+      # cloudflare: zt-access-apps "Views" button (menu not opened); observability "Saved Queries"
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: medium
+    applies_when: Lists that users filter the same way repeatedly (queues, operational lists, logs).
+    exceptions: Small reference lists with no filters do not need views. Saving user views is confirmed live in only two portals; whether views are personal or shared across the team is not established.
+    do: 'View menu: All, Unfulfilled, Unpaid, Archived, then user views; "Save" and "Reset view" become enabled only after the user changes a filter, sort or column.'
+    dont: A "Save view" button that is always enabled, or views that store only the search text and drop sort and columns.
+    check_static: The list toolbar has a view selector (menu, combobox or button) listing at least the "All" preset; Save/Reset view controls carry disabled state bound to "current view equals saved view".
+    check_live: Change a filter; Save and Reset view enable. Save as a named view, reload, select it from the selector; the same filter, sort and columns return. Press Reset view; the unmodified view returns and the buttons disable again.
+
+  - id: IDX-004
+    title: Lifecycle states as one-click segments with counts
+    rule: When records move through a fixed lifecycle, expose each state as a one-click segment (tab or preset view) and show the count of records in states that need action.
+    why: In operational lists the main question is "what is waiting for me"; a count per state answers it before the user opens the list.
+    source: observed
+    evidence:
+      # shopify: orders-views presets by state (Unfulfilled, Unpaid, Open, Archived); orders nav item carries a count; home "Fulfill orders" chip links to a filtered view
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders-new-1440 state tabs New / Printed / Shipped / Returned / Archived with counters loaded lazily ("…"); each tab is a URL (?tab=); counters dropped at <=768 (orders-new-768)
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: tunnels uses a "Filter by status" dropdown and status columns; no state tabs, no counters
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: medium
+    applies_when: Records have a small fixed set of workflow states (about 3-7) and users act on them in order (orders, tickets, shipments, approvals).
+    exceptions: For resources with only health or status attributes and no workflow (servers, domains, tokens), a status filter or column is enough. Toolbar actions may change per state, for example a "Manifest all" action only in the Printed state.
+    do: 'Tabs "New 12 | Printed | Shipped | Returned | Archived"; counts load per tab with a placeholder and never block the table.'
+    dont: A single unfiltered list where users must build a status filter by hand every morning.
+    check_static: Each state segment is a link or tab whose URL encodes the state; count badges are rendered from a separate request and have a loading placeholder.
+    check_live: Click each state segment; the URL changes and a reload keeps the same state. Throttle the network; the table renders before or independently of the counters. Check at 768 and 390 px that state segments stay reachable.
+
+  - id: IDX-005
+    title: User-chosen columns with a reset
+    rule: Show a default subset of columns and let users show or hide the rest from a column picker in the list toolbar or table header.
+    why: Different jobs need different fields; a picker keeps the default table readable while still giving power users every attribute.
+    source: observed
+    evidence:
+      # shopify: orders, products column picker icon at the right end of the filter bar (pages/products.json, products.png); menu not opened
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders-toggle-columns: 22 checkable columns, 8 on by default, one column (Order date) locked as checked + disabled, "Reset to default"; column resize buttons
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: domains-overview and tunnels "Edit columns" (menu not opened); zone-dns-records resize handles
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: The record type has more attributes than fit legibly at desktop width (roughly more than 7-8 columns).
+    exceptions: Tables with a handful of fixed columns need no picker. A locked column and a "Reset to default" item were seen in one portal only; treat them as recommended, not required.
+    do: 'Column menu with one checkbox per column, the row-identifying column checked and disabled, and "Reset to default" at the bottom.'
+    dont: Showing all 20+ attributes by default with horizontal scrolling.
+    check_static: The list toolbar or table header contains a column-picker control whose menu has one checkbox item (menuitemcheckbox or checkbox) per hideable column, and the default column set is defined in one place smaller than the full set.
+    check_live: Open the column picker, uncheck a column; it disappears from the table. Reload; it stays hidden. Check it again; it returns.
+
+  - id: IDX-006
+    title: Sortable headers that show the current sort
+    rule: Make sortable columns' headers buttons with an accessible name such as "Sort by date", and show the active column and direction.
+    why: Clicking a header is the expected way to reorder a list; without a visible direction indicator users cannot tell how the list is ordered.
+    source: observed
+    evidence:
+      # shopify: orders, products column headers are buttons "Sort this table by ... in ascending order"; non-orderable columns (Flags, Tags) are plain headers; but no active-sort indicator in ARIA or products.png (downgraded)
+      - {portal: shopify, status: absent, page_type: index}
+      # dhl: orders-new "Sort by order date" buttons; products "SKU ↑" and address-book "Name ↑" show the active sort
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: zone-dns-records "Sort by Type", members sortable header buttons with icon; domains-overview status region "Sort: Not sorted."
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: medium
+    applies_when: Columns with a meaningful order (dates, amounts, names, counts, statuses).
+    exceptions: Columns with no natural order (tags, flags, action buttons, images) stay plain headers.
+    do: '"Order date ↓" header button with aria-sort="descending"; clicking flips the direction.'
+    dont: Every header clickable, including "Tags" and "Actions", with no indicator of which one is active.
+    check_static: Sortable column headers contain a button; the active one has aria-sort set (ascending/descending) and a visible arrow; non-sortable headers have no button.
+    check_live: Click a sortable header twice; row order flips and the arrow/aria-sort flips with it. Reload; the chosen sort is kept or the URL encodes it.
+
+  - id: IDX-007
+    title: Paginate with range, total and page size
+    rule: Paginate long lists (default 20-50 rows per page) and show the visible range with the total, Previous/Next controls and a rows-per-page selector.
+    why: A range with a total ("Showing 1-25 of 63") tells users how much is left and confirms a filter worked; page size lets heavy users trade scrolling for fewer clicks.
+    source: observed
+    evidence:
+      # shopify: floating pagination "1-50" with arrows (products.aria.yaml, products.png) but no total and no page-size selector, contradicting the rule; docs only say paginate beyond about 50-100 rows (downgraded)
+      - {portal: shopify, status: absent, page_type: index}
+      # dhl: orders-new, manifest, reports: Previous/Next, "Page 1 of 1", rows per page 50, "Showing 1-1 of 1"
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: zone-dns-records "Showing 1-25 of 63" + page size 25; zt-access-apps first/previous/page number/next/last + page size 20
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: medium
+    applies_when: Any list that can exceed one page of records.
+    exceptions: Append-only streams such as live logs may use load-more or infinite scroll if they keep a visible count of loaded records.
+    do: 'Footer: "Showing 51-100 of 412", Previous, Next, "Rows per page: 50".'
+    dont: Rendering thousands of rows at once, or pagination with only page numbers and no total.
+    check_static: The list footer (or toolbar) contains Previous and Next controls with disabled states, a range-and-total text, and a page-size select; the API call carries limit/offset or a cursor.
+    check_live: On a list with more than one page, click Next; the range text updates and Previous enables. Change rows per page; the range and page count recalculate. On the last page Next is disabled.
+
+  - id: IDX-008
+    title: Row selection only where bulk actions exist
+    rule: Give a list a checkbox column with a header select-all only when it has at least one bulk action.
+    why: Checkboxes promise that something can be done to many rows at once; showing them on lists with no bulk action is noise.
+    source: observed
+    evidence:
+      # shopify: orders "Select all 42 on page", products "Select all 50 on page" (scope in the label); pages/orders.json and products.json record bulk actions
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders-new "Select all orders", products, address-book select-all next to "More actions"; manifest and reports (no bulk action) have no checkbox column; docs: bulk print works only for orders on the same courier service
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: zone-dns-records "Select All" next to Import/Export, but no bulk action seen after selection; domains-overview, tunnels, zt-access-apps have no checkbox column (downgraded: link to bulk actions unconfirmed)
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: medium
+    applies_when: The list supports at least one action on several records (print, archive, delete, export selected, tag).
+    exceptions: When a bulk action only works for a compatible subset (for example the same carrier or the same status), disable it with a visible reason instead of failing after submit. The behaviour of the bulk-action bar after selection was not exercised in any portal. A select-all label that states its scope ("on page") was seen in one portal only.
+    do: '"Select all 50 on page" in the header checkbox; after selecting, offer "Select all 412 matching" as an explicit second step.'
+    dont: Checkbox columns on a read-only list, or a header "Select all" that silently selects every record across all pages.
+    check_static: Every list that renders a checkbox column also defines at least one bulk action in its toolbar or selection bar; every list without bulk actions renders no checkbox column.
+    check_live: On each list with checkboxes, tick one row; a bulk-action control appears or enables. Untick all; it hides or disables. Open each list without bulk actions; no row checkboxes are shown.
+
+  - id: IDX-009
+    title: Row actions in a trailing overflow menu
+    rule: Put per-row actions in the last column as an overflow menu or icon buttons, and keep primary buttons out of table rows.
+    why: A primary button on every row competes with the page's primary action and turns the table into a wall of buttons; a trailing menu keeps rows scannable and predictable.
+    source: observed
+    evidence:
+      # shopify: products last column "Actions" with an icon button per row (products.aria.yaml, products.png); Polaris docs: row actions in the last cell as tertiary, icon or menu buttons; tables never contain primary buttons
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders-new-row-structure "Open menu" overflow in the last cell, but also a Print button on every row (covered by the exception)
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: zt-access-apps "Context menu", members "Member actions", domains-overview per-row menu in the last column
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: Lists where each record has secondary actions (edit, duplicate, archive, delete, open externally).
+    exceptions: A work queue whose whole job is one repetitive action per row (for example print a label) may show that single action as a visible row button, provided it is the only button per row and the column can be hidden.
+    do: 'Last cell: a "..." button opening Edit, Duplicate, Archive, Delete (destructive item last, styled critical).'
+    dont: Three filled buttons (Edit, Duplicate, Delete) in every row.
+    check_static: Within table rows there is no element styled as primary; row actions live in the last column inside a menu trigger or icon buttons with accessible names.
+    check_live: Open the row menu with keyboard (Tab to the trigger, Enter); the menu lists the row actions and Escape closes it, returning focus to the trigger.
+
+  - id: IDX-010
+    title: Import and export as list-level actions
+    rule: Place Import and Export as secondary actions in the header or toolbar of the list whose records they move.
+    why: Users look for import and export where they see the data; hiding them in settings or a separate area makes a routine bulk task a search.
+    source: observed
+    evidence:
+      # shopify: orders "Export", products "Import" + "Export" as header secondary actions
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: orders "Import orders" dropdown in the toolbar; export is not on the list but runs as Reports with Generate / Schedule, a Status column and a Download column (reports)
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: zone-dns-records "Import" and "Export" buttons next to "Add record"
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: Records users need to move in bulk to or from spreadsheets, accounting or other systems.
+    exceptions: Scheduled or very large exports may also live in a reports area, provided the list links to it. Background export jobs with a status and download column were seen in one portal only, and export scope (filtered vs all) was not exercised anywhere.
+    do: 'Header: "Export" and "Import" left of the primary "Add"; a large export runs as a job that ends in "Export ready" with a download link.'
+    dont: Export hidden only in global settings, with nothing on the list page itself.
+    check_static: Each list whose records can be imported or exported renders the Import and Export controls inside its page header or list toolbar, styled as secondary (not primary).
+    check_live: Open each list that supports import or export; Import and Export are visible without opening a menu outside the page, and clicking Export starts a download, a dialog or a job from that page.
+
+  - id: IDX-011
+    title: No-match state distinct from empty list
+    rule: When filters or search return nothing, say so and offer to clear them, instead of showing the first-use empty state.
+    why: A first-use message ("Create your first ...") on a filtered list makes users think their data is gone; a no-match message points at the filter as the cause.
+    source: documented
+    evidence:
+      # shopify: Polaris docs: use different copy for an empty list and for no filter results; growth-campaigns disables Sort and tabs when the list is empty
+      - {portal: shopify, status: documented, page_type: index}
+      # dhl: empty lists show one sentence inside the table and "Showing 0-0 of 0"; a filtered no-match state was not observed
+      - {portal: dhl, status: absent, page_type: index}
+      # cloudflare: audit-log has "Clear filters"; api-tokens keeps the search field visible above a heading-led first-use empty state; filtered no-match not observed
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: high
+    applies_when: Any list with search or filters.
+    exceptions: None for filtered lists. The first-use empty state itself is covered by the states rules.
+    do: '"No orders match these filters." with a "Clear filters" button, toolbar still visible with the active filters shown.'
+    dont: An illustration saying "Create your first order" while a status filter is active on a list of 400 orders.
+    check_static: The list component renders two different empty templates, selected by whether any filter, search or non-default view is active; the no-match template contains a clear-filters action.
+    check_live: Search for a random string that matches nothing; the message mentions the filter or search and offers to clear it, and the toolbar stays visible. Clear it; the full list returns.

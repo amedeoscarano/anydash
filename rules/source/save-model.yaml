@@ -1,0 +1,172 @@
+area: save-model
+prefix: SAV
+rules:
+  - id: SAV-001
+    title: Sticky save bar that wakes on change
+    rule: On a multi-field form, put Save and Discard in one sticky bar that stays disabled or hidden until the form has unsaved changes.
+    why: A Save control that is active only when something changed tells the user at a glance whether there is work to commit, and a sticky bar keeps it reachable on long pages.
+    source: documented
+    evidence:
+      - { portal: shopify, status: documented, page_type: form }
+      - { portal: dhl, status: observed, page_type: settings_page }
+      - { portal: cloudflare, status: absent, page_type: form }
+    confidence: high
+    applies_when: A page or object form holds several editable fields that are committed together.
+    exceptions: Independent sections on one page (see SAV-003); pages whose only controls apply at once (see SAV-002); read-only views (see SAV-007).
+    do: Bottom or top sticky bar with "Save" (primary) and "Discard" (secondary), both disabled while the form is clean; Save enables on the first edit.
+    dont: An always-enabled Save at the end of a long page that does nothing when clicked on an unchanged form.
+    check_static: In the form component, Save and Discard are disabled (or the bar is not rendered) when the dirty flag is false; the bar uses position sticky or fixed and lives outside the scrolling content.
+    check_live: Load the page; assert Save has the disabled attribute or the bar is absent. Change one field; assert Save becomes enabled and the bar is still visible after scrolling to the top and bottom. Revert the field to its original value; assert Save is disabled again.
+
+  - id: SAV-002
+    title: Instant controls apply at once and confirm with a toast
+    rule: Persist an instant control's change on toggle, confirm each change with a toast, and on failure revert the control and show an error with Retry. The choice of a switch for such settings, and the ban on switches in Save forms, is CTL-002.
+    why: Without a toast the user cannot tell whether an immediate change succeeded, and a control that stays flipped after a failed request shows a state the server does not have.
+    source: documented
+    evidence:
+      - { portal: shopify, status: documented, page_type: settings_page }
+      - { portal: dhl, status: absent, page_type: settings_page }
+      - { portal: cloudflare, status: observed, page_type: settings_page }
+    confidence: high
+    applies_when: A single on/off setting is independent of other fields and safe to apply without review.
+    exceptions: Options that must be reviewed together or have side effects use a checkbox inside an explicit-save form instead. If immediate apply is not wanted, do not use a switch.
+    do: Switch "Always use HTTPS" with no Save nearby; flipping it shows a toast "Setting updated" (error variant with Retry if the request fails) and reverts the switch on failure.
+    dont: A switch that flips silently, or stays on after the request failed.
+    check_static: Every switch change handler calls the API, emits a toast on success and on error, and restores the previous value on error.
+    check_live: Toggle each switch; assert a role=status or toast live region announces the result within 5 seconds and that reloading the page keeps the new state. Block the request in devtools and toggle again; the switch must return to its previous state with an error message.
+
+  - id: SAV-003
+    title: Save per section when sections are independent
+    rule: When a settings page holds sections that change different things, give each section its own Save (or a summary row that opens its own editor) instead of one page-wide Save.
+    why: Independent sections committed together force the user to save unrelated edits at once and make it unclear which change caused an error.
+    source: observed
+    evidence:
+      - { portal: shopify, status: absent, page_type: settings_page }
+      - { portal: dhl, status: observed, page_type: settings_page }
+      - { portal: cloudflare, status: observed, page_type: settings_page }
+    confidence: medium
+    applies_when: A settings page groups unrelated settings into cards or sections, or a section is a single field such as a name or email.
+    exceptions: Fields that only make sense together stay in one form with one Save. Do not move a large form into a modal; open a subpage instead.
+    do: Card "Label format" ends with its own Save; settings row "Payments - Active >" opens a subpage or small dialog with its own Save; a single field "Account name" has an inline "Change name" button.
+    dont: One page-level Save that commits label format, pickup address and notification copy together.
+    check_static: Each card or section with editable fields owns exactly one commit action scoped to its fields; no page-level Save coexists with section Saves on the same page.
+    check_live: Edit a field in section A; assert only section A's Save enables. Save it; reload; assert section B is unchanged and section A persisted.
+
+  - id: SAV-004
+    title: Discard returns to the last saved state
+    rule: Pair every explicit Save with a Discard or Cancel that restores the last saved values, enabled only while there are unsaved changes.
+    why: Users explore settings; a one-click way back avoids retyping old values from memory.
+    source: observed
+    evidence:
+      - { portal: shopify, status: documented, page_type: form }
+      - { portal: dhl, status: observed, page_type: settings_page }
+      - { portal: cloudflare, status: observed, page_type: settings_page }
+    confidence: high
+    applies_when: Any form or section with an explicit Save.
+    exceptions: Single-action buttons that commit at once (Print, Import, Purge) have no Discard.
+    do: "\"Discard changes\" next to Save, disabled until an edit; optionally a confirm step when many fields changed."
+    dont: Only a browser Back button as the way to abandon edits.
+    check_static: The Discard handler resets the form to the last fetched server values, not to empty or to defaults; Discard shares Save's dirty-state enablement.
+    check_live: Change two fields; click Discard; assert both fields show their previous values and Save is disabled again. Reload; assert nothing was persisted.
+
+  - id: SAV-005
+    title: Warn before leaving with unsaved changes
+    rule: When the user navigates away from a form with unsaved changes, block the navigation and ask whether to leave and lose the changes.
+    why: Settings forms are long-lived; a silent navigation loses work and the user only notices later.
+    source: documented
+    evidence:
+      - { portal: shopify, status: documented, page_type: form }
+      - { portal: dhl, status: absent, page_type: settings_page }
+      - { portal: cloudflare, status: absent, page_type: form }
+    confidence: high
+    applies_when: A form with an explicit Save has a dirty state and the user clicks a nav link, Back, closes the tab or switches scope.
+    exceptions: Instant-apply pages and clean forms never prompt. Background jobs keep running and need no guard (see SAV-009).
+    do: "Dialog \"Leave page with unsaved changes? Your edits will be lost.\" with \"Leave page\" (critical) and \"Stay\"."
+    dont: Navigating away silently, or prompting on every navigation even when nothing changed.
+    check_static: The router has a navigation guard and a beforeunload listener that are active only when the form's dirty flag is true.
+    check_live: Edit a field, click a sidebar link; assert a confirmation dialog appears and choosing Stay keeps the edit. Repeat with a clean form; assert navigation happens without a prompt.
+
+  - id: SAV-006
+    title: Destructive actions stand apart and state the consequence
+    rule: Put destructive actions in their own button, away from Save, with text that states the consequence, and confirm them in a dialog whose primary button names the action.
+    why: Mixing irreversible actions with routine saves invites misclicks; a dialog that says what will be lost lets the user make an informed choice.
+    source: documented
+    evidence:
+      - { portal: shopify, status: documented, page_type: settings_page }
+      - { portal: dhl, status: absent, page_type: settings_page }
+      - { portal: cloudflare, status: observed, page_type: settings_page }
+    confidence: high
+    applies_when: Delete, remove, cancel subscription, purge, disconnect, or any bulk action that cannot be reversed or disrupts service.
+    exceptions: Removing an unsaved row inside a form being edited is part of that form's Discard and needs no dialog.
+    do: "Section \"Delete your profile\" at the page end with \"Permanently deletes this user\"; dialog \"Delete profile?\" with critical \"Delete profile\" and \"Cancel\". A \"Note:\" line under Purge saying it may slow the site for a while."
+    dont: A red Delete next to Save in the same bar; a dialog with "Are you sure?" and "OK".
+    check_static: Destructive buttons use the critical variant, sit in a separate section or overflow menu, open a confirm dialog, and the dialog's primary label is a verb plus object (never Yes/OK/Confirm).
+    check_live: Click each destructive button; assert a dialog opens before any request is sent, its body states the consequence, and Escape or Cancel closes it with no change.
+
+  - id: SAV-007
+    title: Read-only views carry no save controls
+    rule: Do not render a Save bar or Save button on read-only tabs such as logs, history or reports.
+    why: A disabled Save on a page with nothing to edit makes users hunt for the editable field and erodes trust in the save signal.
+    source: observed
+    evidence:
+      - { portal: shopify, status: absent, page_type: settings_page }
+      - { portal: dhl, status: observed, page_type: settings_page }
+      - { portal: cloudflare, status: absent, page_type: index }
+    confidence: low
+    applies_when: A tab or page shows only data or logs, even inside a settings area that otherwise has a save bar.
+    exceptions: none
+    do: Settings > Integrations has a save bar on the Settings tab and none on the Logs tab.
+    dont: A greyed-out Save bar under an import log table.
+    check_static: The save bar is rendered by the editable form component, not by the settings layout, so tabs without a form never include it.
+    check_live: Open every tab of each settings area; on tabs with no input, textbox, select, checkbox or switch, assert no button named Save exists.
+
+  - id: SAV-008
+    title: Activity log records who changed what
+    rule: Keep an account-level activity log of changes with time, actor (user, system or integration), action and, for settings, the old and new value, filterable and exportable.
+    why: Without undo, the log is how teams find out why something changed and restore the previous value; it also separates user edits from automated ones.
+    source: observed
+    evidence:
+      - { portal: shopify, status: observed, page_type: settings_page }
+      - { portal: dhl, status: observed, page_type: index }
+      - { portal: cloudflare, status: observed, page_type: index }
+    confidence: high
+    applies_when: Any dashboard where settings or shared objects can be changed by more than one person, an integration or the system.
+    exceptions: Purely personal preferences (theme, language) may be left out of the shared log.
+    do: Log row "2026-10-27 12:05 - Jane (web) - Default package weight changed from 0.5 kg to 1 kg"; filter by date, actor and action; Export. Object pages also show a timeline of their own events.
+    dont: A log that says only "Settings updated" with no field, value or actor.
+    check_static: Every settings mutation writes an audit record with timestamp, actor type and id, source interface, target, field, old value and new value; the log page has date and field filters.
+    check_live: Change one setting; open the activity log; assert a new row shows your user, the field name, the previous and the new value; filter by that field and by date and assert the row remains.
+
+  - id: SAV-009
+    title: Long jobs run in the background and say so
+    rule: For a commit that starts a long job, show a status line saying the job runs in the background, that the user can leave the page, and where to see progress.
+    why: Users otherwise wait on a spinner or abandon the page fearing the job will stop.
+    source: observed
+    evidence:
+      - { portal: shopify, status: absent, page_type: settings_page }
+      - { portal: dhl, status: observed, page_type: settings_page }
+      - { portal: cloudflare, status: absent, page_type: settings_page }
+    confidence: low
+    applies_when: An action takes longer than a few seconds (catalogue rebuild, bulk import, export, migration).
+    exceptions: Short requests that finish before a toast would show.
+    do: "\"The catalogue runs in the background. You can leave this page and return to check progress.\" plus a progress indicator on return."
+    dont: A modal spinner that blocks the whole page until the job ends.
+    check_static: Long-running commits return a job id; the page renders job status from that id, not from an in-flight request.
+    check_live: Start the job; assert a status line says it runs in the background and the page can be left. Navigate away and back; assert no leave-page prompt appeared and the current progress is shown.
+
+  - id: SAV-011
+    title: Assistant-proposed changes use the normal save path
+    rule: When an AI assistant changes data, stage the change in the normal form or a confirmation card and apply it only after the user saves or approves.
+    why: The user keeps one mental model of when changes apply, and every AI change gets the same review, discard and audit trail as a manual one.
+    source: observed
+    evidence:
+      - { portal: shopify, status: observed, page_type: global }
+      - { portal: dhl, status: absent, page_type: global }
+      - { portal: cloudflare, status: observed, page_type: global }
+    confidence: medium
+    applies_when: The dashboard has an assistant that can write settings or objects.
+    exceptions: Read-only assistant actions (search, explain, navigate) run without confirmation.
+    do: The assistant fills the price field and the save bar appears; or a card "Change SSL mode to Full - Approve / Decline" where Decline leaves everything unchanged.
+    dont: The assistant writes the setting directly and reports "Done" in chat.
+    check_static: Assistant write tools return a draft or patch applied to the form state or rendered as an approval card; no assistant tool calls a mutation endpoint without an approval step.
+    check_live: Ask the assistant to change a setting; assert nothing persists until Save or Approve is clicked; decline and reload; assert the value is unchanged and the audit log has no entry.

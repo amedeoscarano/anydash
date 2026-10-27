@@ -1,0 +1,138 @@
+area: layout
+prefix: LAY
+rules:
+  - id: LAY-001
+    title: Width set by page type
+    rule: Constrain settings and form pages to a centred content column with a max width of roughly 640 to 1040 px, and let index, log and dashboard pages use the full content width.
+    why: Short forms and explanatory text become hard to scan when lines and label-to-control distances stretch across a wide screen, while tables need every pixel for columns.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: Settings pages, create/edit forms and single-object configuration pages viewed on screens wider than about 1100 px.
+    exceptions: Index tables, logs, analytics and dashboards use full or large width. A settings page whose main content is a wide table may widen to the large width. One reference keeps settings full width with no cap; the other two cap the column (about 785 px and about 1024 px at a 1440 viewport), and the public layout guidance documents a small width for focused forms.
+    do: Settings content in a centred column with max-width 960px; the orders table on the next page spans the full main area.
+    dont: A three-field settings form stretched to 1800 px, with the label on the far left and the control on the far right.
+    check_static: The settings/form page container declares a max-width between 640px and 1040px and is centred (margin-inline auto or a centred grid track); the index page container has no max-width, or one of at least 1200px.
+    check_live: At a 1440x900 viewport, on a settings page, getBoundingClientRect() of the main content column has width <= 1040 and its left and right gaps inside the main area differ by less than 24px; on an index page, the table width is at least 90% of the main area width.
+
+  - id: LAY-002
+    title: Full-width index tables
+    rule: Let list and index tables span the full width of the main content area, with the page header and toolbar aligned to the same edges.
+    why: Index pages are scanned across many columns; a capped width forces horizontal scrolling or hidden columns long before the screen runs out.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: observed, page_type: index}
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: Any page whose main content is a table or list of records.
+    exceptions: Empty states and promotional placeholders on an index route may sit in a narrower centred card.
+    do: Title, toolbar and table share the same left and right edges and fill the main area.
+    dont: A 900 px wide table centred on a 1440 px screen with the last three columns behind a horizontal scrollbar.
+    check_static: The index page wrapper sets no max-width below 1200px; the table element or its wrapper has width 100% of the main area.
+    check_live: At 1440x900, the table's left and right edges are within 4px of the toolbar's and page header's edges, and for a table with 8 or fewer columns, its scroll container has scrollWidth <= clientWidth.
+
+  - id: LAY-003
+    title: Annotated settings sections
+    rule: On wide settings pages, put each section's title and description in a narrow left column and its controls in a wider right column; stack the description above the controls when the column is narrow.
+    why: Users read what a group of settings does before touching it, and a fixed left gutter of explanations makes a long settings page scannable by topic.
+    source: observed
+    evidence:
+      - {portal: shopify, status: documented, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: medium
+    applies_when: Settings pages made of several sections where each section needs one or two sentences of explanation, and the content column is at least about 800 px wide.
+    exceptions: When the settings column is capped below about 800 px, use a single column with the heading and description above the controls (the reference that dropped the annotated layout also uses the narrowest column). List-style settings pages whose content is a table of items (couriers, members, keys) skip the annotation. A row-level variant is fine, with one setting per row, its text on the left and its switch or button on the right (one reference uses only this variant).
+    do: Section card with "Packaging" and a two-line description in the left third, the fields in the right two thirds.
+    dont: Descriptions placed in tooltips, or a description below the last field where nobody reads it.
+    check_static: Each settings section is a two-track grid (for example grid-template-columns 1fr 2fr) with a heading plus description element in the first track and form controls in the second, collapsing to one track below the breakpoint.
+    check_live: At 1440x900, for each settings section, the heading's right edge is left of the first control's left edge and the description's top is within 24px of the first control's top; at 390 px wide, the description sits above the controls with no overlap.
+
+  - id: LAY-004
+    title: Two-column object detail
+    rule: Lay out object detail and edit pages in two columns, a main work column of about two thirds and a side column of about one third for status, summary and metadata.
+    why: Keeping status, tags and key facts in a fixed side column lets users edit the main content without losing sight of the object's state.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: medium
+    applies_when: An object has one main editable body (items, description, addresses) plus short metadata (status, owner, tags, notes, summary totals).
+    exceptions: Objects made of several independent areas of equal weight (overview, metrics, settings, logs) use tabs on a single full-width column instead; one reference does this on every detail page. A side column may also hold an in-page table of contents for long settings pages.
+    do: Main column with line items and timeline; side column with status, customer, tags and notes.
+    dont: Status and tags at the bottom of a long single column, or a side column that holds the primary editable content.
+    check_static: The detail template defines a main region and an aside/complementary region with roughly a 2:1 width ratio (for example grid-template-columns 2fr 1fr), and status/metadata components render in the aside.
+    check_live: At 1440x900, the page has an element with role complementary (or aside) whose width is 25-40% of the main area, placed right of the main column, and it contains the status badge or metadata; at 390 px wide it stacks below or above the main column.
+
+  - id: LAY-005
+    title: Stack of titled sections
+    rule: Build settings and long forms as a single vertical stack of titled sections or cards, one topic per section, and never nest cards inside cards.
+    why: Sections give long pages a scannable rhythm and a place for each topic's description; nested card layers add borders without adding structure.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: Any settings page or form with more than about five inputs.
+    exceptions: A table inside a section (for example a list of certificates) is fine; it is not a nested card. Very short pages with one or two controls may skip the card.
+    do: Five cards titled Store details, Address, Currency, Time zone, Order IDs, each with its own heading and short description.
+    dont: Twenty fields in one card, or a card containing three bordered sub-cards.
+    check_static: Forms with more than 5 inputs are split into section/card components each with an h2 or h3; no card component renders another card component as a direct or nested child.
+    check_live: On a settings page with more than 5 inputs, every input, select, textarea and role=switch control sits inside a section or card that has its own h2 or h3, and no element with the card class or role has a descendant with the same card class or role.
+
+  - id: LAY-006
+    title: One spacing scale, constant density
+    rule: Use a single spacing scale built on a 4 px base and keep the same density from the top to the bottom of a page.
+    why: A shared scale keeps alignment consistent across pages built by different people, and density changes mid-page make sections look unrelated.
+    source: documented
+    evidence:
+      - {portal: shopify, status: documented, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: absent, page_type: global}
+    confidence: high
+    applies_when: All pages.
+    exceptions: Data-heavy tables may use a denser row height than forms, as long as the whole table uses the same one. Product-wide density levels differ between the references (medium vs high), so pick one level per product and keep it.
+    do: Gaps of 4, 8, 12, 16, 24, 32 px only; every card on the page uses the same 16 px padding.
+    dont: Cards with 13 px and 22 px padding on the same page, or a compact table followed by a spacious form section with no reason.
+    check_static: Spacing values in CSS or design tokens are all multiples of 4px (grep margin, padding, gap values); cards on one template share one padding token.
+    check_live: Collect computed padding, margin and gap of all elements in main; at least 95% of non-zero values are multiples of 4px, and all sibling cards report the same padding.
+
+  - id: LAY-007
+    title: Side panels reflow content
+    rule: Dock assistant and inspector panels on the right edge and reflow the main content to the remaining width instead of overlaying it.
+    why: Users keep working on the page while the panel is open; an overlay hides the very content the panel is talking about.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: A persistent side panel (AI assistant, help, inspector) that the user keeps open while working, at viewports of about 1024 px and wider.
+    exceptions: Below about 1024 px the panel may cover the content as a full-height sheet with a close control. Short confirmation dialogs remain modal.
+    do: Opening the assistant narrows the main column to about two thirds and the table re-flows.
+    dont: A panel that slides over the right third of the page and hides the Save button.
+    check_static: The panel is a sibling of main in the layout grid/flex container (not position fixed over it), and opening it changes the main region's width.
+    check_live: At 1440x900, record main's width, open the panel, and confirm main's width shrank by roughly the panel width and no part of main sits under the panel (elementFromPoint at main's right edge returns an element inside main).
+
+  - id: LAY-008
+    title: Content owns the phone width
+    rule: At phone width, give the main content the full viewport width by stacking columns into one and moving persistent chrome out of the way.
+    why: On a 390 px screen any rail or side column that stays open squeezes forms and tables into an unusable strip.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Viewports narrower than about 768 px.
+    exceptions: Tables with many columns may scroll horizontally inside their own container, or render as a list of records; the page itself must not scroll horizontally.
+    do: At 390 px the sidebar becomes a menu button, the detail side column stacks under the main column, and the table becomes a list.
+    dont: A settings sidebar that stays expanded at 390 px and leaves 150 px for the form.
+    check_static: Multi-column layout grids switch to a single track below a breakpoint of about 768px; no fixed-width rail or aside is rendered unconditionally at that width.
+    check_live: At 390x844, document.documentElement.scrollWidth <= window.innerWidth, and the main content region's width is at least 90% of the viewport width.

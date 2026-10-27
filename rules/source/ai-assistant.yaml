@@ -1,0 +1,189 @@
+area: ai-assistant
+prefix: AI
+rules:
+  - id: AI-001
+    title: Assistant entry visible on every page
+    rule: When the product ships an assistant, keep one labelled entry to it in the global chrome of every page, never only inside a menu.
+    why: Users reach for the assistant at the moment they are stuck, on whatever page they are on; an entry buried in a profile or help menu is not found then.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: The dashboard offers a conversational assistant at all.
+    exceptions: Products without an assistant need no entry. Sub-products with their own shell keep the same entry; one reference portal drops it in such a shell, which is the counter-example. At phone width the entry may collapse to an icon button, which must keep an accessible name.
+    do: An 'Ask AI' button in the top banner (or a floating composer) present on home, index, detail and settings pages; at 390 px it stays as an icon button named 'Ask AI'.
+    dont: The assistant reachable only from Help > 'Chat with AI' inside the profile menu.
+    check_static: In the app shell/layout component, confirm the assistant trigger is rendered by the shared chrome, not by individual pages; at the mobile breakpoint the trigger keeps an aria-label.
+    check_live: Visit one home, index, detail and settings page at 1440 and 390 px; on each, find a button or textbox whose accessible name contains the assistant name or 'AI' without opening any menu.
+
+  - id: AI-002
+    title: Assistant opens as a docked side panel that reflows content
+    rule: Open the assistant as a right-docked panel that narrows the page content instead of covering it, with expand-to-full-width and close controls.
+    why: Users ask about what they see; a panel that pushes content keeps the page readable next to the answer, and expand/close let them choose focus.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Desktop and tablet widths, for the global assistant.
+    exceptions: At phone width a full-screen sheet is acceptable because there is no room to reflow.
+    do: A right panel about one third of the viewport, page content reflows beside it; header has New conversation, Expand and Close buttons; a drag handle resizes it.
+    dont: A centered modal dialog with a backdrop that hides the page the user is asking about.
+    check_static: The panel is a layout column (sibling of main in the shell grid/flex), not a modal/overlay with a backdrop; its header defines expand and close actions with accessible names.
+    check_live: At 1440 px, measure main's width before and after opening the assistant; it must shrink and remain visible and scrollable. Confirm buttons to expand and to close the panel exist and work, and no element with role dialog plus aria-modal=true is opened.
+
+  - id: AI-003
+    title: Assistant knows the current page and accepts explicit context
+    rule: Pass the current page and object to the assistant automatically, and let the user point it at a specific resource or on-screen element.
+    why: The first question users ask is 'what can I do here?'; an assistant blind to the page forces them to describe what is already on screen.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: Any assistant conversation started from inside the dashboard.
+    exceptions: None. When the page context cannot be resolved, the assistant asks which object is meant instead of guessing.
+    do: Asked 'What can I do on this page?' on the products list, the answer names the products page and its jobs; the composer placeholder reads 'Type @ to tag a resource'.
+    dont: A generic answer listing every product feature, or an assistant that asks the user to paste the URL of the page they are on.
+    check_static: The assistant request payload includes the current route, scope (account/workspace/object id) and page title; the composer supports a mention/tag or element-picker mode.
+    check_live: Open the assistant on two different pages and ask 'What can I do on this page?'; each answer must name that page. Type '@' in the composer and confirm a resource picker appears.
+
+  - id: AI-004
+    title: AI never applies a change without explicit approval
+    rule: Let the assistant run read-only operations freely, but route every create, update or delete it proposes through an explicit user approval that shows exactly what will change.
+    why: Admin changes affect live customers and money; the user must see and own each mutation, and declining must leave everything untouched.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Any assistant or inline AI action that writes data or configuration.
+    exceptions: Read-only actions (listing, checking a setting, pulling analytics) need no confirmation. Observed as the assistants' stated policy; the confirmation UI itself was not exercised.
+    do: "Either prefill the normal edit form so the form's own Save is the approval, or show a confirmation card 'Change minimum TLS version: 1.0 -> 1.2 on <zone>' with Approve and Decline."
+    dont: The assistant replying 'Done, I changed the price' after the user only asked a question.
+    check_static: Every assistant tool marked as mutating is gated by a confirmation step (card with diff and Approve/Decline) or writes only into an unsaved form state; no mutating tool has an auto-execute path.
+    check_live: Ask the assistant to change a harmless test value; confirm nothing is persisted (reload the target page) until you approve or click Save, and that Decline leaves the value unchanged.
+
+  - id: AI-005
+    title: Navigation answers end in a direct link
+    rule: When the assistant answers where something lives, give the path in words plus an in-chat link or button that opens that exact page, and state the scope it applies to.
+    why: A path in prose still makes the user hunt through menus; a direct link turns the answer into one click and the scope note prevents changing the wrong level.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Questions of the form 'where do I change X'.
+    exceptions: When the target depends on an object the assistant cannot infer, it asks which object first, then links.
+    do: "'This is under Settings > Notifications > Order processing.' followed by a button 'Open Order processing notifications'; or 'This is a per-domain setting. Which domain?'"
+    dont: "'Go to settings and look for notifications.' with no link and no scope."
+    check_static: The assistant message renderer supports a link or button bound to an internal app route (not only external URLs), and the navigation tool returns that route with the answer.
+    check_live: Ask 'Where do I change <a known setting>?'; the reply must contain a link or button whose href or action opens that setting's page, and mention its scope if the setting is per-object.
+
+  - id: AI-006
+    title: Show what the assistant consulted
+    rule: Show, per answer, which sources or tools the assistant used, with the reasoning available behind a disclosure.
+    why: Users trust and verify answers they can trace; a visible 'Checked help docs' or tool name tells them whether the answer came from their data or from documentation.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Every assistant answer that used retrieval, tools or account data.
+    exceptions: Trivial conversational replies with no tool use.
+    do: A step note 'Checked help docs' above the answer, cited help links, and a collapsed 'See reasoning' disclosure listing the tools called.
+    dont: An answer about the user's configuration with no hint whether the assistant read the account or guessed.
+    check_static: The message component renders a sources/steps area from the tool-call trace, and a disclosure (details/summary or aria-expanded button) for reasoning.
+    check_live: Ask a question that needs docs; confirm the answer shows at least one source link or step label, and a collapsible reasoning control with aria-expanded toggling.
+
+  - id: AI-007
+    title: Per-message copy and feedback
+    rule: Give every assistant answer a copy action and a rate-up / rate-down feedback control.
+    why: Users reuse answers in tickets and notes, and feedback per answer is the only signal of which replies failed.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: absent, page_type: global}
+    confidence: low
+    applies_when: Every assistant answer.
+    exceptions: None.
+    do: Under each answer, icon buttons named 'Copy message', 'Good response', 'Bad response'.
+    dont: Feedback only via a general 'Give feedback' link in the footer.
+    check_static: The assistant message component includes copy and feedback actions with accessible names; feedback is sent with the message id.
+    check_live: After any answer, find buttons with accessible names for copy and for positive/negative feedback inside that message's container; click Copy and confirm the clipboard holds the answer text.
+
+  - id: AI-008
+    title: Inline AI only where the user writes or builds, with accept and dismiss
+    rule: Offer inline AI inside a field only where the user writes free text or builds an expression, and require the user to accept or dismiss each suggestion.
+    why: Generating descriptions, rules or segments saves real effort; putting AI on plain value fields adds noise, and unreviewed suggestions silently change data.
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: absent, page_type: form}
+      - {portal: cloudflare, status: observed, page_type: form}
+    confidence: medium
+    applies_when: Rich-text descriptions, rule or filter builders, segment definitions, category or tag suggestions.
+    exceptions: Not on short identity or numeric fields (name, price, quantity). Suggestions land in the unsaved form; the form's own save model still applies.
+    do: "A 'Generate text' button in the description editor toolbar; suggested categories with 'Accept all' and 'Dismiss all'; 'Create rule with AI' in the rule builder; a 'Describe your segment' natural-language box."
+    dont: A sparkle icon on every input, or AI-suggested tags written to the record without a visible accept step.
+    check_static: List every inline AI trigger in the spec; each sits on a free-text, rule, filter or segment field, and each suggestion output has accept and dismiss handlers before reaching saved state.
+    check_live: On a detail or form page, trigger inline AI; confirm the output appears as a suggestion or unsaved edit with Accept/Dismiss (or the form's Save/Discard), and that reloading without accepting leaves the record unchanged.
+
+  - id: AI-009
+    title: Suggested prompts in the empty conversation
+    rule: Show a few suggested prompts drawn from common tasks in an empty assistant conversation.
+    why: A blank composer gives no hint of what the assistant can do; concrete starters teach its scope and save typing.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: low
+    applies_when: A new or empty conversation.
+    exceptions: Optional when the entry point itself is a large, page-aware composer (for example on home) whose placeholder already invites a task.
+    do: Under the greeting, 3-5 prompt cards such as 'Create an API token' or 'Find my account ID'; clicking one sends it.
+    dont: An empty panel reading only 'Where should we begin?'.
+    check_static: The empty-state of the assistant panel renders a list of prompt buttons sourced from config or the current page.
+    check_live: Open a new conversation; count prompt buttons in the panel (expect 3-5); click one and confirm it is submitted as a message.
+
+  - id: AI-010
+    title: Keyboard shortcut for the assistant
+    rule: Give the assistant a keyboard shortcut listed in the shortcut help.
+    why: Frequent users toggle the assistant many times a session; a shortcut avoids hunting for the button and is the fallback where the chrome hides it.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: low
+    applies_when: Dashboards that have a keyboard shortcut system.
+    exceptions: Shortcuts must not fire while focus is in a text field.
+    do: "'t a' toggles the assistant panel and is listed under '?' shortcuts."
+    dont: An assistant reachable only by mouse.
+    check_static: The shortcut registry contains an entry that toggles the assistant panel and the shortcut-help view lists it.
+    check_live: With focus on the page body, press the shortcut; the panel opens; press again; it closes. With focus in a text input, the same keys type text instead.
+
+  - id: AI-011
+    title: Data notice, permissions and an off switch
+    rule: Show a short data-use notice at the composer, limit the assistant to what the current user's role can see, and let account admins turn the assistant off.
+    why: Admins paste account data into the assistant; they need to know how it is used, must not see data their role hides, and some organisations must disable AI.
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: low
+    applies_when: Any assistant that reads account data.
+    exceptions: None.
+    do: A dismissible line under the composer linking the privacy policy; a role without billing access gets 'You don't have access to billing data' from the assistant; an 'AI assistant' toggle in account configuration.
+    dont: An assistant that answers billing questions for a read-only member, or no way to disable it.
+    check_static: Assistant tool calls run with the requesting user's permissions (no service-level token); account settings contain an assistant enable/disable control; the composer area renders a privacy notice link.
+    check_live: Open the assistant and confirm a privacy notice or link is visible near the composer; as a restricted role, ask for data outside that role and confirm a refusal; find the assistant opt-out in account settings.

@@ -1,0 +1,155 @@
+area: onboarding
+prefix: ONB
+rules:
+  - id: ONB-001
+    title: Provision known defaults before the first screen
+    rule: "At account creation, write every value the platform already knows (currency, units, timezone, default carrier or provider, a starter package or template, automatic sync on) so the user is asked only for what only they know."
+    why: "Each field the system can fill is a step removed from the path to first value; the reference account with system-written defaults completed setup after two user steps (complete the address, authorise the store)."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: observed, page_type: other}
+      - {portal: cloudflare, status: absent, page_type: integration}
+    confidence: low
+    applies_when: "A new account or workspace is created and the platform can infer values from signup data, locale, plan or a linked account."
+    exceptions: "Values with legal, financial or customer-facing consequences that cannot be inferred safely (tax registration, return address, sender identity) must be asked, not guessed. Only one portal shows a provisioning pass at account creation (a settings audit log of system writes), and it proves only some defaults (currency, a seeded package, label settings, auto-import, one email on), not units or timezone. Another portal shows only a pre-installed default identity provider row and a default object created on first use, neither at account creation; the third could not be observed because its account was already set up."
+    do: "On signup, create the default sender address from signup data, set currency and units from the account country, connect the built-in provider, seed one default package, and switch automatic import on; the first screen asks only to confirm the address and connect the store."
+    dont: "A first-run form asking for currency, unit system, timezone, default package size and label format, all with empty fields."
+    check_static: "List every field in the first-run flow. For each, check whether the account-creation code or spec already has the value (signup country, plan, linked account). Any field that could be derived but starts empty is a violation. Check the provisioning step writes the default records (a default package, template or provider row) and logs them as system writes."
+    check_live: "Create a fresh test account, then open settings before doing anything else: currency, units, timezone and at least one default record must already be filled. Count the inputs the first-run flow requires; none of them should be a value visible elsewhere in the account."
+
+  - id: ONB-002
+    title: Shortest path to first value, tuning later
+    rule: "Keep the first-run path to the few steps that block first value (typically confirm one address or identity and connect one data source), and leave every other preference to settings with working defaults."
+    why: "People tune options once real data flows; front-loading every preference delays the first result and asks decisions before the user can see their effect. In the reference account setup was done about 6 minutes after creation and option tuning happened the next day in settings."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: global}
+      - {portal: dhl, status: observed, page_type: other}
+      - {portal: cloudflare, status: absent, page_type: wizard}
+    confidence: low
+    applies_when: "A product whose value depends on importing or connecting data (orders, domains, users) before anything useful appears."
+    exceptions: "Products where a wrong default causes irreversible or billed actions (sending to customers, charging money) may need one extra confirm step before the first such action. Evidence is a settings audit log, not the wizard screens (which were not observable); the interval from setup to the first imported record was not in evidence, so the minute count is indicative only."
+    do: "Step 1: confirm pickup address. Step 2: connect your store (one authorise button). Done: orders start arriving; a link says 'Adjust packaging, labels and notifications in Settings'."
+    dont: "A nine-step wizard covering branding, notification copy, packaging rules and label layout before the first order can be imported."
+    check_static: "Count the steps and required fields in the first-run flow spec. Each one must be justified as blocking first value; any step for a preference that has a default is a violation. Check that a pointer to settings for further tuning exists on the completion screen."
+    check_live: "With a fresh test account, time from first login to the first real record (imported order, connected domain) appearing in the main list. Count the screens passed. Confirm every skipped preference has a working default in settings."
+
+  - id: ONB-003
+    title: Guided setup at first access, framed by goal
+    rule: "Offer new accounts a guided setup at first access, as a short wizard or a list of setup tasks named by the user's goal, each showing progress and a start action."
+    why: "A newcomer does not know the product's vocabulary; tasks named by outcome and showing how much is left let them pick a goal and see the end of the effort."
+    source: observed
+    evidence:
+      - {portal: shopify, status: documented, page_type: home}
+      - {portal: dhl, status: documented, page_type: wizard}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: high
+    applies_when: "First access to a new account, or first visit to a product area that needs configuration before it does anything."
+    exceptions: "A product whose provisioning already leaves the account working may skip the task list and land straight on the work queue. The task-list form with progress and time estimate was observed in one portal, on a product-area overview rather than the account home; the others document a wizard or setup tasks without showing their screens, so goal naming and progress rest on that one portal."
+    do: "Overview card 'What would you like to do next?' with tasks 'Replace my VPN - 0 of 3 complete - about 15 min - Get started' and 'Filter DNS traffic - 0 of 1 complete - about 5 min - Get started'."
+    dont: "A setup list named after internal modules ('Configure Gateway', 'Configure Tunnel') with no progress and no time estimate."
+    check_static: "Check the first-access landing spec has a setup block. Each task label must name an outcome in user terms, not a module name, and show a progress count (n of m) and a start link to the first incomplete step."
+    check_live: "Log in with a fresh test account and confirm the setup block appears without searching for it. Complete one step and return: the progress count must have increased and the start link must point to the next incomplete step."
+
+  - id: ONB-004
+    title: Retire setup prompts once setup is done
+    rule: "Remove setup tasks and first-run banners from the landing page once their steps are complete, and keep a way to reopen them from help or settings."
+    why: "A finished checklist is noise on the most visited page; the landing area should switch to daily work once the account works."
+    source: inferred
+    evidence:
+      - {portal: shopify, status: absent, page_type: home}
+      - {portal: dhl, status: absent, page_type: home}
+      - {portal: cloudflare, status: absent, page_type: home}
+    confidence: low
+    applies_when: "The landing page or an area overview shows setup tasks, a wizard entry or a first-run banner."
+    exceptions: "Required actions with risk (for example enabling two-step authentication, or open work tasks) stay until done and are not dismissible. No portal shows the retirement itself: all three reference accounts were already set up and showed no checklist on the landing page, which is consistent with removal but could also mean dismissal or that none was ever shown; one portal only records a 'show onboarding wizard' flag at account creation, with its later value unknown, and no reopen entry was seen anywhere."
+    do: "After the last setup step, the landing page shows the work queue and KPIs; Help menu keeps 'Restart setup guide'."
+    dont: "A '5 of 5 complete' checklist still pinned at the top of the home page months later."
+    check_static: "Check the landing-page logic hides the setup block when all tasks are complete (or dismissed) and that a reopen entry exists in help or settings."
+    check_live: "Complete every setup task on a test account, reload the landing page and confirm the setup block is gone. Find and use the reopen entry; the setup block must come back with all tasks shown as complete."
+
+  - id: ONB-005
+    title: Start setup inside the normal shell with a few path cards
+    rule: "When setup has more than one starting path, open it as a page inside the normal navigation shell with two to four choice cards, each with a one-line consequence, instead of a separate full-screen flow."
+    why: "Keeping the sidebar and help visible lets people leave and come back, and choice cards with consequences let them pick the right path without knowing the jargon."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: wizard}
+      - {portal: dhl, status: absent, page_type: wizard}
+      - {portal: cloudflare, status: observed, page_type: wizard}
+    confidence: low
+    applies_when: "Adding a main object that can be created in different ways (connect existing, transfer, buy or create new)."
+    exceptions: "A single-path setup needs no choice step. Whether later steps stay inside the shell was not observed; only the first step was."
+    do: "Page 'Add a site' with cards 'Connect a domain - make your site faster and more secure', 'Transfer a domain - save on renewals', 'Buy a domain - register a new one', sidebar still visible."
+    dont: "A full-screen modal with no navigation and a dropdown 'Method: [Zone setup / Registrar transfer / Registration]'."
+    check_static: "Check the first setup route renders inside the main layout (sidebar and top bar present) and offers 2-4 cards, each with a title and a one-line description of the outcome."
+    check_live: "Start the add flow from the list page's primary action. Confirm the sidebar is still visible, each card has a description, and leaving through the sidebar and returning lands on the same choice page."
+
+  - id: ONB-006
+    title: Connect the data source in one authorise step, then sync automatically
+    rule: "Make connecting the user's main data source a single authorise action that returns to the product, asks only the mapping questions it cannot infer, offers a connection test on the same screen, and starts automatic sync by default."
+    why: "First value usually means the user's own records appearing; every manual mapping or import step between authorise and the first record delays it."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: integration}
+      - {portal: dhl, status: observed, page_type: integration}
+      - {portal: cloudflare, status: absent, page_type: integration}
+    confidence: low
+    applies_when: "The product's core data lives in another system the user already runs (a store, an identity provider, a code host)."
+    exceptions: "When the mapping cannot be inferred (several locations, several accounts), ask one picker question right after authorising. In the reference account the location was a user pick from a lookup list, and the other import options are current values not proven defaults; only auto-import on by default is proven. Connecting an integration was not observed from scratch in the other two portals."
+    do: "Button 'Authorise store' opens the store's consent page; on return, one picker asks which location to import from, 'Import orders automatically (about every 20 minutes)' is already on, and a 'Test connection' button sits beside 'Authorise'."
+    dont: "After authorising, an empty mapping form for 15 fields and an 'Import now' button the user must remember to press."
+    check_static: "Check the connect flow has exactly one external authorise step, returns to the product, asks no mapping question whose answer is the only valid option, sets automatic sync on by default, and exposes a test-connection action on the same screen as the authorise action."
+    check_live: "Connect a test data source from a fresh account. Count clicks and questions between 'Connect' and the first imported record. Confirm auto-sync is on without touching it and that the test action reports success or a specific error."
+
+  - id: ONB-007
+    title: Onboard each feature in its own empty state
+    rule: "When a feature has nothing set up yet, use its empty state to onboard: say what it does, offer one primary start action, and add ready-made templates or code samples for the common jobs."
+    why: "Most features are first met long after account setup; an empty state that starts the job in one click is the cheapest onboarding there is and needs no separate tour."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: "Any list or feature page that is empty because the user has not created anything yet (rules, automations, campaigns, API tokens, gateways)."
+    exceptions: "Empty because of filters or search is a different state: say no results match and offer to clear filters, not to create. A locked or paid feature shown as an empty upsell must say it is locked."
+    do: "Heading 'Start automating your workflow', one line on what rules do, button 'Add new', and quick-setup buttons 'Assign service by destination country', 'Require signature over a set value'."
+    dont: "An empty table with 'No rules found.' and no action, or a blank page with only the page title."
+    check_static: "For every list or feature page, check the zero-items branch renders a heading that explains the feature, one primary create action, and (for configurable automation) at least one template or sample. Check the filtered-empty branch has separate copy."
+    check_live: "On a fresh test account open each main list and feature page. Each must show an explanation and a start action; pick a template where offered and confirm it opens a prefilled form."
+
+  - id: ONB-008
+    title: Make onboarding prompts dismissible and non-blocking
+    rule: "Show promotional or optional onboarding (feature intros, agent setup, new-feature cards) as dismissible cards or pills inside the page, never as blocking steps, and keep them dismissed once closed."
+    why: "Optional prompts that cannot be closed train people to ignore the whole area; a dismiss control respects users who already know the feature."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: index}
+      - {portal: dhl, status: absent, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: home}
+    confidence: medium
+    applies_when: "Prompts for optional features, upsells, tours or integrations shown on home or area overviews."
+    exceptions: "Required actions (open work items, a security step such as two-step authentication) stay visible until done and are not dismissible."
+    do: "Card 'Run your marketing on autopilot' with 'Get started' and a 'Dismiss' button; a pill 'Onboard your coding agent' above the home heading with a 'Don't show this again' control."
+    dont: "A modal on every login offering a feature tour, closable only by finishing it."
+    check_static: "List every onboarding card, pill and banner. Each optional one must have a labelled dismiss control and a persisted dismissed flag per user; required-action items must be listed as such."
+    check_live: "Dismiss each optional prompt, reload and log in again: it must stay hidden. Confirm required-action banners have no dismiss control."
+
+  - id: ONB-009
+    title: Introduce redesigned areas once, with a replayable tour
+    rule: "When an area changes substantially, show a one-time welcome dialog listing the few changes with a single 'Got it' close, and keep a 'Tour' button on the page to replay it."
+    why: "Returning users lose their bearings after a redesign; a short once-only summary orients them, and a replay button serves those who closed it too fast."
+    source: observed
+    evidence:
+      - {portal: shopify, status: absent, page_type: detail}
+      - {portal: dhl, status: absent, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: low
+    applies_when: "A redesigned page or navigation that existing users already knew in its old form."
+    exceptions: "Small changes need no dialog; a changelog link is enough. Never chain the welcome dialog into a multi-step blocking tour. The welcome dialog and the tour buttons were observed on different pages of one portal, and that portal documents a replayable tour for its redesigned navigation; the once-only behaviour was not tested."
+    do: "Dialog 'Welcome to the new records view' with four headed items (Customize columns, Pin records, Nameserver settings, one more record type), a Close button and 'Got it'; the page header keeps a 'Take a tour' button."
+    dont: "A ten-step coach-mark tour that starts automatically on every visit and cannot be replayed once skipped."
+    check_static: "Check the welcome dialog is gated by a per-user seen flag, lists at most about five changes, has both close and confirm actions, and that the page header has a replay entry."
+    check_live: "Open the redesigned page with a test user who has not seen it: the dialog appears once. Close it, reload: it does not reappear. Use the tour button and confirm it replays."

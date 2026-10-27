@@ -1,0 +1,142 @@
+area: feedback
+prefix: FDB
+rules:
+  - id: FDB-001
+    title: One channel per kind of event
+    rule: Pick the feedback channel from the event, not from taste - toast for the outcome of the user's own action, inline error for an invalid field, banner for an ongoing status or required action, modal for a decision that must be made before continuing, status text for progress and current state.
+    why: Each channel promises a different lifetime and urgency; when the mapping is fixed, users learn where to look and nothing important disappears with a timeout or blocks work that did not need blocking.
+    source: documented
+    evidence:
+      # shopify: Polaris docs define toast (short, non-blocking, after an action), banner (status or required action), modal (last resort), field-level error; banner observed on finance
+      - {portal: shopify, status: documented, page_type: global}
+      # dhl: toast live region on every page (orders-new), errors kept as log rows (logs-integrations), progress as "..." counters
+      - {portal: dhl, status: observed, page_type: global}
+      # cloudflare: toast region "Notifications", "Note:" warnings in place (zone-caching-config), status "Loading..." per metric (worker-detail)
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Designing any message the product shows in response to an action, a validation, a background process or a state change.
+    exceptions: One-time announcements for a redesigned area may use a dismissible dialog (see onboarding rules). Field-level help that is not an error stays a description, not a feedback channel.
+    do: "Save succeeds: toast 'Rule saved'. Weight empty: red text under the field 'Enter a weight'. Integration token expired: section banner with 'Reconnect'. Delete: modal 'Delete 3 rules?' with 'Delete' and 'Cancel'. Import running: status text 'Importing 120 of 400'."
+    dont: A modal 'Settings saved' with an OK button; a toast 'Weight is required' after Save; a banner that says 'Saving...'.
+    check_static: Build the event inventory of the spec (success, field invalid, request failed, background failure, blocked state, destructive confirm, in progress) and confirm each maps to exactly one channel from the table; grep the code for modal/dialog opens in success handlers and for toast calls inside field validators, expect none.
+    check_live: Trigger one event of each kind (save a valid form, submit an empty required field, start a long job, open a delete action) and read the accessibility tree each time - success lands in the toast region, the invalid field gets aria-invalid with its message, the job shows role=status text in place, and only the delete opens role=dialog or alertdialog.
+
+  - id: FDB-002
+    title: Lasting conditions never live only in a toast
+    rule: Report any condition that stays true after the moment passes (feature locked, permission or plan missing, integration broken, required setup step) in persistent text at the place it affects, not only in a toast.
+    why: A toast vanishes after a few seconds and is easy to miss on small screens; a blocked user who missed it has no way to learn why the control does nothing.
+    source: observed
+    evidence:
+      # shopify: required action as an in-section banner with a button (finance); Polaris toast documented as short, non-blocking feedback only
+      - {portal: shopify, status: observed, page_type: other}
+      # dhl: disabled control states its reason in visible text (settings-packing-slip)
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: in-place "needs a paid plan" message (config-error-pages) and "Upgrade plan" next to the disabled switch (zone-overview); on edge certificates a "No access" entitlement dialog sits in the toast region at 1440 and 390 px, alongside in-place upgrade text and a disabled button (zone-ssl-edge-certs-1440, -390)
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: The user's next attempt would fail for the same reason (state, plan, role, missing setup), or the problem persists until someone acts.
+    exceptions: A toast may announce the condition at the moment it is first detected, as long as the same text also stays in place afterwards.
+    do: A card that replaces its controls with 'This feature needs a paid plan' and an 'Upgrade plan' button, visible on every visit.
+    dont: A card whose controls look normal and only a corner toast 'No access' appears when the page opens.
+    check_static: For every disabled, locked or blocked state in the spec, find persistent in-page text or a banner tied to the affected section; flag any toast call whose message describes a plan, permission, entitlement or configuration problem with no matching in-place element.
+    check_live: Open a locked or unconfigured feature at 1440 px and at 390 px, wait 10 seconds, then read the accessibility tree; the reason must still be present as text inside main next to the affected control, not only inside the toast region.
+
+  - id: FDB-003
+    title: Field errors sit under the field
+    rule: Show a validation error as text directly below the field it concerns, mark the field invalid, and state length, format or range limits before the user types.
+    why: The user has to fix the field, so the message must be where their eyes and focus are; stating limits up front prevents most errors from happening at all.
+    source: documented
+    evidence:
+      # shopify: Polaris field-level `error` below the input; error states not triggered live
+      - {portal: shopify, status: documented, page_type: form}
+      # dhl: constraint stated before input ("Password must be at least 6 characters long", settings-manage-account); no error state triggered
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: Kumo Switch exposes a group-level error prop; no rule text, no error state observed
+      - {portal: cloudflare, status: documented, page_type: form}
+    confidence: high
+    applies_when: Any input that the client or server can reject.
+    exceptions: Errors that involve several fields together (dates out of order, conflicting rules) go next to the group, plus a short summary at the top of a long form that links to each field.
+    do: "Field 'Days to import' with helper 'Between 1 and 30' under it; after entering 45, red text 'Enter a number from 1 to 30' replaces the helper and the field is outlined."
+    dont: A toast 'Invalid input' after Save with no indication of which of twelve fields is wrong.
+    check_static: Every form field component renders an error slot below the input wired with aria-describedby and sets aria-invalid when the error is present; inputs with limits render the limit as helper text before any error.
+    check_live: Before typing, read the accessible description of every field that has a length, format or range limit and confirm it states the limit; then submit the form with one invalid value and confirm the field has aria-invalid=true, its accessible description contains the error text, the error element renders directly below that input, and the error is not shown only in a toast.
+
+  - id: FDB-004
+    title: Background failures stay on the object and in a log
+    rule: When a job or sync that runs without the user (import, publish, webhook, scheduled task) fails, record it as a persistent error on the affected object with a count, and as a row in a log with time and outcome.
+    why: Nobody is watching when a background job fails, so a transient message would be lost; a count on the object and a log row let the user find, understand and retry the failure later.
+    source: observed
+    evidence:
+      # shopify: product detail shows a "1 channel error" count on the publishing card (product-detail)
+      - {portal: shopify, status: observed, page_type: detail}
+      # dhl: import runs logged with an Error column and per-order import outcomes (logs-integrations, logs-order-import-history); no banner
+      - {portal: dhl, status: observed, page_type: index}
+      # cloudflare: error count as a metric on the service detail and the account home tiles (worker-detail)
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: Work that the system does on a schedule or on events from another system.
+    exceptions: When the failure blocks the whole integration (expired credentials, revoked access), also show a banner with the fix action (see FDB-002).
+    do: "Product page card 'Sales channels' with '1 channel error' that opens the reason; Logs > Imports row '10:20, 0 imported, Error: order has no line items'."
+    dont: A toast 'Import failed' shown to whoever happens to be online, with no log entry.
+    check_static: For each background job in the spec, find the persisted failure record (log table with time, outcome and reason) and the UI element that shows a failure count on the affected object; flag jobs whose failure path only emits a notification.
+    check_live: Force one background job to fail (bad record or revoked test credentials), reload the app, and confirm the affected object shows an error count and the log lists a row with timestamp, outcome and reason.
+
+  - id: FDB-007
+    title: Modals only for decisions that must come first
+    rule: Open a modal only when the user must decide or confirm something before the action can proceed, name its primary button after the action, and never open one modal from another.
+    why: A modal stops all other work; spending it on news or confirmations of success teaches users to dismiss modals without reading, including the destructive ones.
+    source: documented
+    evidence:
+      # shopify: Polaris modal guidance - last resort, consequence stated, critical primary named after the action, never Yes/OK, never stacked; confirm dialogs not triggered live
+      - {portal: shopify, status: documented, page_type: global}
+      # dhl: no modal observed; immediate actions are buttons, saves use a Save bar
+      - {portal: dhl, status: absent, page_type: global}
+      # cloudflare: no decision modal observed (destructive confirms not opened); dialogs seen only for a one-time redesign welcome (zone-dns-records-welcome-dialog) and the shortcut sheet, which are not decisions; Kumo Dialog has no usage rules
+      - {portal: cloudflare, status: absent, page_type: other}
+    confidence: high
+    applies_when: Destructive or irreversible actions, choices that change what happens next, and short inputs needed to finish an action (a name for a new view).
+    exceptions: A one-time welcome or what's-new dialog for a redesigned area is allowed once per user and must be dismissible. Large forms never go in a modal; use a page.
+    do: "Dialog 'Delete 3 shipping rules? This can't be undone.' with a red 'Delete rules' button and 'Cancel'."
+    dont: "Dialog 'Changes saved successfully' with an OK button; a confirm dialog that opens a second dialog 'Are you sure?'."
+    check_static: List every dialog in the spec or code; each one is opened only from a user action that needs a decision or input, has a primary button whose label is a verb from the action (not OK or Yes), and no dialog component renders another dialog trigger that opens while it is open.
+    check_live: On test data, save an edited form and start a delete; the save opens no role=dialog or alertdialog, the delete opens exactly one, its primary button name contains the action verb (not OK or Yes), and activating that button closes the dialog without opening a second one.
+
+  - id: FDB-008
+    title: Live regions exist before messages arrive
+    rule: Mount the toast region and the status and alert live regions once at the app root when the shell loads, and use them to announce content that finishes loading after navigation.
+    why: Screen readers only announce changes to live regions that already exist in the page; a region created together with its message is often read late or not at all.
+    source: observed
+    evidence:
+      # shopify: empty status regions on 99 of 99 captures and an alert region on 96, before any action
+      - {portal: shopify, status: observed, page_type: global}
+      # dhl: named toast region "Notifications alt+T" on 83 of 86 captures and an alert announcing the page on 80 (orders-new and others)
+      - {portal: dhl, status: observed, page_type: global}
+      # cloudflare: named region "Notifications" on 116 of 118 captures, a status node on 27; alert "Content Loaded" after async loads (zt-settings only)
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: Single-page apps where content and messages change without a full page load.
+    exceptions: Purely static pages with no async content or feedback need no live regions.
+    do: "Shell renders <section aria-label='Notifications'> for toasts and an empty role=status node; after route change it writes 'Orders loaded' into the status node."
+    dont: A toast library that appends a new aria-live element to the body only when the first toast fires.
+    check_static: The root layout renders one named toast region and one role=status (and, if used, one role=alert) element unconditionally; feature code sends messages through them instead of creating new aria-live nodes.
+    check_live: Load any page and, before acting, read the accessibility tree - the named toast region and an empty status region are already present; navigate to another page with async data and confirm a status or alert announcement appears once the content is ready.
+
+  - id: FDB-009
+    title: Toasts with actions stay reachable
+    rule: When a toast carries an action (Undo, Retry, View), let keyboard users jump into the toast region with a shortcut named in the region's label, and keep the toast visible for at least 10 seconds with the timer paused on hover and focus, until the user acts or dismisses it.
+    why: An Undo that disappears in four seconds or cannot be reached by keyboard is not a real undo; keyboard and screen-reader users need a way into the toast before it goes.
+    source: observed
+    evidence:
+      # shopify: Polaris docs say a toast can carry Undo or Retry and has a configurable duration, but say nothing on keyboard reach or minimum duration; not triggered live
+      - {portal: shopify, status: absent, page_type: global}
+      # dhl: toast region is named with its shortcut "Notifications alt+T" (orders-new)
+      - {portal: dhl, status: observed, page_type: global}
+      # cloudflare: toast region named "Notifications" with no shortcut in its name; no actionable toast seen
+      - {portal: cloudflare, status: absent, page_type: global}
+    confidence: low
+    applies_when: Any toast that contains a button or link.
+    exceptions: Plain confirmation toasts without an action may auto-dismiss after a few seconds.
+    do: "Toast 'Rule deleted' with 'Undo'; the region is named 'Notifications alt+T', pressing Alt+T moves focus to it, and hover or focus pauses the timer."
+    dont: An 'Undo' toast that vanishes after 3 seconds and can only be reached with the mouse.
+    check_static: The toast region's accessible name includes its shortcut and a global key handler for that shortcut moves focus into the region; every toast call with an action sets a duration of at least 10000 ms or no auto-dismiss, and the toast component pauses its timer on mouseenter and focusin.
+    check_live: Trigger an action that produces a toast with Undo or Retry and, without the mouse, press the shortcut named in the region's label; focus must land on the toast action, the toast must still be present 10 seconds after it appeared, and it must stay while focused past its normal duration.

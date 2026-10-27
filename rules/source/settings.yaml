@@ -1,0 +1,206 @@
+area: settings
+prefix: SET
+rules:
+  - id: SET-001
+    title: Work in the menu, rare configuration in settings
+    rule: "Put the objects and jobs people touch every day in the main menu, and put rarely changed account-wide configuration behind a settings or account-admin entry that is separate from those work items."
+    why: "Frequency decides placement: the menu is scanned many times a day, so every item that is used once a quarter costs attention on every visit."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: "Any admin dashboard with both day-to-day work objects (orders, products, records) and account configuration (defaults, connections, billing)."
+    exceptions: "An urgent, instant on/off control that people reach for during an incident (for example an emergency protection mode or a maintenance mode) may sit on the object's overview page, with its full configuration still in settings."
+    do: "Menu: Home, Orders, Products, Customers, Reports. Settings: Payments, Taxes, Shipping defaults, Users, Billing."
+    dont: "A top-level menu item 'Tax rates' or 'Label format' next to 'Orders'."
+    check_static: "List every top-level work item in the main menu (excluding the separated settings or account-admin group) and every settings page. Flag any work item whose page is mostly form controls for account-wide defaults, and any settings page that holds a queue or list of daily work records."
+    check_live: "Open the main menu and click each top-level work item; each must land on a list, queue or overview of work, not on a configuration form. Open settings and confirm no page there is a daily work queue."
+
+  - id: SET-002
+    title: Per-object configuration on the object
+    rule: "Put configuration that belongs to one object on that object's own page, as a section or a Settings tab, never in global settings."
+    why: "People change an object's options while looking at the object; sending them to global settings breaks the task and hides which object the option belongs to."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: observed, page_type: detail}
+      - {portal: cloudflare, status: observed, page_type: detail}
+    confidence: high
+    applies_when: "A setting changes the behaviour or data of one record (one product, one shipment, one service, one integration)."
+    exceptions: "A default that applies to all new objects belongs in settings; the object page then shows the per-object value and may override it (see SET-011). Objects that are themselves configuration (integrations, connections, notification templates) may have their list and detail pages inside settings; their options still sit on each object's own detail page."
+    do: "Product page with a status, package and custom fields section; a service detail page with tabs Overview, Metrics, Settings."
+    dont: "Settings > Products > choose a product from a dropdown > edit its options."
+    check_static: "For each settings page, check whether any field needs an object picker (a select or search listing individual records) before it can be edited. Each such field must move to that object's detail page."
+    check_live: "Open one object's detail page and confirm its own options are editable there (inline section or Settings tab). Open every shared settings page (one not dedicated to a single object) and confirm none has a field that edits only this object."
+
+  - id: SET-003
+    title: Sub-area settings inside the sub-area
+    rule: "When the product has distinct sub-products, channels or installed apps, give each its own Settings item inside its own navigation group, at the same position in every group, preferably last."
+    why: "Settings that only make sense inside one sub-area are found faster next to what they control, and the global settings list stays short."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: settings_index}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: "The dashboard hosts several sub-products, channels or third-party apps, each with its own navigation group and its own settings."
+    exceptions: "A single-product tool with one coherent job (for example a shipping tool with about 25 settings pages) may keep all settings in one central area grouped by lifecycle; one of the reference portals does this successfully. The global settings may still list installed apps and channels, linking into each one's own Settings."
+    do: "Sidebar group 'Email' with items Campaigns, Templates, Email settings; global settings only lists 'Apps and channels'."
+    dont: "Global settings with 40 entries, half of them named after individual apps or sub-products."
+    check_static: "For each sub-product or app navigation group, check that it contains one item labelled 'Settings' or '<Name> settings', at the same position in every group. Check that global settings holds no page specific to only one sub-product."
+    check_live: "Open each sub-product group in the sidebar and confirm it has a settings item in the same position as in the other groups, and that it opens a page scoped to that sub-product. Open global settings and confirm it contains no sub-product-only options."
+
+  - id: SET-004
+    title: Settings as a mode with its own navigation
+    rule: "When the user enters settings, show a dedicated settings navigation that replaces or sits beside the main menu, with a labelled link back to the main menu, and give every settings page its own URL."
+    why: "A dedicated list keeps all settings pages one click apart and tells the user they are configuring, not working; the back link and real URLs prevent dead ends and allow sharing and bookmarking a page."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_index}
+      - {portal: dhl, status: observed, page_type: settings_index}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: medium
+    applies_when: "Settings span more than one page."
+    exceptions: "A short settings area of one page with tabs needs no separate navigation, but each tab should still change the URL; one reference portal has no settings mode and uses tabs without URL changes for account configuration, which blocks deep links."
+    do: "Entering settings collapses the main menu to an icon rail and opens a second column headed 'Back to main menu' listing every settings page; each item is a link to /settings/<page>."
+    dont: "Settings pages reachable only by a chain of cards from an overview, with no persistent list and no way back other than the browser button."
+    check_static: "Check the settings layout renders a navigation list of all settings pages plus a back control whose text or accessible name says where it goes. Check each list item is an anchor with a distinct route."
+    check_live: "Open settings; confirm the settings list is visible and the back link returns to the main menu. Click three settings pages and confirm the URL changes each time; reload each URL and confirm the same page opens."
+
+  - id: SET-005
+    title: Fixed settings entry at the sidebar bottom
+    rule: "Place the settings entry at the bottom of the main sidebar, separated from the work items, in the same spot on every page."
+    why: "A fixed, predictable spot lets people return to rarely used configuration without searching, and the separation signals it is not daily work."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: global}
+      - {portal: dhl, status: observed, page_type: global}
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: high
+    applies_when: "The dashboard has a persistent left sidebar."
+    exceptions: "Personal account details (own email, password) may also be reachable from the profile menu (see SET-008). With no sidebar, use the profile or account menu as the single entry."
+    do: "Sidebar bottom block: Settings (gear icon), then account and profile."
+    dont: "Settings as the fourth item between Orders and Products, or reachable only from a link on the home page."
+    check_static: "Check the sidebar component places the settings link after all work items, in a separate group or below a divider, and that it is rendered on every route."
+    check_live: "On home, a list page and a detail page, confirm the settings entry is at the bottom of the sidebar in the same position. At narrow width, confirm it is still reachable from the collapsed menu or drawer."
+
+  - id: SET-006
+    title: Settings entry opens the first settings page
+    rule: "Make the settings entry land directly on the first, most used settings page with the full settings list visible, instead of on a separate overview of cards."
+    why: "An overview page adds a click to every visit; with the list always visible, the user can jump to any page from the first screen."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_index}
+      - {portal: dhl, status: observed, page_type: settings_index}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: medium
+    applies_when: "Settings have an internal navigation list (SET-004)."
+    exceptions: "When settings span several scopes (personal, account, sub-product), an entry page that routes to each scope can be acceptable, as long as each scope then follows this rule."
+    do: "Clicking Settings opens /settings/general, with the list of all settings pages on the left."
+    dont: "Clicking Settings opens a grid of 20 tiles that each must be clicked to see any setting."
+    check_static: "Check that the /settings route redirects or renders the first settings page, and that the first item in the settings navigation matches it."
+    check_live: "Click the settings entry; confirm the first screen shows real settings controls or values plus the settings navigation, with the first navigation item marked active."
+
+  - id: SET-007
+    title: One grouping axis per settings level
+    rule: "Group the settings list by one stable mental model per level (business domain, workflow phase, or product) and add short group headings once the list passes about 20 entries."
+    why: "A single axis lets the user predict where a setting lives; mixing axes at one level makes the same setting plausible in two places."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_index}
+      - {portal: dhl, status: observed, page_type: settings_index}
+      - {portal: cloudflare, status: absent, page_type: settings_page}
+    confidence: medium
+    applies_when: "Designing the settings navigation or splitting a long settings page into sections."
+    exceptions: "The portals agree on one axis per level but not on which axis; choose the one that matches the user's job (workflow phase for operational tools, business domain for commerce, product for multi-product platforms). The 20-entry threshold is inferred: one portal lists 19 entries flat, another groups 24 entries under 6 headings."
+    do: "Groups General, Connect, Order management, Shipping, After purchase, Account, each with 3 to 5 pages."
+    dont: "One flat list mixing 'Payments', 'Step 3: shipping', 'Advanced' and 'Webhooks' at the same level."
+    check_static: "Write each settings group and page name in a table with its grouping axis (domain, phase, product). Flag any level whose names use more than one axis, and any list over 20 entries with no group headings."
+    check_live: "Open settings and read the navigation; confirm headings exist when there are more than 20 entries. Pick three settings (for example the default currency, the timezone, the API key) and confirm each is listed under exactly one group heading."
+
+  - id: SET-008
+    title: Personal preferences apart from account settings
+    rule: "Put a person's own preferences and credentials (language, theme, timezone, shortcuts, own email and password, personal tokens) on a personal profile page, separate from settings that affect the whole account."
+    why: "Account settings change things for everyone and may need admin rights; personal preferences change only the viewer. Mixing them hides who is affected by a change."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: "The dashboard has more than one user per account, or has per-user preferences such as theme or shortcuts."
+    exceptions: "A single-user tool may keep personal items in settings, but should still group them on one page labelled as personal; one reference portal mixes dark mode and menu visibility into account settings."
+    do: "Profile menu > Profile: Language, Appearance, Timezone, Keyboard shortcuts, Password. Settings > General: Business name, Currency."
+    dont: "Settings > Interface page with dark mode next to account-wide label format and currency."
+    check_static: "Tag each settings field as 'affects only me' or 'affects the account'. Every 'only me' field must live under the profile route; every 'account' field under settings."
+    check_live: "Open the profile or user menu and confirm it leads to the personal page with language, theme and timezone. Open each account settings page and confirm none of those personal controls appears there. With two users, change the theme as user A and confirm user B does not see the change."
+
+  - id: SET-009
+    title: Account administration lives in settings
+    rule: "Put plan and billing, users and roles, API keys and tokens, and the audit log behind the settings or account-admin entry, never as work items in the main menu."
+    why: "These pages are visited rarely, by admins, and carry risk; keeping them together behind one entry makes them easy to find and easy to restrict by role."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: "The product has billing, multiple users, programmatic access or an audit trail."
+    exceptions: "A product whose billing happens outside the dashboard may omit a billing page. The audit log placement varies across the reference portals (inside settings, in an account-admin group, or a top-level Logs area); any of these is acceptable if it sits outside the main work items, in the separated bottom block of the sidebar or in the account menu."
+    do: "Settings (or a separated 'Manage account' group at the sidebar bottom): Plan, Billing, Users, API tokens, Audit log."
+    dont: "Main menu items 'Billing' and 'API keys' between 'Orders' and 'Reports'."
+    check_static: "Check that billing, users, API key and audit log routes are under the settings or account-admin route prefix (or, for the audit log, a logs route linked from the sidebar bottom block) and are absent from the main work menu."
+    check_live: "Open the main menu and confirm none of billing, users, API keys, audit log is a work item. From the settings or account-admin entry, reach each of them within two clicks."
+
+  - id: SET-010
+    title: Current value visible without opening an editor
+    rule: "Show the current value or state of every setting on its settings page, either as the live control or as a summary row with the value, so the user can scan before editing."
+    why: "People return to settings mostly to check what is set; hiding values behind 'Edit' buttons forces a click per setting just to read it."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_page}
+      - {portal: dhl, status: observed, page_type: settings_page}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: "Every settings page."
+    exceptions: "Secrets (API keys, passwords) show a masked value or 'Set' state rather than the value itself."
+    do: "Row 'Local delivery - Off >' or a switch that reads On; a select showing 'EUR'."
+    dont: "A row that reads only 'Shipping rates' with an 'Edit' button and no hint of what is configured."
+    check_static: "For each setting row in the spec or screenshot, check that a current value, state word, count or live control is visible next to its label."
+    check_live: "Open each settings page without clicking anything; confirm every setting shows its current value or state. Change one setting, return to the page, and confirm the new value is shown."
+
+  - id: SET-011
+    title: Inherited defaults with visible overrides
+    rule: "When an object or sub-account can override an account default, show on that object whether each value is inherited or customised, and where the default comes from."
+    why: "Without the inherited/customised marker the user cannot tell whether changing the global default will affect this object, or why two objects behave differently."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: detail}
+      - {portal: dhl, status: absent, page_type: settings_page}
+      - {portal: cloudflare, status: absent, page_type: detail}
+    confidence: low
+    applies_when: "A setting exists both as an account default and as a per-object or per-sub-account value (for example a regional market, a child account, a location)."
+    exceptions: "When an object has no override capability, show only its effective value."
+    do: "Market page with two groups, 'Customized' and 'Inherited', each inherited item labelled 'Inherited from store default'."
+    dont: "A per-object currency field prefilled with the default, with no way to tell whether it is a copy or a live link."
+    check_static: "For each setting that has both a default and a per-object value, check the object view marks it as inherited or customised and names the source of the inherited value."
+    check_live: "Change the account default; open an object that inherits it and confirm the new value appears marked as inherited. Override it on the object and confirm the marker switches to customised."
+
+  - id: SET-012
+    title: Search across settings
+    rule: "Offer a search that finds settings by name, inside the settings area or in a global quick search that indexes settings pages."
+    why: "Users remember the name of a setting more often than which group it lives in, especially when the list is long or grouped by an axis they do not share."
+    source: observed
+    evidence:
+      - {portal: shopify, status: observed, page_type: settings_index}
+      - {portal: dhl, status: absent, page_type: settings_index}
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: "Settings span more than about 15 pages or are spread across several scopes."
+    exceptions: "A settings area of a few pages, all visible in one list, does not need its own search."
+    do: "A 'Search settings' field at the top of the settings navigation; typing 'currency' lists General > Store defaults."
+    dont: "Global search that only finds records (orders, customers) and never settings pages."
+    check_static: "Check that a settings search field exists in the settings navigation or that the global search index includes settings pages and section titles."
+    check_live: "Type the name of a setting that lives two levels deep (for example 'timezone') into the search; confirm a result names that setting and opens the settings page that holds it."

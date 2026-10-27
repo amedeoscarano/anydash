@@ -1,0 +1,202 @@
+area: visual
+prefix: VIS
+rules:
+  - id: VIS-001
+    title: Neutral surfaces, colour spent on meaning
+    rule: Build the interface on neutral surfaces and text, and reserve saturated colour for the primary action, links, the current selection and status, keeping the brand colour to the logo and at most one chrome band.
+    why: When colour only appears where it means something, users find the next action and any problem at a glance; brand colour spread over controls competes with both.
+    source: observed
+    evidence:
+      # shopify: products.png, settings-general-1440.png: black/white/gray UI, brand colour only in the logo, green only on status badges
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: settings-options-1440.png, home-orders-archived-1440.png: brand yellow confined to the top banner and surfaces neutral, BUT the red accent is also spent on decoration (every select/dropdown chevron, page-title gear icon, table-header gear, profile icon), which contradicts reserving colour for meaning. Review: downgraded observed -> absent
+      - {portal: dhl, status: absent, page_type: global}
+      # cloudflare: domains-overview.png, zone-ssl-edge-certs-1440.png: brand orange only in the logo, blue only for primary buttons and links, green only on status badges
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Any admin screen, including white-label or branded dashboards.
+    exceptions: Customer-facing previews (tracking page, email, storefront) render the customer's brand colours inside their own preview frame.
+    do: Gray sidebar and white cards; one blue filled "Add domain" button; a green "Active" badge in the status column.
+    dont: Brand-coloured section headers, coloured card backgrounds and coloured icons on every menu item.
+    check_static: Count distinct non-gray hues in the design tokens or compiled CSS outside the logo; at most one accent hue plus the status hues (success, warning, critical, info). No card, table or page background uses a saturated hue.
+    check_live: On a home, an index and a settings page, run a script over all visible elements reading computed color, background-color and border-color; every value with HSL saturation above 30 % belongs to the logo, the chrome band, the primary button, a link, the selected item, or a status badge or banner.
+
+  - id: VIS-002
+    title: One filled primary button per view
+    rule: Give exactly one action per view or dialog the filled accent style, and render every other action as an outlined or plain neutral button placed to its left or after it.
+    why: A single high-contrast button tells users what the page is for; two filled buttons force them to compare before acting.
+    source: observed
+    evidence:
+      # shopify: products.png: dark filled "Add product", outlined View as / Import / Export / More actions to its left; Polaris page doc: one primary action slot
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: settings-options-1440.png: only filled control is Save in the sticky bar; list actions (Import orders, Create order) are outlined; order-detail: one primary split button in the footer
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: domains-overview.png: blue filled "Add domain", outlined "Buy domain" to its left
+      - {portal: cloudflare, status: observed, page_type: index}
+    confidence: high
+    applies_when: Page headers, sticky save bars, dialogs and cards with actions.
+    exceptions: A view with no single main action (read-only reports, settings lists of rows) has no filled button at all. A destructive confirmation dialog uses the critical tone for its primary instead of the accent.
+    do: Header with "Buy domain" (outlined) then "Add domain" (filled accent) at the top right.
+    dont: Import, Export and Add product buttons all filled in the accent colour side by side.
+    check_static: In each page template and dialog, count buttons with the primary/filled variant (e.g. variant="primary", .btn-primary); the count is 0 or 1. Table rows contain none.
+    check_live: On each page type, run document.querySelectorAll on the primary button class (or compare computed background-color against the accent token) for visible buttons; the result length is at most 1 outside open dialogs.
+
+  - id: VIS-003
+    title: Status as tinted text badges
+    rule: Show an object's state as a small rounded badge with a text label on a light tint of its status hue, using a fixed mapping of hues to meanings (green success/active, yellow or orange warning, red critical, blue info, gray neutral or inactive).
+    why: A short label carries the meaning for everyone, the tint lets users scan a column, and a fixed mapping means the same colour never says two things.
+    source: observed
+    evidence:
+      # shopify: products.png: green "Active" pill in Status column; order-detail status badges; Polaris doc: badges show inline status on one item, banners have info/warning/critical tones
+      - {portal: shopify, status: observed, page_type: index}
+      # dhl: home-orders-archived-1440.png shows only count pills on state tabs (the exception, not the rule); order rows show state as a "Saved order" icon, not a text badge (orders-new-row-structure.aria.yaml); integrations have no status badge (summary Q19); the order-detail title status is seen only in ARIA text, tint not captured. Review: downgraded observed -> absent
+      - {portal: dhl, status: absent, page_type: index}
+      # cloudflare: zone-ssl-edge-certs-1440.png: green tinted "Active" and "Backup Issued" badges; text pills "New" in the sidebar; plan pill "free" in the zone banner
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: Status columns in tables, states next to detail titles, lifecycle labels (New, Beta) and plan labels.
+    exceptions: Counts on work-queue tabs may use a neutral pill with only a number, since the tab label carries the meaning. Icon-only status is acceptable only with an accessible name and a tooltip.
+    do: '"Active" in dark green text on a pale green rounded badge; "Failed" in dark red on pale red.'
+    dont: A green dot with no text, or green used for "Active" on one page and for "Draft" on another.
+    check_static: Badge component accepts only a closed set of tones (e.g. success, warning, critical, info, neutral) and requires a text child; grep for raw hex or colour props passed to badges finds none. Each badge's text/background pair passes WCAG 4.5:1.
+    check_live: For every visible badge, read innerText (non-empty) and computed color/background-color; contrast is at least 4.5:1, and the same label text always renders with the same tone across pages.
+
+  - id: VIS-004
+    title: Short type scale with muted secondary text
+    rule: Use a four-step type scale (page title, section title, body, secondary) with one body size shared by labels, controls and table data, semibold headings, and a muted gray for descriptions and helper text.
+    why: A compact, predictable hierarchy keeps dense admin pages readable; muted secondary text lets labels and values lead while help stays available.
+    source: observed
+    evidence:
+      # shopify: settings-general-1440.png: large page title, semibold card titles, gray descriptions under titles and fields
+      - {portal: shopify, status: observed, page_type: settings_page}
+      # dhl: settings-options-1440.png: semibold H1 + gray description, semibold card title, label + small gray helper per field
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: Kumo design skill: 14px body/buttons/data, 16px+ only for headings, semibold headings, medium inline emphasis, never bold. Live pages are mixed: domains-overview.png follows it (H1 + gray subtitle), zone-ssl-edge-certs-1440.png has a card heading larger than the page H1, so kept as documented only
+      - {portal: cloudflare, status: documented, page_type: other}
+    confidence: high
+    applies_when: All admin pages.
+    exceptions: KPI tiles and big numbers on a home page may use a larger display size for the figure itself. Marketing or empty-state illustrations are outside the scale.
+    do: 24 px semibold page title, 16 px semibold card title, 14 px regular labels and data, 13-14 px gray helper text.
+    dont: Six font sizes on one page, bold body text for emphasis, or helper text in the same colour and weight as labels.
+    check_static: Collect font-size and font-weight values from tokens or CSS; admin views use at most 5 sizes, labels, controls and table data share one size between 13 and 14 px, heading weights are 600, and no 700+ weight appears in body copy. Muted text token contrast against its background is at least 4.5:1.
+    check_live: On a settings page and an index page, read computed font-size of labels, table cells and buttons (all equal, 13-14 px) and of h1/h2 (larger, weight 600, and no section heading larger than the h1); check that helper paragraphs have a lighter colour than labels and still pass 4.5:1 contrast.
+
+  - id: VIS-005
+    title: One outline icon set in text colour
+    rule: Use a single outline icon set with one stroke weight and size per context, drawn in the surrounding text colour, and add colour to an icon only to mark the active item or a status.
+    why: Mixed icon styles and coloured icons add noise without meaning; a uniform set lets the label and the active state do the work.
+    source: observed
+    evidence:
+      # shopify: products.png, settings-general-1440.png: monochrome outline icons in nav and settings list; Polaris navigation doc: gray inactive, green active
+      - {portal: shopify, status: observed, page_type: global}
+      # dhl: home-orders-archived-1440.png: sidebar matches (only the active item's icon in red), BUT settings-options-1440.png and home-orders-archived-1440.png colour non-active icons red too (select and button chevrons, page-title gear, table-header gear). Review: downgraded observed -> absent
+      - {portal: dhl, status: absent, page_type: global}
+      # cloudflare: domains-overview.png, zone-ssl-edge-certs-1440.png: gray outline icons for each sidebar group; Kumo Sidebar: optional icon per item. Exception seen: blue row-expand arrows in the edge-certificates table
+      - {portal: cloudflare, status: observed, page_type: global}
+    confidence: medium
+    applies_when: Navigation, settings lists, buttons with icons and table headers.
+    exceptions: Product or integration logos and object thumbnails keep their own colours. Status icons take their status hue.
+    do: 20 px outline icons in gray-700 next to each menu label; the active item's icon switches to the accent or to full-contrast text.
+    dont: Filled icons in the sidebar, outline icons in buttons, and a different colour per menu item.
+    check_static: All icons are imported from one icon package (or one SVG sprite); icon SVGs use stroke="currentColor"/fill="currentColor" rather than hard-coded colours; sizes come from 1-2 tokens.
+    check_live: Inspect sidebar and button icons; computed color equals the parent text colour for inactive items, and only the active item or a status icon differs.
+
+  - id: VIS-006
+    title: Disabled looks faded but stays in place
+    rule: Render a disabled control at its normal size and position in a faded version of its own style, and never hide it or turn it into plain text.
+    why: Keeping it in place shows that the option exists and where it will be; the faded look says it cannot be used now, and the reason (see help-text rules) says why.
+    source: observed
+    evidence:
+      # shopify: settings-general-1440.png: faded Time zone select; growth-campaigns: disabled Sort button and tabs on an empty list
+      - {portal: shopify, status: observed, page_type: settings_page}
+      # dhl: settings-options-1440.png: Save shown as faded red until a change; settings-packing-slip: disabled checkbox with visible reason
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: zone-ssl-edge-certs-1440.png: faded blue "Order an advanced certificate" / "Upload a custom certificate"; zone-overview: plan-locked disabled switch + "Upgrade plan"
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: high
+    applies_when: Controls unavailable because of state (no changes yet, empty list), permissions or plan.
+    exceptions: Actions the user can never get (no role or plan path leads to them) may be omitted. A locked feature may replace a whole tab with an upsell message instead of disabled controls.
+    do: A Save button at 40-50 % opacity of the accent, same width, with aria-disabled and a tooltip or nearby text explaining why.
+    dont: Removing the Save button until something changes, or graying it so far that the label is unreadable.
+    check_static: Disabled variants are derived from the enabled style (opacity between 0.4 and 0.6, or a lighter tint of the same hue), not a separate gray component, and never use display:none or visibility:hidden. Templates do not wrap unavailable actions in conditional rendering that removes them.
+    check_live: Open a form without changes and a plan- or permission-locked feature; each disabled control is in the DOM, has [disabled] or aria-disabled="true", has the same bounding-box size as its enabled state, non-empty label text, and computed opacity of at least 0.4.
+
+  - id: VIS-007
+    title: Rounded corners from one scale, nested concentrically
+    rule: Take corner radii from a small scale (control, card, pill) and give a nested element a radius equal to its container's radius minus the padding between them.
+    why: One radius scale makes components read as one system, and concentric corners keep nested shapes from looking misaligned.
+    source: observed
+    evidence:
+      # shopify: products.png, settings-general-1440.png: rounded content sheet, cards, inputs and pill buttons, inner radii smaller than outer
+      - {portal: shopify, status: observed, page_type: global}
+      # dhl: settings-options-1440.png: small uniform radius on inputs, buttons, cards and pills
+      - {portal: dhl, status: observed, page_type: global}
+      # cloudflare: domains-overview.png: rounded search, buttons and table card; Kumo design skill: use concentric radii
+      - {portal: cloudflare, status: documented, page_type: other}
+    confidence: high
+    applies_when: Cards, inputs, buttons, badges, menus and dialogs.
+    exceptions: Full-width bars (top banner, sticky save bar) and table cells stay square.
+    do: Card radius 12 px with 8 px padding around an inner input of radius 4 px; badges fully rounded.
+    dont: Cards at 4 px, buttons at 10 px, inputs at 6 px and menus at 16 px chosen ad hoc.
+    check_static: All border-radius values come from 3-4 tokens; grep the CSS for literal border-radius values outside the token file finds none. For nested rounded elements, inner radius <= outer radius minus padding.
+    check_live: Read computed border-radius of buttons, inputs, cards, badges and menus on two pages; every value belongs to the token set and the same component uses the same value everywhere.
+
+  - id: VIS-008
+    title: Flat surfaces separated by one border
+    rule: Separate surfaces with a single 1 px border or ring rather than border plus shadow, keep cards one level deep, and give sticky bars a border against scrolling content.
+    why: Stacked shadows and cards inside cards blur which layer is which; a single hairline keeps dense pages calm and makes sticky elements read as fixed.
+    source: observed
+    evidence:
+      # shopify: settings-general-1440.png: no card-in-card, BUT cards have a light border plus a soft drop shadow (visible on an enlarged card corner), which contradicts "border, not border plus shadow". Review: downgraded observed -> absent
+      - {portal: shopify, status: absent, page_type: settings_page}
+      # dhl: settings-options-1440.png: annotated card with a 1 px border; sticky Save bar separated by a top border
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: domains-overview.png: bordered table card, header separated by a bottom border; Kumo design skill: ring not border plus shadow, no stacked layer cards, border between sticky and scrolling areas. Exception seen: zone-ssl-edge-certs nests a table inside a card
+      - {portal: cloudflare, status: documented, page_type: other}
+    confidence: medium
+    applies_when: Cards, tables, sticky headers, sticky save bars and side panels.
+    exceptions: Floating layers (menus, popovers, dialogs, toasts) use a shadow to show they sit above the page. A table may sit inside a card when the card is its only container.
+    do: White card with a 1 px gray border on a light gray page; sticky save bar with a 1 px top border.
+    dont: A card with border and drop shadow containing another bordered, shadowed card.
+    check_static: Card and panel styles set either border or box-shadow, not both; no card component renders another card component as a direct descendant; sticky elements (position sticky or fixed) have a border on their content-facing edge.
+    check_live: Scroll a long settings page; the sticky bar stays visually separated by a border. Inspect cards; computed box-shadow is none (or a ring) when a border is set, and no card contains another card.
+
+  - id: VIS-009
+    title: Light and dark appearance from semantic tokens
+    rule: Define every colour as a semantic token (surface, text, muted, border, accent, status tones) and offer light and dark appearance as a personal preference that swaps those tokens.
+    why: Admin users work long sessions in varied light; semantic tokens make a dark mode a token swap instead of a second design and keep status colours meaningful in both.
+    source: observed
+    evidence:
+      # shopify: no appearance option found in the profile menu or settings (chrome-profile)
+      - {portal: shopify, status: absent, page_type: global}
+      # dhl: profile-menu.aria.yaml "Toggle dark mode"; settings-interface.aria.yaml "Display mode" combobox (Light/Dark). Whether it is stored per user or per account is not stated; semantic tokens are not observable (inferred)
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: profile: "Appearance" select (Light); shortcut d . toggles dark mode (keyboard shortcuts changelog)
+      - {portal: cloudflare, status: observed, page_type: settings_page}
+    confidence: medium
+    applies_when: Products used for long working sessions or by technical users.
+    exceptions: Customer-facing previews always render in the customer's own colours regardless of the admin appearance.
+    do: '"Appearance: System / Light / Dark" in the user profile, applied instantly, stored per user.'
+    dont: 'Hard-coded #fff backgrounds and #333 text scattered through components, or dark mode stored as an account-wide setting.'
+    check_static: Components reference colour tokens only; grep for literal hex/rgb colours outside the token files finds none. A dark token set exists with values for every light token, and status pairs pass 4.5:1 in both.
+    check_live: Switch appearance to Dark in the profile; on a home, an index and a settings page the body background is dark (relative luminance below 0.2), every visible text and badge pair passes 4.5:1, the choice survives a reload, and another user's session stays on its own setting.
+
+  - id: VIS-010
+    title: User-selectable row density on work queues
+    rule: On tables people process all day, let each user choose between a compact and a comfortable row density, and keep the choice per user.
+    why: Power users want more rows on screen while occasional users need room to read; a per-user density setting serves both without changing the default layout.
+    source: observed
+    evidence:
+      # shopify: products.png: one fixed medium density, no density option seen
+      - {portal: shopify, status: absent, page_type: index}
+      # dhl: settings-interface.aria.yaml: "Orders grid layout" select, Compact (one line) or Expanded (items, SKUs, bin locations separated). Per-user vs per-account storage not stated
+      - {portal: dhl, status: observed, page_type: settings_page}
+      # cloudflare: domains-overview.png: one fixed high density, no density option seen
+      - {portal: cloudflare, status: absent, page_type: index}
+    confidence: low
+    applies_when: Work-queue tables with many rows handled repeatedly (orders, tickets, shipments).
+    exceptions: Occasional lists and settings pages keep one fixed density (see the layout rule on constant density).
+    do: '"Row density: Compact / Comfortable" in the table settings menu, remembered for that user.'
+    dont: Changing row height between sections of the same page, or one global density switch that also shrinks forms.
+    check_static: The work-queue table component takes a density prop bound to a stored user preference; row height values come from two spacing tokens.
+    check_live: Switch density on the work-queue table; row height changes, other pages stay unchanged, and the choice persists after reload and on the next login.
