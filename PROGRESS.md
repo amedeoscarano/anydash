@@ -3,9 +3,10 @@
 Resume point for any new session. Read `MISSION.md` (local only, gitignored) first.
 
 ## Current phase
-Phase 5, M1 done (2026-10-28). GATE 2 OK (keep CTL-002 and SAV-002 at high, documented by Polaris). GATE 3 OK (v0.1 after M3; M4 and M5 in v0.2).
-M1 commit a43ac5b on m1-foundations and main, pushed to private repo github.com/amedeoscarano/anydash.
-Verified: `claude plugin validate .` and on plugin.json pass; `npx skills add . --list` finds rule-library.
+Phase 5, M2 done (2026-10-28). GATE 2 OK (keep CTL-002 and SAV-002 at high). GATE 3 OK (v0.1 after M3; M4 and M5 in v0.2).
+M1 a43ac5b, M2 d268135; main and m1-foundations, m2-design pushed to private repo github.com/amedeoscarano/anydash.
+M2: 18 design skills + build, states, onboard. Per-group critic review, cross-skill consistency review, /dash:build --plan dry run; 36 issues closed or filed in ROADMAP.md.
+Verified: `claude plugin validate .` passes; `npx skills add . --list` finds 22 skills; validate ok; 17 tests pass; gitleaks clean.
 
 ### History
 Phase 2 running (2026-10-27). GATE 1 passed: owner logged in, verified by title/URL on all 3 tabs. ffmpeg + gitleaks install approved.
@@ -50,4 +51,4 @@ Phase 3 running on branch m1-foundations: wf_2041dd65-eaa (comparison.md → rul
 - `~/dash-research/{shopify,dhl,cloudflare,docs}/pages/` (private)
 
 ## Next step
-M2 on branch m2-design: design skills (nav-placement ... visual-tokens) and /dash:build, /dash:states, /dash:onboard. Then M3. Still open: DHL onboarding interview (5 questions) and 3 GATE 2 questions; dhl-simplicity framework waits for them.
+M3 on branch m3-review: static-rule-audit, browser-adapter (bin/cdp.mjs + safe-click as third-party-readonly mode), live-rule-audit, visual-audit, /dash:review, /dash:review-live, /dash:polish, examples/flawed-dashboard (15 seeded violations + EXPECTED_FINDINGS.md). Still open: DHL interview and 3 GATE 2 questions.
