@@ -1,7 +1,7 @@
 # AI interaction model (question 14)
 
 How an admin AI assistant is reached, what it knows, how it proposes changes, and where inline AI belongs.
-Sources: `dash-research/comparison.md` Q14, portal summaries and `ai-questions.md` (verification notes win), public docs.
+Sources: private research notes (`comparison.md`) Q14, portal summaries and `ai-questions.md` (verification notes win), public docs.
 Marks: **obs** observed live, **doc** public docs, **inf** inferred, **abs** looked for, not found.
 The DHL owner interview is not answered yet; nothing here relies on it.
 

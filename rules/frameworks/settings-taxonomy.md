@@ -1,7 +1,7 @@
 # Settings taxonomy
 
 Answers research questions 4 (which panels always end in settings) and 9 (how settings sections are grouped).
-Evidence: `dash-research/comparison.md` Q4, Q9, H3, H8 (Shopify = S, DHL = D, Cloudflare = C).
+Evidence: private research notes (`comparison.md`) Q4, Q9, H3, H8 (Shopify = S, DHL = D, Cloudflare = C).
 Rules are cited by ID, not restated. "Inferred" marks a step not backed by observation in 2 or more portals.
 DHL owner interview is not yet done; nothing here depends on it.
 

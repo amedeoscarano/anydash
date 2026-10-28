@@ -1,7 +1,7 @@
 # Global chrome map (question 13)
 
 Where search, notifications, help, AI, profile and the scope switcher live, as observed in three admin portals, and where to put them.
-Sources: `dash-research/comparison.md` Q13 and Q20, portal summaries (verification notes win), public docs.
+Sources: private research notes (`comparison.md`) Q13 and Q20, portal summaries (verification notes win), public docs.
 Marks: **obs** observed live, **doc** public docs, **inf** inferred, **abs** looked for, not found.
 The DHL owner interview is not answered yet; nothing here relies on it.
 

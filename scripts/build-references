@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Generate rules/RULEBOOK.md (and, once skills exist, each skill's references/rules.md) from rules/source.
+// Generate rules/RULEBOOK.md, each skill's references/rules.md and its framework copies from rules/.
 // Usage: scripts/build-references [--check]   --check fails if a generated file is out of date.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadRules, AREAS } from './lib/rules.mjs';
-import { renderRulebook, renderSkillRules } from './lib/render.mjs';
+import { renderRulebook, renderSkillRules, HEADER } from './lib/render.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
@@ -25,6 +25,16 @@ if (fs.existsSync(skillsDir)) {
     if (unknown.length) { console.error(`ERROR skills/${name}: unknown areas ${unknown.join(', ')}`); process.exit(1); }
     const areas = wanted.includes('all') ? Object.keys(AREAS) : wanted;
     outputs.push([path.join(skillsDir, name, 'references', 'rules.md'), renderSkillRules(name, rules, areas)]);
+    // Optional references/frameworks.txt: framework file names (without .md), or "all". Copied, since installed skills cannot reach rules/.
+    const fwFile = path.join(skillsDir, name, 'references', 'frameworks.txt');
+    if (!fs.existsSync(fwFile)) continue;
+    const fwDir = path.join(root, 'rules', 'frameworks');
+    const available = fs.readdirSync(fwDir).filter((f) => f.endsWith('.md')).map((f) => f.slice(0, -3)).sort();
+    const fws = fs.readFileSync(fwFile, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean);
+    const missing = fws.filter((f) => f !== 'all' && !available.includes(f));
+    if (missing.length) { console.error(`ERROR skills/${name}: unknown frameworks ${missing.join(', ')}`); process.exit(1); }
+    for (const f of fws.includes('all') ? available : fws)
+      outputs.push([path.join(skillsDir, name, 'references', 'frameworks', `${f}.md`), HEADER + fs.readFileSync(path.join(fwDir, `${f}.md`), 'utf8')]);
   }
 }
 
@@ -33,6 +43,7 @@ for (const [file, text] of outputs) {
   const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
   if (current === text) continue;
   if (check) { console.error(`STALE ${path.relative(root, file)}`); stale++; continue; }
+  fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, text);
   console.log(`wrote ${path.relative(root, file)}`);
 }
