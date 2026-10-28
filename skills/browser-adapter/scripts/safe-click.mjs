@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Read-only guard for live third-party portals: decides if an element may be clicked
-// from its ARIA role and accessible name. Usage: bin/safe-click.mjs <role> <name>
+// from its ARIA role and accessible name. Usage: scripts/safe-click.mjs <role> <name>
 // Exit 0 = allowed, 1 = denied (reason on stderr).
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 // Roles that only navigate or open views.
 const ALLOWED_ROLES = new Set(['link', 'tab', 'button', 'menuitem', 'treeitem']);
@@ -51,7 +53,7 @@ export function check(role, name) {
   return { ok: true };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) {
   const [role, ...rest] = process.argv.slice(2);
   const res = check(role, rest.join(' '));
   if (!res.ok) { console.error(`DENY: ${res.reason}`); process.exit(1); }

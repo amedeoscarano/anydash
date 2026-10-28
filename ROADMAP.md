@@ -21,3 +21,9 @@ Open work filed from reviews. Each line says where it came from.
 - `/dash:compare`: the same task on our dashboard and on a reference portal.
 - `/dash:copy`: microcopy and terminology audit.
 - `/dash:a11y`: WCAG 2.2 AA audit.
+
+## Review precision (from the first blind runs, see evals/review/RESULTS.md)
+
+- `static-rule-audit`: do not extend CTL-002 to instant switches; treat a Save that stays disabled while clean as inactive for VIS-002; check FDB-008 only for regions present at load; accept per-region Retry for STA-004.
+- `live-rule-audit`: ignore native browser behaviour (Escape clears `type=search`) for CHR-002.
+- flawed-dashboard: fix the known unseeded issues listed in its answer key, or seed them as extra rows.

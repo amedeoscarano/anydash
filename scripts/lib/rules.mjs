@@ -82,7 +82,7 @@ export function scanPrivate(root, rel, extraTerms = []) {
   const walk = (p) => {
     if (!fs.statSync(p).isDirectory()) return scanFile(p);
     for (const e of fs.readdirSync(p, { withFileTypes: true }))
-      if (!['node_modules', '.git'].includes(e.name)) walk(path.join(p, e.name));
+      if (!['node_modules', '.git', '.next'].includes(e.name)) walk(path.join(p, e.name));
   };
   for (const r of rel) if (fs.existsSync(path.join(root, r))) walk(path.join(root, r));
   return hits;

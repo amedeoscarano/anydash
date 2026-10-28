@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-// Read-only driver for the dedicated research Chrome (CDP on 127.0.0.1 only).
+// Third-party-readonly driver: attaches to a Chrome you started with CDP on 127.0.0.1 only.
 // Every command addresses one tab by CDP target id, so parallel agents never share an "active tab".
 //
-//   bin/cdp.mjs list
-//   bin/cdp.mjs info       <target>
-//   bin/cdp.mjs snapshot   <target> [out.yaml]        ARIA snapshot (roles + names)
-//   bin/cdp.mjs screenshot <target> <out.png>         viewport only
-//   bin/cdp.mjs goto       <target> <url>             same-origin only, rate limited
-//   bin/cdp.mjs click      <target> <role> <name...>  guarded by safe-click
-//   bin/cdp.mjs key        <target> Escape
-//   bin/cdp.mjs viewport   <target> <W>x<H>
-//   bin/cdp.mjs responsive <target> <prefix> [--no-png]   ARIA + PNG at 1440/1024/768/390
-//   bin/cdp.mjs ask        <target> <composer name> <out.yaml> <question?>   AI panel only, lead use
+//   scripts/readonly.mjs list
+//   scripts/readonly.mjs info       <target>
+//   scripts/readonly.mjs snapshot   <target> [out.yaml]        ARIA snapshot (roles + names)
+//   scripts/readonly.mjs screenshot <target> <out.png>         viewport only
+//   scripts/readonly.mjs goto       <target> <url>             same-origin only, rate limited
+//   scripts/readonly.mjs click      <target> <role> <name...>  guarded by safe-click
+//   scripts/readonly.mjs key        <target> Escape
+//   scripts/readonly.mjs viewport   <target> <W>x<H>
+//   scripts/readonly.mjs responsive <target> <prefix> [--no-png]   ARIA + PNG at 1440/1024/768/390
+//   scripts/readonly.mjs ask        <target> <composer name> <out.yaml> <question?>   AI panel only, lead use
 import { chromium } from 'playwright-core';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,7 +19,7 @@ import os from 'node:os';
 import { check } from './safe-click.mjs';
 
 const ENDPOINT = process.env.CDP_ENDPOINT || 'http://127.0.0.1:9333';
-const RATE_DIR = path.join(os.homedir(), 'dash-research', '.rate');
+const RATE_DIR = path.join(os.tmpdir(), 'dash-rate');
 const MIN_GAP_MS = 5000;
 
 if (!/^https?:\/\/127\.0\.0\.1:\d+$/.test(ENDPOINT)) die('CDP_ENDPOINT must be http://127.0.0.1:<port>');
@@ -54,7 +54,7 @@ async function settle(page) {
 }
 
 const [cmd, target, ...args] = process.argv.slice(2);
-if (!cmd) die('usage: see header of bin/cdp.mjs');
+if (!cmd) die('usage: see header of scripts/readonly.mjs');
 
 // An agent that owns one tab sets DASH_TARGET, so a shared helper script can never drive another agent's tab.
 if (process.env.DASH_TARGET && cmd !== 'list' && target !== process.env.DASH_TARGET) die(`target ${target} is not DASH_TARGET`);
