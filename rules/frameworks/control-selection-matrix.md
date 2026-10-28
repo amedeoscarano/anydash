@@ -2,7 +2,7 @@
 
 Answers research questions 6 (tick vs pick from a list), 8 (which input control) and 15 (save model).
 Decide the save model first, then the shape of the value, then the option count (inferred ordering: documented by Polaris, not observed as a stated rule in any portal).
-Every cell points to a rule in `rules/source/*.yaml`. "No rule yet" marks a gap. *Inferred* marks a step no portal showed directly.
+Every cell points to a rule in the rulebook (`references/rules.md`, or the rule-library skill). "No rule yet" marks a gap. *Inferred* marks a step no portal showed directly.
 
 ## Step 1: save model of the page or section
 

@@ -25,3 +25,8 @@ test('name, description, keys and links are checked', () => {
   assert.match(errs.join('\n'), /1025 chars/);
   assert.match(errs.join('\n'), /links missing references\/nope.md/);
 });
+
+test('cited rule IDs must exist', () => {
+  const dir = skill('ids', '---\nname: ids\ndescription: D.\n---\nApply NAV-001 and NAV-999.\n');
+  assert.deepEqual(checkSkill(dir, new Set(['NAV-001'])), ['skills/ids/SKILL.md: unknown rule NAV-999']);
+});

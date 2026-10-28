@@ -5,7 +5,7 @@
 Research question 18 (onboarding and integrations), applied to DHL Express Commerce, the portal the owner calls "fast and simple".
 Evidence: private research notes (`dhl/summary.md`) (verification notes win), `comparison.md` Q1, Q2, Q9, Q12, Q18, `docs/dhl.md`.
 Status: **obs** = seen in the account or its settings audit log; **doc** = public docs only; **[inferred]** = not shown directly.
-Rules are cited by ID from `rules/source/*.yaml`, not restated.
+Rules are cited by ID from the rulebook (`references/rules.md`, or the rule-library skill), not restated.
 
 > **OWNER INTERVIEW: PENDING.** The DHL onboarding interview is not answered. Nothing below draws on it.
 > Every claim marked C1-C8 in section 6 must be confirmed or refuted by it before the matching rule's confidence is raised.

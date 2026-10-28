@@ -12,8 +12,9 @@ const termsFile = path.join(root, '.private-terms');
 const terms = fs.existsSync(termsFile) ? fs.readFileSync(termsFile, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean) : [];
 
 const { rules, errors } = loadRules(root);
-errors.push(...frameworkRefs(root, new Set(rules.map((r) => r.id))));
-errors.push(...checkSkills(root));
+const ids = new Set(rules.map((r) => r.id));
+errors.push(...frameworkRefs(root, ids));
+errors.push(...checkSkills(root, ids));
 const publicDirs = ['rules', 'skills', 'docs', 'examples', 'evals', 'scripts', '.claude-plugin', 'README.md', 'CHANGELOG.md', 'ROADMAP.md'];
 for (const hit of scanPrivate(root, publicDirs, terms)) errors.push(`private data pattern at ${hit}`);
 

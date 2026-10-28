@@ -2,7 +2,7 @@
 
 Research question 7. Use it when you add a function (a page, setting, action or tool) and must choose its home.
 Homes: sidebar, sub-nav, settings, object page, top bar, command palette, setup checklist.
-Each branch cites rule IDs from `rules/source/*.yaml`. Do not restate them here. "[inferred]" marks a step that no portal shows directly.
+Each branch cites rule IDs from the rulebook (`references/rules.md`, or the rule-library skill). Do not restate them here. "[inferred]" marks a step that no portal shows directly.
 
 ## The tree (ask in order, stop at the first yes)
 

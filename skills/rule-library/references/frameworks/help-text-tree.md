@@ -3,7 +3,7 @@
 # Help text decision tree (question 10)
 
 Which help form a piece of explanation gets: visible text, tooltip, docs link, banner, or nothing.
-Rules live in `rules/source/*.yaml`; this page only routes to them. Evidence: 3 reference portals
+Rules live in the rulebook (`references/rules.md`, or the rule-library skill); this page only routes to them. Evidence: 3 reference portals
 (cross-portal comparison, Q10; hypothesis H7 confirmed for visible essentials and docs links,
 partial for tooltips). "(inferred)" marks routing not backed by an observed or documented rule.
 
