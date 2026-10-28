@@ -3,10 +3,10 @@
 Resume point for any new session. Read `MISSION.md` (local only, gitignored) first.
 
 ## Current phase
-Phase 5, M2 done (2026-10-28). GATE 2 OK (keep CTL-002 and SAV-002 at high). GATE 3 OK (v0.1 after M3; M4 and M5 in v0.2).
-M1 a43ac5b, M2 d268135; main and m1-foundations, m2-design pushed to private repo github.com/amedeoscarano/anydash.
-M2: 18 design skills + build, states, onboard. Per-group critic review, cross-skill consistency review, /dash:build --plan dry run; 36 issues closed or filed in ROADMAP.md.
-Verified: `claude plugin validate .` passes; `npx skills add . --list` finds 22 skills; validate ok; 17 tests pass; gitleaks clean.
+GATE 4 (2026-10-28): waiting for the owner. Report in `GATE4.md` (local). v0.1 = M1-M3 complete; Phase 6 tests done except a real headless session run (CLI has no login) and Codex/Cursor (not installed).
+Commits: M1 a43ac5b, M2 d268135 (main), M3 65a20c7 (m3-review, pushed), release d5be94e (v0.1-release, local: push-check hook blocks pushes on a false positive).
+Blind runs: /dash:review 13/15, /dash:review-live 15/15. Evals in evals/*/RESULTS.md.
+Verified: plugin validate pass; skills CLI finds 29 skills; validate ok; 35 tests; gitleaks clean on history and tree.
 
 ### History
 Phase 2 running (2026-10-27). GATE 1 passed: owner logged in, verified by title/URL on all 3 tabs. ffmpeg + gitleaks install approved.
@@ -36,3 +36,15 @@ Phase 3 running on branch m1-foundations: wf_2041dd65-eaa (comparison.md → rul
 
 ## Browser targets (REA `list_browser_targets`, 127.0.0.1:9333)
 Tab ids are kept in the private research notes (they change with each browser session).
+
+- D3 2026-10-27: no `bin/with-browser-lock`. `bin/cdp.mjs` addresses each tab by CDP target id per command, so agents never share an active tab. Navigation pacing (≥5 s per tab) is a timestamp file in `~/dash-research/.rate/`.
+
+## Files produced
+- `.gitignore`, `PROGRESS.md`, `package.json` (playwright-core 1.62.1 pinned)
+- `bin/safe-click.mjs` (+ test, 6 green): role allowlist, EN/IT verb denylist, lighter list for links
+- `bin/cdp.mjs`: list, info, snapshot, screenshot, goto (same origin), click (safe-click guarded), Escape, viewport; dialogs always dismissed
+- SA-Docs done 2026-10-27 → `~/dash-research/docs/{polaris,dhl,cloudflare,sources}.md` (63 URLs). Polaris strong; Cloudflare medium (Kumo, changelogs); DHL weak (help center 403, snippets only, lower confidence). Gaps: Polaris saved views/permissions/Learn-more; DHL menu, save model, states; Cloudflare control and save guidance.
+- `~/dash-research/{shopify,dhl,cloudflare,docs}/pages/` (private)
+
+## Next step
+Owner decisions at GATE 4: author email in history, push-check hook false positive, CLI login for a live session run, then go public (visibility, secret scanning, push protection, About, topics, release v0.1.0, install from GitHub in a clean session). Closing: close the research browser and CDP port, ask about the Chrome profile and portal logout. Still open: DHL interview and 3 GATE 2 questions. v0.2: M4, M5.
