@@ -1,0 +1,16 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/"}
+{"t":500,"tab":0,"type":"move","x":40,"y":100}
+{"t":700,"tab":0,"type":"move","x":220,"y":100}
+{"t":900,"tab":0,"type":"move","x":40,"y":140}
+{"t":1100,"tab":0,"type":"move","x":220,"y":140}
+{"t":1300,"tab":0,"type":"move","x":40,"y":180}
+{"t":1500,"tab":0,"type":"move","x":220,"y":180}
+{"t":1700,"tab":0,"type":"move","x":40,"y":220}
+{"t":2000,"tab":0,"type":"click","x":40,"y":220,"button":0,"target":{"tag":"a","role":"link","name":"Packages","selector":"nav > a:nth-of-type(4)"},"control":{"tag":"a","role":"link","name":"Packages","selector":"nav > a:nth-of-type(4)"}}
+{"t":2100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/packages"}
+{"t":3000,"tab":0,"type":"move","x":30,"y":300}
+{"t":3100,"tab":0,"type":"move","x":30,"y":400}
+{"t":3200,"tab":0,"type":"move","x":30,"y":500}
+{"t":3300,"tab":0,"type":"move","x":30,"y":600}
+{"t":3500,"tab":0,"type":"click","x":30,"y":600,"button":0,"target":{"tag":"a","role":"link","name":"Orders","selector":"nav > a:nth-of-type(1)"},"control":{"tag":"a","role":"link","name":"Orders","selector":"nav > a:nth-of-type(1)"}}
+{"t":3600,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/orders"}

@@ -1,0 +1,28 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/"}
+{"t":200,"tab":0,"type":"mutations","count":80}
+{"t":1500,"tab":0,"type":"click","x":80,"y":160,"button":0,"target":{"tag":"a","role":"link","name":"Shipping","selector":"nav > a:nth-of-type(3)"},"control":{"tag":"a","role":"link","name":"Shipping","selector":"nav > a:nth-of-type(3)"}}
+{"t":1600,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/shipping"}
+{"t":1700,"tab":0,"type":"mutations","count":30}
+{"t":4000,"tab":0,"type":"click","x":500,"y":300,"button":0,"target":{"tag":"span","role":null,"name":"Package weight","selector":"main > span.plain"},"control":null}
+{"t":6000,"tab":0,"type":"click","x":502,"y":301,"button":0,"target":{"tag":"span","role":null,"name":"Package weight","selector":"main > span.plain"},"control":null}
+{"t":8500,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/"}
+{"t":8600,"tab":0,"type":"mutations","count":80}
+{"t":9990,"tab":0,"type":"click","x":700,"y":30,"button":0,"target":{"tag":"input","role":"searchbox","name":"Search","selector":"input#search"},"control":{"tag":"input","role":"searchbox","name":"Search","selector":"input#search"}}
+{"t":10000,"tab":0,"type":"focus","target":{"tag":"input","role":"searchbox","name":"Search","selector":"input#search"}}
+{"t":10100,"tab":0,"type":"input","field":"Search","length":1,"inputType":"insertText","selector":"input#search"}
+{"t":10200,"tab":0,"type":"input","field":"Search","length":2,"inputType":"insertText","selector":"input#search"}
+{"t":10300,"tab":0,"type":"input","field":"Search","length":3,"inputType":"insertText","selector":"input#search"}
+{"t":10400,"tab":0,"type":"input","field":"Search","length":4,"inputType":"insertText","selector":"input#search"}
+{"t":10500,"tab":0,"type":"input","field":"Search","length":5,"inputType":"insertText","selector":"input#search"}
+{"t":10600,"tab":0,"type":"input","field":"Search","length":6,"inputType":"insertText","selector":"input#search"}
+{"t":10700,"tab":0,"type":"mutations","count":10}
+{"t":12000,"tab":0,"type":"click","x":700,"y":90,"button":0,"target":{"tag":"a","role":"link","name":"Default package weight","selector":"ul#results > li > a"},"control":{"tag":"a","role":"link","name":"Default package weight","selector":"ul#results > li > a"}}
+{"t":12100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/packages"}
+{"t":12200,"tab":0,"type":"mutations","count":50}
+{"t":13000,"tab":0,"type":"click","x":400,"y":200,"button":0,"target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"},"control":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":13001,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":13200,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"insertText","selector":"input#weight"}
+{"t":13300,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"insertText","selector":"input#weight"}
+{"t":14500,"tab":0,"type":"click","x":400,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"}}
+{"t":14510,"tab":0,"type":"submit","name":"pkg","selector":"form#pkg"}
+{"t":14600,"tab":0,"type":"mutations","count":5}

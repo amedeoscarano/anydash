@@ -1,0 +1,11 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/orders"}
+{"t":1000,"tab":0,"type":"click","x":100,"y":200,"button":0,"target":{"tag":"a","role":"link","name":"Settings","selector":"nav > a:nth-of-type(5)"},"control":{"tag":"a","role":"link","name":"Settings","selector":"nav > a:nth-of-type(5)"}}
+{"t":1100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings"}
+{"t":1200,"tab":0,"type":"mutations","count":60}
+{"t":3000,"tab":0,"type":"click","x":500,"y":200,"button":0,"target":{"tag":"a","role":"link","name":"Shipping","selector":"main > a:nth-of-type(2)"},"control":{"tag":"a","role":"link","name":"Shipping","selector":"main > a:nth-of-type(2)"}}
+{"t":3100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/shipping"}
+{"t":3200,"tab":0,"type":"mutations","count":40}
+{"t":6000,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings"}
+{"t":6100,"tab":0,"type":"mutations","count":60}
+{"t":8000,"tab":0,"type":"click","x":500,"y":260,"button":0,"target":{"tag":"a","role":"link","name":"Packages","selector":"main > a:nth-of-type(3)"},"control":{"tag":"a","role":"link","name":"Packages","selector":"main > a:nth-of-type(3)"}}
+{"t":8100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/packages"}

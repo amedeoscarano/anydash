@@ -1,0 +1,18 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/packages"}
+{"t":150,"tab":0,"type":"mutations","count":40}
+{"t":1000,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":1200,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"insertText","selector":"input#weight"}
+{"t":1300,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"insertText","selector":"input#weight"}
+{"t":1400,"tab":0,"type":"input","field":"Default weight","length":3,"inputType":"insertText","selector":"input#weight"}
+{"t":1600,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"deleteContentBackward","selector":"input#weight"}
+{"t":1700,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"deleteContentBackward","selector":"input#weight"}
+{"t":1800,"tab":0,"type":"input","field":"Default weight","length":0,"inputType":"deleteContentBackward","selector":"input#weight"}
+{"t":2000,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"insertText","selector":"input#weight"}
+{"t":2400,"tab":0,"type":"blur","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":2500,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Package name","selector":"input#name"}}
+{"t":2700,"tab":0,"type":"input","field":"Package name","length":1,"inputType":"insertText","selector":"input#name"}
+{"t":3400,"tab":0,"type":"blur","target":{"tag":"input","role":"textbox","name":"Package name","selector":"input#name"}}
+{"t":3500,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":3700,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"insertText","selector":"input#weight"}
+{"t":5000,"tab":0,"type":"click","x":400,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"}}
+{"t":5100,"tab":0,"type":"mutations","count":5}

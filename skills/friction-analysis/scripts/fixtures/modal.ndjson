@@ -1,0 +1,15 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/orders"}
+{"t":1000,"tab":0,"type":"click","x":600,"y":100,"button":0,"target":{"tag":"button","role":"button","name":"Filters","selector":"main > button.filters"},"control":{"tag":"button","role":"button","name":"Filters","selector":"main > button.filters"}}
+{"t":1100,"tab":0,"type":"mutations","count":30}
+{"t":1250,"tab":0,"type":"dialog_open","target":{"tag":"div","role":"dialog","name":"Filters","selector":"div#filters"}}
+{"t":3000,"tab":0,"type":"click","x":900,"y":120,"button":0,"target":{"tag":"button","role":"button","name":"Close","selector":"div#filters > button"},"control":{"tag":"button","role":"button","name":"Close","selector":"div#filters > button"}}
+{"t":3100,"tab":0,"type":"mutations","count":30}
+{"t":3250,"tab":0,"type":"dialog_close","target":{"tag":"div","role":"dialog","name":"Filters","selector":"div#filters"}}
+{"t":4000,"tab":0,"type":"click","x":700,"y":100,"button":0,"target":{"tag":"button","role":"button","name":"Export","selector":"main > button.export"},"control":{"tag":"button","role":"button","name":"Export","selector":"main > button.export"}}
+{"t":4100,"tab":0,"type":"mutations","count":30}
+{"t":4250,"tab":0,"type":"dialog_open","target":{"tag":"div","role":"dialog","name":"Export orders","selector":"div#export"}}
+{"t":4990,"tab":0,"type":"click","x":500,"y":300,"button":0,"target":{"tag":"input","role":"checkbox","name":"Include archived","selector":"input#arch"},"control":{"tag":"input","role":"checkbox","name":"Include archived","selector":"input#arch"}}
+{"t":5000,"tab":0,"type":"change","field":"Include archived","checked":true,"selector":"input#arch"}
+{"t":6000,"tab":0,"type":"click","x":800,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Export","selector":"div#export > button"},"control":{"tag":"button","role":"button","name":"Export","selector":"div#export > button"}}
+{"t":6100,"tab":0,"type":"mutations","count":30}
+{"t":6250,"tab":0,"type":"dialog_close","target":{"tag":"div","role":"dialog","name":"Export orders","selector":"div#export"}}

@@ -43,3 +43,9 @@ Open work filed from reviews. Each line says where it came from.
 - `/dash:build`: move section-applicability notes out of the `decisions.md` table into one line of their own (blind eval #12).
 - `static-rule-audit`: cite one defect once; a second rule goes in the same row as "also" (blind eval #2).
 - Evals: three more blind `/dash:build` runs to settle Products placement and the spec word budget; blind baseline for `/dash:review` prompt 2.
+
+## From M4 (friction)
+
+- `friction-analysis`: dead clicks off a settings page still map to SET-010 first; pick the rule from the clicked element's role and page type. The `/dash:friction` report corrects it after reading the frame. Source: evals/friction/RESULTS.md.
+- Calibrate `references/thresholds.json` on the first human recording (all timing so far comes from scripted delays).
+- The recorder's host allow-list is a copy of `ownapp.mjs`; keep the two in sync or share a module once skills can import siblings.
