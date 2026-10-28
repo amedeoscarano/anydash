@@ -2,6 +2,11 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## Unreleased (0.2.0)
+
+- M4: `/dash:friction` with `session-recorder` (headed Playwright recording, masked event log, video and trace kept local) and `friction-analysis` (11 friction signals, KLM baseline, bottleneck ranking, ffmpeg frames, before/after compare). Eval: the seeded detour in the example ranks as the top bottleneck.
+- M5: `/dash:clone`, `/dash:reconcile`, `/dash:learn` with `site-feature-mapper`, `api-surface-capture` (`har-shapes.mjs`: endpoint shapes without values), `api-ui-reconciliation` and `ui-pattern-mining`. Uses REA when present, with a fallback. Evals on the local example.
+
 ## 0.1.0 - 2026-10-28
 
 First public release. It covers milestones M1 to M3.

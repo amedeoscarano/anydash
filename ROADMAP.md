@@ -49,3 +49,9 @@ Open work filed from reviews. Each line says where it came from.
 - `friction-analysis`: dead clicks off a settings page still map to SET-010 first; pick the rule from the clicked element's role and page type. The `/dash:friction` report corrects it after reading the frame. Source: evals/friction/RESULTS.md.
 - Calibrate `references/thresholds.json` on the first human recording (all timing so far comes from scripted delays).
 - The recorder's host allow-list is a copy of `ownapp.mjs`; keep the two in sync or share a module once skills can import siblings.
+
+## From M5 (research)
+
+- REA `analyze_web_bundle` closed the connection twice on the example app; `site-feature-mapper` notes it and goes on. Retest with the next REA version.
+- `har-shapes.mjs`: a final path segment that varies fewer than 8 times stays literal; the skill asks for a manual `{id}` pass.
+- Re-run the clone, reconcile and learn evals after the critic's changes.

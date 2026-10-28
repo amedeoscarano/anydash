@@ -1,0 +1,75 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "Shipping admin API (synthetic)", "version": "0.3.0" },
+  "paths": {
+    "/api/orders": {
+      "get": {
+        "parameters": [
+          { "in": "query", "name": "status", "schema": { "$ref": "#/components/schemas/OrderStatusFilter" } },
+          { "in": "query", "name": "q", "schema": { "type": "string" } },
+          { "in": "query", "name": "sort", "schema": { "type": "string", "enum": ["asc", "desc"] } },
+          { "in": "query", "name": "size", "schema": { "type": "integer", "enum": [25, 50] } },
+          { "in": "query", "name": "page", "schema": { "type": "integer", "minimum": 1 } }
+        ],
+        "responses": { "200": { "content": { "application/json": { "schema": {
+          "type": "object", "required": ["orders", "counts"],
+          "properties": {
+            "orders": { "type": "array", "items": { "$ref": "#/components/schemas/OrderSummary" } },
+            "counts": { "type": "object", "additionalProperties": { "type": "integer" } }
+          } } } } } }
+      }
+    },
+    "/api/orders/{id}": {
+      "get": {
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Order" } } } },
+          "404": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "patch": {
+        "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderPatch" } } } },
+        "responses": {
+          "200": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Order" } } } },
+          "409": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "422": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OrderStatus": { "type": "string", "enum": ["pending", "shipped", "delivered", "canceled", "returned"] },
+      "OrderStatusFilter": { "type": "string", "enum": ["all", "pending", "shipped", "delivered", "canceled", "returned"] },
+      "OrderSummary": {
+        "type": "object", "required": ["id", "number", "status", "total"],
+        "properties": {
+          "id": { "type": "integer" }, "number": { "type": "string" }, "customer": { "type": "string" },
+          "email": { "type": "string", "format": "email" }, "date": { "type": "string", "format": "date-time" },
+          "status": { "$ref": "#/components/schemas/OrderStatus" }, "total": { "type": "integer", "description": "Minor units (cents)." }
+        }
+      },
+      "Order": {
+        "allOf": [
+          { "$ref": "#/components/schemas/OrderSummary" },
+          { "type": "object", "properties": {
+            "items": { "type": "array", "items": { "type": "object", "properties": {
+              "sku": { "type": "string" }, "name": { "type": "string" }, "qty": { "type": "integer" }, "price": { "type": "integer" } } } },
+            "history": { "type": "array", "items": { "type": "object", "properties": {
+              "at": { "type": "string", "format": "date-time" }, "by": { "type": "string" }, "text": { "type": "string" } } } },
+            "carrierReference": { "type": "string", "nullable": true },
+            "previousId": { "type": "integer", "nullable": true }, "nextId": { "type": "integer", "nullable": true },
+            "note": { "type": "string", "maxLength": 500 },
+            "updatedAt": { "type": "string", "format": "date-time" }
+          } }
+        ]
+      },
+      "OrderPatch": {
+        "type": "object",
+        "properties": { "status": { "$ref": "#/components/schemas/OrderStatus" }, "note": { "type": "string", "maxLength": 500 } }
+      },
+      "Error": { "type": "object", "properties": { "error": { "type": "string" }, "field": { "type": "string" } } }
+    }
+  }
+}

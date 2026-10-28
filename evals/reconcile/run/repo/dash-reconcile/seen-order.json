@@ -1,0 +1,111 @@
+[
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "carrierReference",
+    "type": "null|string"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "customer",
+    "type": "string"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "date",
+    "type": "string",
+    "format": "date-time"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "email",
+    "type": "string",
+    "format": "email"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "history[].at",
+    "type": "string",
+    "format": "date-time"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "history[].by",
+    "type": "string",
+    "enumCount": 2
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "history[].text",
+    "type": "string",
+    "enumCount": 2
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "id",
+    "type": "integer"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].name",
+    "type": "string",
+    "enumCount": 2
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].price",
+    "type": "integer"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].qty",
+    "type": "integer"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].sku",
+    "type": "string",
+    "enumCount": 4
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "nextId",
+    "type": "integer|null"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "number",
+    "type": "string"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "previousId",
+    "type": "integer"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "status",
+    "type": "string"
+  },
+  {
+    "op": "GET /api/orders/{id}",
+    "dir": "response",
+    "path": "total",
+    "type": "integer"
+  }
+]

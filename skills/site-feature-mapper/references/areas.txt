@@ -1,0 +1,5 @@
+navigation
+settings
+global-chrome
+index
+detail

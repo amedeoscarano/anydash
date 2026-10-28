@@ -1,0 +1,222 @@
+{
+  "format": "anydash-api-surface/1",
+  "source": "har",
+  "entries": 12,
+  "skipped": {
+    "nonApi": 1,
+    "otherOrigin": 0,
+    "badUrl": 0
+  },
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/integrations",
+      "calls": 1,
+      "query": [],
+      "status": [
+        200
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": [
+          {
+            "description": "string",
+            "enabled": "boolean",
+            "id": "string",
+            "name": "string"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/me",
+      "calls": 1,
+      "query": [],
+      "status": [
+        200
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": {
+          "appearance": "string",
+          "email": "string:email",
+          "name": "string"
+        }
+      },
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "calls": 1,
+      "query": [],
+      "status": [
+        200
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": [
+          {
+            "description": "string",
+            "email": "boolean",
+            "id": "string",
+            "name": "string",
+            "sms": "boolean"
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "calls": 2,
+      "query": [
+        "page",
+        "q",
+        "size",
+        "sort",
+        "status"
+      ],
+      "status": [
+        200
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": {
+          "counts": {
+            "all": "integer",
+            "canceled": "integer",
+            "delivered": "integer",
+            "pending": "integer",
+            "shipped": "integer"
+          },
+          "orders": [
+            {
+              "customer": "string:enum(4)",
+              "date": "string:date-time",
+              "email": "string:email",
+              "id": "integer",
+              "number": "string",
+              "status": "string:enum(4)",
+              "total": "integer"
+            }
+          ],
+          "page": "integer",
+          "size": "integer",
+          "total": "integer"
+        }
+      },
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders/{id}",
+      "calls": 4,
+      "query": [],
+      "status": [
+        200,
+        404
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": {
+          "carrierReference": "null|string",
+          "customer": "string",
+          "date": "string:date-time",
+          "email": "string:email",
+          "history": [
+            {
+              "at": "string:date-time",
+              "by": "string:enum(2)",
+              "text": "string:enum(2)"
+            }
+          ],
+          "id": "integer",
+          "items": [
+            {
+              "name": "string:enum(2)",
+              "price": "integer",
+              "qty": "integer",
+              "sku": "string:enum(4)"
+            }
+          ],
+          "nextId": "integer|null",
+          "number": "string",
+          "previousId": "integer",
+          "status": "string",
+          "total": "integer"
+        }
+      },
+      "error": {
+        "error": "string"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/settings",
+      "calls": 1,
+      "query": [],
+      "status": [
+        200
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": {
+          "branding": {
+            "color": "string",
+            "footer": "string"
+          },
+          "drafts": "integer",
+          "general": {
+            "packageWeight": "string",
+            "requireSignature": "boolean",
+            "storeName": "string",
+            "timezone": "string"
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/stats",
+      "calls": 1,
+      "query": [],
+      "status": [
+        200
+      ],
+      "request": null,
+      "response": {
+        "contentType": [
+          "application/json"
+        ],
+        "shape": {
+          "open": "integer",
+          "shipped": "integer"
+        }
+      },
+      "error": null
+    }
+  ]
+}

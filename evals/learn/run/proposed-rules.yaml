@@ -1,0 +1,91 @@
+portal: localship
+date: 2026-10-28
+areas:
+  - area: home
+    prefix: HOM
+    rules:
+      - id: HOM-002
+        change: modify
+        diff:
+          - exceptions
+        title: Open work as counted links to filtered lists
+        rule: Show each kind of pending work as a short label with its count, and make
+          it a link to the list already filtered to exactly those items.
+        why: A count tells users whether there is work, and a pre-filtered link removes
+          the step of rebuilding the filter by hand, so the home becomes the
+          start of the job rather than a report about it.
+        source: observed
+        evidence:
+          - portal: shopify
+            status: observed
+            page_type: home
+          - portal: dhl
+            status: observed
+            page_type: index
+          - portal: cloudflare
+            status: absent
+            page_type: home
+        confidence: medium
+        applies_when: The product has items that wait on the user (orders to fulfil,
+          labels to print, returns, reviews to approve).
+        exceptions: Products with no user-owned queue (pure monitoring or configuration
+          consoles) skip this block and lead with quick links and metrics. A
+          home with only one or two queues may show them as linked figure tiles
+          instead of a task list; each tile still links to the filtered list.
+        do: "'Fulfil orders 1' linking to the orders list with open, unfulfilled filters
+          applied; lifecycle tabs 'New 1 · Printed 0 · Shipped 0'."
+        dont: "'You have pending orders' with no number, or a count that links to the
+          unfiltered list."
+        check_static: For each task item in the home spec or component, verify it
+          renders a numeric count and an href whose query string carries the
+          filter that produces that count; the count and the list must use the
+          same query.
+        check_live: Click each counted task; confirm the target list shows a filter chip
+          or active tab and that its row total equals the count shown on the
+          home.
+        new_evidence:
+          - portal: localship
+            status: observed
+            page_type: home
+            record: rec-001
+  - area: settings
+    prefix: SET
+    rules:
+      - id: SET-013
+        change: add
+        title: Account maintenance in a danger zone at the end of settings
+        rule: Put account-wide destructive maintenance, such as deleting drafts, in a
+          separated danger zone at the end of the settings page it belongs to.
+        why: Bulk deletions sit apart from everyday settings so nobody triggers them
+          while saving an unrelated section, and users know where to look for
+          them.
+        source: inferred
+        evidence:
+          - portal: shopify
+            status: absent
+            page_type: settings_page
+          - portal: dhl
+            status: absent
+            page_type: settings_page
+          - portal: cloudflare
+            status: absent
+            page_type: settings_page
+        confidence: low
+        applies_when: The account offers destructive actions that affect many records at
+          once (delete drafts, purge archive, reset data).
+        exceptions: Per-object destruction stays on the object (DET-012).
+        do: A "Danger zone" section last on the General settings page with one "Delete
+          drafts" button that asks for confirmation.
+        dont: A delete button inside the same section and next to the Save of everyday
+          fields.
+        check_static: In each settings page component, any action calling a bulk delete
+          endpoint renders in the last section, titled as a danger zone, outside
+          every form that has a Save.
+        check_live: On each settings page, find buttons named Delete, Purge or Reset;
+          assert each sits in the last section, under a heading containing
+          "Danger", and that no Save button shares its section.
+        new_evidence:
+          - portal: localship
+            status: observed
+            page_type: settings_page
+            record: rec-004
