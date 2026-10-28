@@ -14,7 +14,7 @@ Run a static review of a dashboard: code, a spec or screenshots, no browser. The
 `[path]`, default the current directory. The command detects the kind:
 
 - **Code**: a repo or app folder. Detect the stack from `package.json` (`next`, `react`, `@radix-ui/*`, `components/ui/` for shadcn) or `*.xcodeproj` / `Package.swift` with `import SwiftUI`.
-- **Spec**: a folder with `dash-spec/index.md` (from /dash:build). Review the spec as the design of record.
+- **Spec**: a folder with `dash-spec/index.md` (from /dash:build). Review the spec as the design of record. A page, menu item or setting that the spec names but never defines is a finding ("no rule: not specified", `file as task`). A missing detail of a defined page goes to Not checked with the reason "not specified".
 - **Screenshots**: a folder or list of image files. Only screenshot-checkable rules run; visual-audit judges the visual and layout areas.
 - Code plus spec, both present: review the code and note where it departs from the spec.
 
@@ -22,7 +22,7 @@ Run a static review of a dashboard: code, a spec or screenshots, no browser. The
 
 `dash-review/findings.md` beside the reviewed repo root, or `./dash-review/findings.md`. Overwrite an older file only after reading it; keep its row numbers for findings that still hold.
 
-1. A header: target, input kind, stack, date, and one coverage line: `rules: <total> | findings: <n> | passed: <n> | not applicable: <n> | not checked: <n>`.
+1. A header: target, input kind, stack, date, and one coverage line: `rules: <total> | findings: <n> | passed: <n> | not applicable: <n> | not checked: <n>`. `findings` counts distinct rule IDs cited in the table, both main and "also" IDs. "no rule" rows are not counted. When the table has a different number of rows, add `rows: <n>` after the coverage line.
 2. The findings table, sorted by severity (blocker, major, minor, note), then by area:
 
 | # | Severity | Rule | Where | Evidence | Recommendation | Exit |
@@ -32,7 +32,7 @@ Run a static review of a dashboard: code, a spec or screenshots, no browser. The
    - Rule: a rule ID, or "no rule" plus the reason. Where: `path:line`. Evidence: the code or spec line, verbatim.
    - Exit: exactly one of `fix now`, `file as task`, `reject with rationale`, `verify with a test`.
 3. `## Do not build`: features and settings that add complexity without value, each with its reason and rule ID.
-4. `## Not checked`: "Not checkable statically" (rule IDs, one reason each; these are the live-only checks for /dash:review-live) and "Not applicable" (rule IDs grouped by reason).
+4. `## Not checked`: "Not checkable statically" (rule IDs, one reason each; these are the live-only checks for /dash:review-live) and "Not applicable" (rule IDs grouped by reason). Not applicable is for a feature the product does not have. A feature the product has whose files are not in the target (the shell, nav config, email templates) is Not checkable, with the reason "not in the target".
 
 ## Procedure
 

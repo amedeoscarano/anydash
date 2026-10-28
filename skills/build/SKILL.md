@@ -37,6 +37,8 @@ Questions to the user, in this order:
 | `tokens.md` | Spacing, type, colour, radius, density tokens | visual-tokens |
 | `decisions.md` | `Decision | Rule IDs | Alternative rejected | Why` | every step |
 
+Budget: `index.md` fits one screen (at most about 600 words). Every other file is tables first, with at most one sentence of prose per section. Cite a rule ID; never restate the rule's text. Target under 6,000 words for the whole folder. Put detail a reviewer does not need for approval into the table cells, not into paragraphs.
+
 After approval, without `--plan`: the code, then a short build report listing files written and any rule not met.
 
 ## Procedure

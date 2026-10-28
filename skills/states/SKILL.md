@@ -24,16 +24,16 @@ Two modes, picked in step 1:
 
 `Page | State | Status | Rule IDs | Fix`
 
-Status is `pass`, `fail`, `missing` or `n/a (reason)`. Sort rows by status: `missing`, then `fail`, then `pass`. End with counts per status and the list of regions that had no branch at all.
+Status is `pass`, `fail`, `missing` or `n/a (reason)`. Sort rows by status: `missing`, then `fail`, then `pass`, then `n/a`. End with counts per status and the list of regions that had no branch at all.
 
 ## Procedure
 
 Siblings: apply the ui-states skill and the feedback-messaging skill (`/dash:<name>` in Claude Code, `dash-<name>` elsewhere). If either is not installed, apply the STA and FDB rules in `references/rules.md` directly; the other IDs below are summarised in this file.
 
-1. **Pick the mode.** Generate when no states section or no state branches exist. Check when they do. A repo with some branches gets Check, and every missing branch becomes a `missing` row with a fix.
+1. **Pick the mode.** Generate when no states section or no state branches exist. Check when they do. A repo with some branches gets Check, and every missing branch becomes a `missing` row with a fix. An explicit request for a mode wins. In Generate on a repo with some branches, record each existing branch as `present` and do not rewrite it.
 2. **List regions.** Split each page into regions with the keys of `references/frameworks/page-templates.md` (home 1-5, index 1-5, detail 1-9). Every region that fetches its own data gets its own row.
 3. **Empty.** One heading naming the content, one sentence, one primary create action, at most one link; row controls disabled, not removed (STA-001). Full block for a page, two lines for a nested region, except a primary work list (STA-002). Feature pages onboard with templates (ONB-007).
-4. **No match.** Every filterable list says nothing matches and offers "Clear filters", never the first-run copy (IDX-011).
+4. **No match.** Every filterable list says nothing matches and offers "Clear filters", never the first-run copy (IDX-011). Paginated lists: a page number past the last page (`total > 0`, zero rows) shows "This page has no results" and "Go to first page", never an empty table or a range such as "51-20 of 20" (IDX-007, IDX-011).
 5. **Loading.** Placeholder in the exact slot, region marked `aria-busy="true"` or `role="status"`, numbers null until loaded, never 0 (STA-003). Home tiles load and retry alone (HOM-010, low). Live regions mounted once at the app root (FDB-008).
 6. **Error.** The failed region says what could not be loaded and offers Retry for that region only; the rest stays usable (STA-004, low, suggestion). Session expired or service down: one page banner instead (STA-004 exceptions). Form submit failures stay as field errors (FDB-003).
 7. **Locked.** Plan, entitlement or setting gates: visible, disabled, requirement in text, unlock action beside it; a locked tab keeps its nav entry (STA-005). The condition stays in place, not only in a toast (FDB-002).
@@ -42,9 +42,9 @@ Siblings: apply the ui-states skill and the feedback-messaging skill (`/dash:<na
 10. **First run.** For each page, state what a brand-new account sees. Fail any page that shows a bare table, a blank area or "Showing 0-0 of 0" (STA-001).
 11. **Feedback.** Run feedback-messaging: one channel per event (FDB-001), field errors under the field (FDB-003), background failures on the object and in a log (FDB-004), modals only for decisions (FDB-007), toasts with actions stay at least 10 seconds (FDB-009, low).
 12. **Code checks** (Check mode, or after Generate). Search for these signals:
-    - Next.js: missing `loading.tsx`, `error.tsx` or `not-found.tsx` per segment; `?? 0` or `|| 0` on fetched counts; lists that map rows with no zero-length branch; `{canEdit && <Button` hiding a gated action; `toast(` as the only report of a plan or permission block; no `<Toaster` in the root layout.
+    - Next.js: missing `loading.tsx`, `error.tsx` or `not-found.tsx` per segment; `?? 0` or `|| 0` on fetched counts; lists that map rows with no zero-length branch; `{canEdit && <Button` hiding a gated action; `toast(` as the only report of a plan or permission block; no `<Toaster` in the root layout; range text computed from `page` with no clamp to the page count.
     - SwiftUI: lists without `ContentUnavailableView` or an `.overlay` for zero items; `.task` without a caught error state; counts defaulting to 0.
-13. **Write the result.** Generate: `dash-spec/states.md` plus code branches. Check: the findings table. Label STA-004, HOM-010 and FDB-009 findings as suggestions.
+13. **Write the result.** Generate: `dash-spec/states.md` plus code branches. Check: the findings table. Label STA-004, HOM-010 and FDB-009 findings as suggestions: start the Fix cell with "Suggestion:" and keep Status to `pass`, `fail`, `missing` or `n/a (reason)`.
 
 ## Rules applied
 
@@ -95,3 +95,4 @@ Bad: the command reports "states look fine" after reading one page. It counts a 
 - The catch-all route renders inside the shell.
 - Low-confidence findings (STA-004, HOM-010, FDB-009) are labelled as suggestions.
 - In Generate mode, `dash-spec/states.md` has both the state tables and the `## Feedback` section.
+- Every unlock or recovery action points to an existing route. If none exists, the action stays and the route is listed under Open items, not pointed at another page.

@@ -22,9 +22,9 @@ From /dash:build: write `dash-spec/onboarding.md` with these parts.
 3. **Asked of the user**: `Field | Why it cannot be inferred | Step | Rule ID`.
 4. **First-run flow**: numbered steps, each marked user or system, with the rule ID.
 5. **Landing until setup is done**: checklist, wizard or straight to the queue, with goal-named tasks and progress.
-6. **Feature onboarding**: one row per feature list page: `Page | Empty-state heading | Primary action | Templates`.
-7. **Prompts**: `Prompt | Optional or required | Dismissible | Retired when`.
-8. **Deferred to settings**: preferences left out of the first run, each with its default.
+6. **Feature onboarding**: one row per feature list page: `Page | Empty-state heading | Primary action | Templates | Rule IDs`.
+7. **Prompts**: `Prompt | Optional or required | Dismissible | Retired when | Rule IDs`.
+8. **Deferred to settings**: preferences left out of the first run: `Preference | Default | Settings location | Rule IDs`.
 
 Asked directly: answer inline with the same tables, only the parts that apply.
 

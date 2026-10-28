@@ -2,6 +2,7 @@
 // Validate the repo: rule files, framework references, skills, private data. Exit 1 on any error.
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadRules, frameworkRefs, scanPrivate } from './lib/rules.mjs';
 import { checkSkills } from './lib/skills.mjs';
@@ -15,8 +16,9 @@ const { rules, errors } = loadRules(root);
 const ids = new Set(rules.map((r) => r.id));
 errors.push(...frameworkRefs(root, ids));
 errors.push(...checkSkills(root, ids));
-const publicDirs = ['rules', 'skills', 'docs', 'examples', 'evals', 'scripts', '.claude-plugin', 'README.md', 'CHANGELOG.md', 'ROADMAP.md'];
-for (const hit of scanPrivate(root, publicDirs, terms)) errors.push(`private data pattern at ${hit}`);
+// Every file git would publish: tracked plus untracked-not-ignored.
+const published = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], { cwd: root, encoding: 'utf8' }).split('\n').filter(Boolean);
+for (const hit of scanPrivate(root, published, terms)) errors.push(`private data pattern at ${hit}`);
 
 const byConf = rules.reduce((a, r) => ((a[r.confidence] = (a[r.confidence] || 0) + 1), a), {});
 console.log(`rules: ${rules.length} (${Object.entries(byConf).map(([k, v]) => `${k} ${v}`).join(', ')})${terms.length ? '' : ' | .private-terms missing: generic privacy scan only'}`);

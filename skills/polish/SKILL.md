@@ -27,7 +27,7 @@ Token source, first found: `dash-spec/tokens.md`, then the theme in code (`app/g
   1. `## Tokens changed`: `token | before | after | rule`.
   2. `## Components changed`: `file:line | literal removed | token used | rule`.
   3. `## Screenshots`: `page @ width | before | after | changed | expected`. `expected` is yes when the change follows from a fix in this run.
-  4. `## Remaining`: visual findings not fixed, each with a findings-format row and an Exit (`file as task`, `reject with rationale` or `verify with a test`).
+  4. `## Remaining`: visual findings not fixed, each with a findings-format row and an Exit (`file as task`, `reject with rationale` or `verify with a test`). Checks that pass are not rows. List them in one `Pass:` line under the table, each with its rule ID and ratio.
   5. `## For /dash:review`: issues that need an IA or behaviour change, each with the rule ID and why polish did not touch it.
 
 ## Procedure
@@ -35,17 +35,19 @@ Token source, first found: `dash-spec/tokens.md`, then the theme in code (`app/g
 Specialist skills are siblings in this plugin: `/dash:<name>` in Claude Code, `dash-<name>` elsewhere. Read `../visual-audit/SKILL.md` and `../browser-adapter/SKILL.md` and follow them. If visual-audit is missing, apply the visual and layout rules in `references/rules.md` directly. If browser-adapter is missing, work from the code alone, skip screenshots, and say so in `polish.md`.
 
 1. **Mode and driver.** Apply browser-adapter. Fixes need own-app mode and the code; otherwise stop after step 4.
-2. **Before screenshots.** Run with browser-adapter (local script: `node ../browser-adapter/scripts/ownapp.mjs run <url> steps.json dash-review/polish/before`):
+2. **Before screenshots.** Run with the tool browser-adapter step 2 picks, and name it in `polish.md`. With the bundled script: `node ../browser-adapter/scripts/ownapp.mjs run <url> steps.json dash-review/polish/before`. If the picked tool cannot set the four widths, use the bundled script and say why:
    ```json
    [{"goto": "/"}, {"responsive": "home"}, {"goto": "/orders"}, {"responsive": "orders"},
     {"goto": "/orders/1001"}, {"responsive": "order-detail"}, {"goto": "/settings/general"}, {"responsive": "settings-general"}]
    ```
    Use the app's real paths: one home, one index, one detail, one settings page, plus any page the user named.
+   When the user names a scope, capture the scoped pages plus one page outside it (home) to confirm the effect of global tokens.
 3. **Visual audit.** Apply visual-audit on the same pages: computed styles, contrast from `node scripts/contrast.mjs` in the visual-audit folder, the Token audit table, findings rows.
 4. **Token audit in code.** List the token set and every literal that bypasses it:
    - Tokens: `rg -n -- '--[a-z-]+:' app/globals.css` and the `theme` or `@theme` block.
    - Literal colours: `rg -n '#[0-9a-fA-F]{3,8}\b|rgba?\(|oklch\(' --glob '!**/globals.css' app components`
    - Tailwind arbitrary values: `rg -n '\b(p|px|py|m|mx|my|gap|space-[xy]|rounded|text|bg|border|shadow)-\[[^\]]+\]' app components`
+   - Arbitrary sizes: `rg -n '\b(w|h|min-w|min-h|max-w|max-h|size)-\[[^\]]+\]' app components`. Sizes are not spacing: report them as a LAY-006 pass unless one sets padding or a gap.
    - Raw palette classes instead of semantic ones: `rg -n '\b(bg|text|border)-(red|blue|green|yellow|amber|gray|zinc|slate)-[0-9]{2,3}\b' app components`
    - Inline styles: `rg -n 'style=\{\{' app components`
    Match each literal to a visual-audit row or add one.
@@ -55,7 +57,7 @@ Specialist skills are siblings in this plugin: `/dash:<name>` in Claude Code, `d
    - Not polish: anything that changes information architecture or behaviour. Examples: moving a setting or a menu item (NAV-001, SET-001), a switch in a Save form (CTL-002), the save bar or leave guard (SAV-001, SAV-005), a missing drawer below 768 px (NAV-006), focus order, empty or error states (STA-001, STA-004), copy changes (MCP-001). Write these under `## For /dash:review`; do not edit them. A focus ring colour or thickness is visual and may be fixed.
 6. **Fix tokens first.** Edit the token file only. Keep names; change values, or add a missing semantic token (`--text-muted`, `--badge-warning-fg`). Give every new colour a dark value too (VIS-009). Check every new text pair with the contrast script before saving.
 7. **Then components.** Replace each literal from step 4 with its token or semantic class. One cause, one change; do not restyle what no row names. Do not add dependencies or new components. Keep each component's markup and handlers unchanged; only classes and style values move.
-8. **After screenshots and diff.** Run the step 2 steps again into `dash-review/polish/after`. Compare each pair: `cmp -s before/<f>.png after/<f>.png` sorts changed from unchanged. Open every changed pair and confirm the change matches a fix. A change on a page or region no fix touched is a regression: find the cause and revert it, or record it with a reason. Re-run the visual-audit checks for the fixed rows, including contrast, and record pass or fail.
+8. **After screenshots and diff.** Run the step 2 steps again into `dash-review/polish/after`. Compare each pair: `cmp -s before/<f>.png after/<f>.png` sorts changed from unchanged. Open every changed pair on the scoped pages and confirm the change matches a fix. Outside the scope, a pixel diff whose changed boxes all sit on text is enough when the only fix there is a global token; say so in `## Screenshots`. A change on a page or region no fix touched is a regression: find the cause and revert it, or record it with a reason. Re-run the visual-audit checks for the fixed rows, including contrast, and record pass or fail.
 9. **Report.** Write `dash-review/polish.md`. In chat: tokens changed, components changed, screenshot pairs changed, remaining rows, and the `## For /dash:review` list. Do not commit; leave the diff for the user.
 
 ## Rules applied

@@ -21,11 +21,11 @@ Get a new account from signup to its first real result with the fewest user oper
 
 - **Connect step**: `Integration | Placement | Auth | Mapping questions | Test | Sync default | Rule IDs`.
 - **Time to first value**: `Step | Who | KLM operators | Seconds | Rule IDs`, with the user total, the known system waits listed apart, and the assumptions.
-- When checking an existing flow, a findings table first: `Step | Finding | Status | Rule IDs | Fix`, with Status `pass`, `fail` or `missing`.
+- When checking an existing flow, a findings table first: `Step | Finding | Status | Rule IDs | Fix`. Status is only `pass`, `fail` or `missing`. A finding that belongs to another command (for example a loading state for `/dash:states`) is not a row. List it under the table in "Out of scope", with the command it goes to.
 
 ## Procedure
 
-Siblings: apply the onboarding-setup and integration-connect skills (`/dash:<name>` in Claude Code, `dash-<name>` elsewhere). If either is not installed, apply the ONB, HOM and INT rules in `references/rules.md` directly. ONB-001, ONB-002, ONB-004, ONB-005, ONB-006, ONB-009, INT-005 and INT-008 are low confidence: write them as suggestions.
+Siblings: apply the onboarding-setup and integration-connect skills (`/dash:<name>` in Claude Code, `dash-<name>` elsewhere). If either is not installed, apply the ONB, HOM and INT rules in `references/rules.md` directly. ONB-001, ONB-002, ONB-004, ONB-005, ONB-006, ONB-009, INT-005 and INT-008 are low confidence: write "(suggestion)" after the ID in every table cell and sentence where it appears, including KLM and Connect tables. A legend at the top does not replace this.
 
 1. **Name first value.** The one record that proves the product works: first imported order, first connected domain, first printed label (ONB-002).
 2. **Map the current or proposed flow.** List every screen and field from signup to first value. Mark each step user or system. For a URL, record what was asked, what was prefilled and where the user landed.
@@ -81,7 +81,7 @@ Good (shipping admin): signup writes currency, units, the built-in carrier, one 
 | Click "Test connection" | user | P 2B | 1.30 | INT-004 |
 | First orders import | system | wait, interval in settings | not counted | ONB-006 |
 
-User total: 13.2 s of operator time. The account lands on the "New orders" queue (HOM-001). The Automation page shows "Add rule" and two templates (ONB-007). The report suggests `/dash:friction` to time a real run.
+User total: 13.2 s of operator time. The account lands on the "New orders" queue (HOM-001). The Automation page shows "Add rule" and two templates (ONB-007). `/dash:friction` is not installed (v0.2), so the report says the 13.2 s is a model estimate only.
 
 Bad: a nine-step wizard asks for currency, timezone, units, package size, label format and sender name, all empty (breaks ONB-001, ONB-002). Six typed fields of about 10 characters cost 6 × (M + P + 2B + H + 10K + H) = 32.7 s, plus nine "Next" clicks at 2.65 s = 23.85 s: about 57 s before the store connect even starts. The connect step is followed by a 15-field mapping form and a manual "Import now" (breaks ONB-006, INT-008). "Getting started 6 of 6" stays on the home for months (breaks ONB-004, HOM-005).
 
@@ -93,4 +93,4 @@ Bad: a nine-step wizard asks for currency, timezone, units, package size, label 
 - The KLM table covers every user step, uses the stated operator times, and lists system waits apart.
 - The KLM limits are stated, and `/dash:friction` is suggested only if it is installed.
 - Every optional prompt is dismissible; no required step is.
-- Low-confidence rules are labelled as suggestions.
+- Every occurrence of ONB-001, ONB-002, ONB-004, ONB-005, ONB-006, ONB-009, INT-005 and INT-008 is followed by "(suggestion)".

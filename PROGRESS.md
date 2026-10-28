@@ -35,20 +35,4 @@ Phase 3 running on branch m1-foundations: wf_2041dd65-eaa (comparison.md → rul
 - D2 2026-10-27: `MISSION.md` is gitignored because it holds private account IDs.
 
 ## Browser targets (REA `list_browser_targets`, 127.0.0.1:9333)
-| Portal | target_id | State 2026-10-27 |
-|---|---|---|
-| Shopify | E5D406E59B91E655866825787F6E21E5 | login page |
-| DHL | 8D309F4B0192C177D716D4000897DFB7 | login page |
-| Cloudflare | 4CA67E5D85E2AC80A9F87E3EA5E78086 | login page |
-
-- D3 2026-10-27: no `bin/with-browser-lock`. `bin/cdp.mjs` addresses each tab by CDP target id per command, so agents never share an active tab. Navigation pacing (≥5 s per tab) is a timestamp file in `~/dash-research/.rate/`.
-
-## Files produced
-- `.gitignore`, `PROGRESS.md`, `package.json` (playwright-core 1.62.1 pinned)
-- `bin/safe-click.mjs` (+ test, 6 green): role allowlist, EN/IT verb denylist, lighter list for links
-- `bin/cdp.mjs`: list, info, snapshot, screenshot, goto (same origin), click (safe-click guarded), Escape, viewport; dialogs always dismissed
-- SA-Docs done 2026-10-27 → `~/dash-research/docs/{polaris,dhl,cloudflare,sources}.md` (63 URLs). Polaris strong; Cloudflare medium (Kumo, changelogs); DHL weak (help center 403, snippets only, lower confidence). Gaps: Polaris saved views/permissions/Learn-more; DHL menu, save model, states; Cloudflare control and save guidance.
-- `~/dash-research/{shopify,dhl,cloudflare,docs}/pages/` (private)
-
-## Next step
-M3 on branch m3-review: static-rule-audit, browser-adapter (bin/cdp.mjs + safe-click as third-party-readonly mode), live-rule-audit, visual-audit, /dash:review, /dash:review-live, /dash:polish, examples/flawed-dashboard (15 seeded violations + EXPECTED_FINDINGS.md). Still open: DHL interview and 3 GATE 2 questions.
+Tab ids are kept in the private research notes (they change with each browser session).
