@@ -3,8 +3,8 @@
 Resume point for any new session. Read `MISSION.md` (local only, gitignored) first.
 
 ## Current phase
-GATE 4 (2026-10-28): waiting for the owner. Report in `GATE4.md` (local). v0.1 = M1-M3 complete; Phase 6 tests done except a real headless session run (CLI has no login) and Codex/Cursor (not installed).
-Commits: M1 a43ac5b, M2 d268135 (main), M3 65a20c7 (m3-review, pushed), release d5be94e (v0.1-release, local: push-check hook blocks pushes on a false positive).
+Phase 7 (2026-10-29): GATE 4 OK from the owner; v0.1.0 published from main. Report in `GATE4.md` (local). v0.1 = M1-M3 complete; Phase 6 tests done except a real headless session run (CLI has no login) and Codex/Cursor (not installed).
+Commits (after the 2026-10-29 author rewrite to ask@): M1 99d8fc1, M2 9956418, M3 a8f7493, release 22439f9. v0.2 (M4, M5) on branches m4-workflow and m5-research.
 Blind runs: /dash:review 13/15, /dash:review-live 15/15. Evals in evals/*/RESULTS.md.
 Verified: plugin validate pass; skills CLI finds 29 skills; validate ok; 35 tests; gitleaks clean on history and tree.
 
