@@ -46,5 +46,15 @@ Tab ids are kept in the private research notes (they change with each browser se
 - SA-Docs done 2026-10-27 → `~/dash-research/docs/{polaris,dhl,cloudflare,sources}.md` (63 URLs). Polaris strong; Cloudflare medium (Kumo, changelogs); DHL weak (help center 403, snippets only, lower confidence). Gaps: Polaris saved views/permissions/Learn-more; DHL menu, save model, states; Cloudflare control and save guidance.
 - `~/dash-research/{shopify,dhl,cloudflare,docs}/pages/` (private)
 
+## Phase 6 items closed with an exit (2026-10-29)
+- Real headless run of a command in a Claude Code session: **verify with a test**. The local `claude` CLI has no login of its own; the owner runs `claude --plugin-dir ~/dev/anydash`, then `/dash:review examples/flawed-dashboard`. The same procedure was run blind by subagents (13/15 static, 15/15 live).
+- Codex and Cursor: **reject with rationale** for v0.1. Neither CLI is installed here; `scripts/install.sh` is tested with a fake HOME and the paths come from official docs (`docs/install.md`). Filed in ROADMAP to test when installed.
+
+## Done
+v0.1.0 public 2026-10-29 (M1-M3): rulebook 179 rules and 8 frameworks, 29 skills, 6 commands, flawed-dashboard example, evals, install from GitHub verified in a clean config.
+
+## Deferred (ROADMAP.md)
+v0.2: M4 (`/dash:friction`) and M5 (`/dash:clone`, `/dash:reconcile`, `/dash:learn`) built and tested on branches m4-workflow and m5-research. Rulebook gaps, review precision items and eval follow-ups are listed in ROADMAP.md.
+
 ## Next step
-Owner decisions at GATE 4: author email in history, push-check hook false positive, CLI login for a live session run, then go public (visibility, secret scanning, push protection, About, topics, release v0.1.0, install from GitHub in a clean session). Closing: close the research browser and CDP port, ask about the Chrome profile and portal logout. Still open: DHL interview and 3 GATE 2 questions. v0.2: M4, M5.
+Owner: DHL interview (5 questions) and 3 GATE 2 questions, then fold the answers into `rules/frameworks/dhl-simplicity.md`. Owner: delete `~/dash-research/chrome-profile` or keep it, and log out of the portals. Then merge m5-research into main and release v0.2.0.

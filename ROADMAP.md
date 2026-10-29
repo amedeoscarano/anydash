@@ -43,3 +43,8 @@ Open work filed from reviews. Each line says where it came from.
 - `/dash:build`: move section-applicability notes out of the `decisions.md` table into one line of their own (blind eval #12).
 - `static-rule-audit`: cite one defect once; a second rule goes in the same row as "also" (blind eval #2).
 - Evals: three more blind `/dash:build` runs to settle Products placement and the spec word budget; blind baseline for `/dash:review` prompt 2.
+
+## Platform tests
+
+- Install and run the skills in Codex and Cursor once their CLIs are installed (v0.1 tested `scripts/install.sh` with a fake HOME only).
+- Run `/dash:review` in a real Claude Code session with the plugin loaded (the local CLI had no login).
