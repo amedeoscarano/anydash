@@ -1,0 +1,170 @@
+[
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "request",
+    "path": "status",
+    "type": "string",
+    "enum": [
+      "pending",
+      "shipped",
+      "delivered",
+      "canceled",
+      "returned"
+    ],
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "request",
+    "path": "note",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "id",
+    "type": "integer",
+    "required": true
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "number",
+    "type": "string",
+    "required": true
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "customer",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "email",
+    "type": "string",
+    "format": "email",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "date",
+    "type": "string",
+    "format": "date-time",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "status",
+    "type": "string",
+    "enum": [
+      "pending",
+      "shipped",
+      "delivered",
+      "canceled",
+      "returned"
+    ],
+    "required": true
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "total",
+    "type": "integer",
+    "required": true
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].sku",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].name",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].qty",
+    "type": "integer",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "items[].price",
+    "type": "integer",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "history[].at",
+    "type": "string",
+    "format": "date-time",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "history[].by",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "history[].text",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "carrierReference",
+    "type": "string",
+    "nullable": true,
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "previousId",
+    "type": "integer",
+    "nullable": true,
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "nextId",
+    "type": "integer",
+    "nullable": true,
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "note",
+    "type": "string",
+    "required": false
+  },
+  {
+    "op": "PATCH /api/orders/{id}",
+    "dir": "response",
+    "path": "updatedAt",
+    "type": "string",
+    "format": "date-time",
+    "required": false
+  }
+]

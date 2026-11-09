@@ -1,0 +1,8 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/general"}
+{"t":1000,"tab":0,"type":"click","x":400,"y":200,"button":0,"target":{"tag":"input","role":"textbox","name":"Default package weight","selector":"input#packageWeight"},"control":{"tag":"input","role":"textbox","name":"Default package weight","selector":"input#packageWeight"}}
+{"t":1100,"tab":0,"type":"input","field":"Default package weight","length":1,"inputType":"insertText","selector":"input#packageWeight"}
+{"t":1200,"tab":0,"type":"input","field":"Default package weight","length":2,"inputType":"insertText","selector":"input#packageWeight"}
+{"t":2000,"tab":0,"type":"key","key":"Enter","shift":false,"target":{"tag":"input","role":"textbox","name":"Default package weight","selector":"input#packageWeight"}}
+{"t":2001,"tab":0,"type":"click","x":0,"y":0,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#ship > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#ship > button"}}
+{"t":2002,"tab":0,"type":"submit","name":"","selector":"form#ship"}
+{"t":2100,"tab":0,"type":"mutations","count":5}

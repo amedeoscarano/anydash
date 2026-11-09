@@ -1,0 +1,14 @@
+{
+  "name": "anydash",
+  "owner": {
+    "name": "amedeoscarano"
+  },
+  "description": "Agent skills to design, review and test admin dashboards.",
+  "plugins": [
+    {
+      "name": "dash",
+      "source": "./",
+      "description": "Agent skills to design, review and test admin dashboards, using UI rules reverse-engineered from best-in-class admin panels."
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+task-first-simplicity
+page-templates

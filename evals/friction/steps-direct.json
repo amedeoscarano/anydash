@@ -1,0 +1,5 @@
+[
+  {"click": {"role": "link", "name": "Settings"}},
+  {"fill": {"label": "Default package weight", "value": "4 kg"}},
+  {"press": "Enter"}
+]

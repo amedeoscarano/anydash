@@ -1,0 +1,60 @@
+# PROGRESS
+
+Resume point for any new session. Read `MISSION.md` (local only, gitignored) first.
+
+## Current phase
+Phase 7 (2026-10-29): GATE 4 OK from the owner; v0.1.0 published from main. Report in `GATE4.md` (local). v0.1 = M1-M3 complete; Phase 6 tests done except a real headless session run (CLI has no login) and Codex/Cursor (not installed).
+Commits (after the 2026-10-29 author rewrite to ask@): M1 99d8fc1, M2 9956418, M3 a8f7493, release 22439f9. v0.2 (M4, M5) on branch m5-research, merged with main (0.1.1) on 2026-11-09.
+Blind runs: /dash:review 13/15, /dash:review-live 15/15. Evals in evals/*/RESULTS.md.
+Verified: plugin validate pass; skills CLI finds 29 skills; validate ok; 35 tests; gitleaks clean on history and tree.
+
+### History
+Phase 2 running (2026-10-27). GATE 1 passed: owner logged in, verified by title/URL on all 3 tabs. ffmpeg + gitleaks install approved.
+Workflow `dash-portal-explore` (run wf_4ed64365-889): per portal explore → completeness critic → gap fill → PII + evidence verify. Resume with its scriptPath + resumeFromRunId if interrupted.
+Portal B onboarding interview (6.5) sent to owner early; answers pending.
+Phase 2 done: wf_4ed64365-889 → portal A 89 pages, portal B 70, portal C 103 (over the 80 cap), each with summary, sitemap, settings-map, not-visited, verification notes. AI questions: portal A assistant 3, portal C assistant 3, portal B has no assistant (`~/dash-research/*/ai-questions.md`).
+Incidents: (1) the portal C agent ran a shared scratchpad helper overwritten by the portal A agent → 4 GET-only page loads on the portal A tab to non-existent paths, no clicks or typing; lesson: per-agent helpers bound to one target. (2) the portal C fill agent wrote summary.md with a Bash heredoc after a harness guard blocked the Write: breach of the "hook denial is final" rule, reported to owner.
+Phase 3 running on branch m1-foundations: wf_2041dd65-eaa (comparison.md → rules/source/*.yaml per area → skeptic verify → 8 frameworks → critic → ~/dash-research/gate2-draft.md).
+
+## Phase 0 results (2026-10-27)
+
+| Tool | Status | Action |
+|---|---|---|
+| gstack /browse | 1.91.173 (niki profile), 1.91.270 (main). `connect` launches its own Chromium; no attach to an external CDP endpoint. `--tab-id N` / `BROWSE_TAB` pin a tab per command. Headed mode defaults to dialog dismiss. | Not used to drive portals (see D1). |
+| REA | rea-agents 6.7.0, MCP `rea` registered, skill `reverse-engineer-anything` present. Browser docs: skill `references/runtime-observation.md` (no `docs/browser-observation.md` in the npm package). | Use `list_browser_targets` on 127.0.0.1:9333. |
+| gh | logged in as amedeoscarano, scopes repo, workflow | none |
+| Node | v24.22.1, npm 11.19.1 | none |
+| Playwright | no global package; Chromium 1234 in cache; playwright 1.62.1 bundled with gstack | pin playwright in repo scripts when needed |
+| ffmpeg | 9.0.2 installed 2026-10-27 (brew) | none |
+| gitleaks | 8.30.1 installed 2026-10-27 (brew) | none |
+| skill-creator | present (claude-plugins-official) | use in Phase 6 |
+| Claude Code | 2.1.209 | none |
+
+## Decisions
+- D1 2026-10-27: browser = Google Chrome with dedicated profile `~/dash-research/chrome-profile`, CDP on 127.0.0.1:9333 only. gstack cannot attach to it, so portal actions go through a local Playwright `connectOverCDP` driver guarded by `bin/safe-click`; REA observes the same targets passively.
+- D2 2026-10-27: `MISSION.md` is gitignored because it holds private account IDs.
+
+## Browser targets (REA `list_browser_targets`, 127.0.0.1:9333)
+Tab ids are kept in the private research notes (they change with each browser session).
+
+- D3 2026-10-27: no `bin/with-browser-lock`. `bin/cdp.mjs` addresses each tab by CDP target id per command, so agents never share an active tab. Navigation pacing (≥5 s per tab) is a timestamp file in `~/dash-research/.rate/`.
+
+## Files produced
+- `.gitignore`, `PROGRESS.md`, `package.json` (playwright-core 1.62.1 pinned)
+- `bin/safe-click.mjs` (+ test, 6 green): role allowlist, EN/IT verb denylist, lighter list for links
+- `bin/cdp.mjs`: list, info, snapshot, screenshot, goto (same origin), click (safe-click guarded), Escape, viewport; dialogs always dismissed
+- SA-Docs done 2026-10-27 → one notes file per portal plus a sources list in `~/dash-research/docs/` (63 URLs). Portal A strong (public design system); portal C medium (design system, changelogs); portal B weak (help center 403, snippets only, lower confidence). Gaps: portal A saved views/permissions/Learn-more; portal B menu, save model, states; portal C control and save guidance.
+- `~/dash-research/<portal>/pages/` and `~/dash-research/docs/` (private)
+
+## Phase 6 items closed with an exit (2026-10-29)
+- Real headless run of a command in a Claude Code session: **verify with a test**. The local `claude` CLI has no login of its own; the owner runs `claude --plugin-dir ~/dev/anydash`, then `/dash:review examples/flawed-dashboard`. The same procedure was run blind by subagents (13/15 static, 15/15 live).
+- Codex and Cursor: **reject with rationale** for v0.1. Neither CLI is installed here; `scripts/install.sh` is tested with a fake HOME and the paths come from official docs (`docs/install.md`). Filed in ROADMAP to test when installed.
+
+## Done
+v0.1.0 public 2026-10-29 (M1-M3): rulebook 179 rules and 8 frameworks, 29 skills, 6 commands, flawed-dashboard example, evals, install from GitHub verified in a clean config.
+
+## Deferred (ROADMAP.md)
+v0.2: M4 (`/dash:friction`) and M5 (`/dash:clone`, `/dash:reconcile`, `/dash:learn`) built and tested on branches m4-workflow and m5-research. Rulebook gaps, review precision items and eval follow-ups are listed in ROADMAP.md.
+
+## Next step
+Owner: portal B interview (5 questions) and 3 GATE 2 questions, then fold the answers into the simplicity framework in `rules/frameworks/`. Owner: delete `~/dash-research/chrome-profile` or keep it, and log out of the portals. Then merge m5-research into main and release v0.2.0.

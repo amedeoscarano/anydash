@@ -1,0 +1,11 @@
+[
+  { "path": "id", "type": "integer" },
+  { "path": "orderNumber", "type": "string" },
+  { "path": "customerName", "type": "string" },
+  { "path": "customerEmail", "type": "string", "format": "email" },
+  { "path": "placedAt", "type": "string", "format": "date-time" },
+  { "path": "status", "type": "string", "enum": ["pending", "shipped", "delivered", "on_hold"] },
+  { "path": "totalAmount", "type": "number" },
+  { "path": "priority", "type": "string", "enum": ["low", "normal", "high"] },
+  { "path": "note", "type": "string" }
+]

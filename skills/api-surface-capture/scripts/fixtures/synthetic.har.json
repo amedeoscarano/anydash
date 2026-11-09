@@ -1,0 +1,857 @@
+{
+ "log": {
+  "version": "1.2",
+  "creator": {
+   "name": "synthetic-fixture",
+   "version": "1"
+  },
+  "pages": [
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "id": "page_1",
+    "title": "http://127.0.0.1:3199/orders",
+    "pageTimings": {}
+   }
+  ],
+  "entries": [
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "document",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/orders",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "text/html",
+      "text": "<html>Acme Fakeperson</html>"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "script",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/_next/static/app.js",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/javascript",
+      "text": "console.log(1)"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/orders?page=2&q=Fakeperson&token=FAKE-QUERY-TOKEN-xx55",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"data\":[{\"id\":1001,\"number\":\"#1001\",\"customer\":{\"name\":\"Acme Fakeperson\",\"email\":\"jane.fake@example.com\",\"phone\":\"+39 555 0100 1234\"},\"status\":\"paid\",\"total\":129.9,\"paid\":true,\"created_at\":\"2026-01-02T10:11:12Z\",\"ship_date\":\"2026-01-05\",\"tracking_url\":\"https://tracking.example.com/t/FAKETRACK123\",\"external_ref\":\"a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d\",\"note\":\"Leave at the blue door\"},{\"id\":1002,\"number\":\"#1002\",\"customer\":{\"name\":\"Zed Fakename\",\"email\":\"zed.fake@example.org\",\"phone\":\"+39 555 0100 1234\"},\"status\":\"in_transit\",\"total\":15,\"paid\":true,\"created_at\":\"2026-01-02T10:11:12Z\",\"ship_date\":\"2026-01-05\",\"tracking_url\":\"https://tracking.example.com/t/FAKETRACK123\",\"external_ref\":\"a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d\"},{\"id\":1003,\"number\":\"#1003\",\"customer\":{\"name\":\"Quill Fakester\",\"email\":\"quill.fake@example.net\",\"phone\":\"+39 555 0100 1234\"},\"status\":\"paid\",\"total\":42.5,\"paid\":true,\"created_at\":\"2026-01-02T10:11:12Z\",\"ship_date\":\"2026-01-05\",\"tracking_url\":\"https://tracking.example.com/t/FAKETRACK123\",\"external_ref\":\"a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d\"}],\"next_cursor\":\"Y3Vyc29yRkFLRWZha2VmYWtlMTIz\",\"total\":3}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/orders/1001",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"id\":1001,\"number\":\"#1001\",\"customer\":{\"name\":\"Acme Fakeperson\",\"email\":\"jane.fake@example.com\",\"phone\":\"+39 555 0100 1234\"},\"status\":\"paid\",\"total\":129.9,\"paid\":true,\"created_at\":\"2026-01-02T10:11:12Z\",\"ship_date\":\"2026-01-05\",\"tracking_url\":\"https://tracking.example.com/t/FAKETRACK123\",\"external_ref\":\"a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d\",\"note\":\"Leave at the blue door\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/orders/1002",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json; charset=utf-8",
+      "encoding": "base64",
+      "text": "eyJpZCI6MTAwMiwibnVtYmVyIjoiIzEwMDIiLCJjdXN0b21lciI6eyJuYW1lIjoiWmVkIEZha2Vu\nYW1lIiwiZW1haWwiOiJ6ZWQuZmFrZUBleGFtcGxlLm9yZyIsInBob25lIjoiKzM5IDU1NSAwMTAw\nIDEyMzQifSwic3RhdHVzIjoiaW5fdHJhbnNpdCIsInRvdGFsIjoxNSwicGFpZCI6dHJ1ZSwiY3Jl\nYXRlZF9hdCI6IjIwMjYtMDEtMDJUMTA6MTE6MTJaIiwic2hpcF9kYXRlIjoiMjAyNi0wMS0wNSIs\nInRyYWNraW5nX3VybCI6Imh0dHBzOi8vdHJhY2tpbmcuZXhhbXBsZS5jb20vdC9GQUtFVFJBQ0sx\nMjMiLCJleHRlcm5hbF9yZWYiOiJhMWIyYzNkNC1lNWY2LTRhN2ItOGM5ZC0wZTFmMmEzYjRjNWQi\nfQ=="
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/orders/9999",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 404,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"error\":\"Order 9999 not found for Acme Fakeperson\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "PATCH",
+     "url": "http://127.0.0.1:3199/api/orders/1001",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1,
+     "postData": {
+      "mimeType": "application/json",
+      "text": "{\"note\":\"Ring twice, ask for Acme Fakeperson\"}"
+     }
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"id\":1001,\"number\":\"#1001\",\"customer\":{\"name\":\"Acme Fakeperson\",\"email\":\"jane.fake@example.com\",\"phone\":\"+39 555 0100 1234\"},\"status\":\"paid\",\"total\":129.9,\"paid\":true,\"created_at\":\"2026-01-02T10:11:12Z\",\"ship_date\":\"2026-01-05\",\"tracking_url\":\"https://tracking.example.com/t/FAKETRACK123\",\"external_ref\":\"a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d\",\"note\":\"Leave at the blue door\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/customers/by-email/jane.fake@example.com",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"id\":77,\"name\":\"Acme Fakeperson\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/stores/zz-fake-shop/settings",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"store_name\":\"Zz Fake Shop\",\"currency\":\"EUR\",\"weight_unit\":\"kg\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/stores/qq-other-shop/settings",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"store_name\":\"Qq Other Shop\",\"currency\":\"EUR\",\"weight_unit\":\"kg\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/settings/general",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"timezone\":\"Europe/Rome\",\"notify\":true}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "PUT",
+     "url": "http://127.0.0.1:3199/api/settings/general",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1,
+     "postData": {
+      "mimeType": "application/x-www-form-urlencoded",
+      "text": "timezone=Europe%2FRome&contact=jane.fake%40example.com"
+     }
+    },
+    "response": {
+     "status": 204,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": ""
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:3199/api/stats",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"by_customer\":{\"jane.fake@example.com\":{\"orders\":2},\"zed.fake@example.org\":{\"orders\":1}},\"by_day\":{\"2026-01-02\":3}}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "POST",
+     "url": "http://127.0.0.1:3199/graphql",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1,
+     "postData": {
+      "mimeType": "application/json",
+      "text": "{\"operationName\":\"GetShop\",\"query\":\"query GetShop { shop { name plan } }\",\"variables\":{\"email\":\"jane.fake@example.com\"}}"
+     }
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"data\":{\"shop\":{\"name\":\"Zz Fake Shop\",\"plan\":\"pro\"}}}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   },
+   {
+    "startedDateTime": "2026-01-01T00:00:00.000Z",
+    "time": 10,
+    "_resourceType": "fetch",
+    "request": {
+     "method": "POST",
+     "url": "https://analytics.thirdparty.example/collect",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      },
+      {
+       "name": "Authorization",
+       "value": "Bearer FAKE-BEARER-TOKEN-qq77"
+      }
+     ],
+     "cookies": [
+      {
+       "name": "session",
+       "value": "FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "queryString": [],
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "response": {
+     "status": 200,
+     "statusText": "",
+     "httpVersion": "HTTP/1.1",
+     "headers": [
+      {
+       "name": "Set-Cookie",
+       "value": "session=FAKE-SESSION-COOKIE-zz91"
+      }
+     ],
+     "cookies": [],
+     "content": {
+      "size": 0,
+      "mimeType": "application/json",
+      "text": "{\"ok\":true,\"uid\":\"FAKE-ANALYTICS-UID-ww33\"}"
+     },
+     "redirectURL": "",
+     "headersSize": -1,
+     "bodySize": -1
+    },
+    "cache": {},
+    "timings": {
+     "send": 0,
+     "wait": 10,
+     "receive": 0
+    }
+   }
+  ]
+ }
+}

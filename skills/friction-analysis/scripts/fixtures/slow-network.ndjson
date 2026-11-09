@@ -1,0 +1,8 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/orders"}
+{"t":1000,"tab":0,"type":"click","x":600,"y":100,"button":0,"target":{"tag":"button","role":"button","name":"Refresh","selector":"main > button.refresh"},"control":{"tag":"button","role":"button","name":"Refresh","selector":"main > button.refresh"}}
+{"t":1100,"tab":0,"type":"mutations","count":10}
+{"t":5000,"tab":0,"type":"click","x":500,"y":300,"button":0,"target":{"tag":"a","role":"link","name":"Order 1001","selector":"tbody > tr > a"},"control":{"tag":"a","role":"link","name":"Order 1001","selector":"tbody > tr > a"}}
+{"t":5100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/orders/1001"}
+{"t":5200,"tab":0,"type":"mutations","count":50}
+{"t":7000,"tab":0,"type":"click","x":700,"y":100,"button":0,"target":{"tag":"button","role":"button","name":"Archive","selector":"main > button.archive"},"control":{"tag":"button","role":"button","name":"Archive","selector":"main > button.archive"}}
+{"t":7100,"tab":0,"type":"mutations","count":10}

@@ -1,0 +1,12 @@
+{
+  "name": "anydash",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test", "validate": "node scripts/validate"
+  },
+  "devDependencies": {
+    "playwright-core": "1.62.1",
+    "yaml": "2.9.1"
+  }
+}

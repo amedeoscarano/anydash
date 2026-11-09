@@ -1,0 +1,12 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/"}
+{"t":200,"tab":0,"type":"mutations","count":80}
+{"t":2500,"tab":0,"type":"click","x":80,"y":200,"button":0,"target":{"tag":"a","role":"link","name":"Packages","selector":"nav > a:nth-of-type(4)"},"control":{"tag":"a","role":"link","name":"Packages","selector":"nav > a:nth-of-type(4)"}}
+{"t":2600,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/packages"}
+{"t":2700,"tab":0,"type":"mutations","count":50}
+{"t":4000,"tab":0,"type":"click","x":400,"y":200,"button":0,"target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"},"control":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":4001,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":4200,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"insertText","selector":"input#weight"}
+{"t":4300,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"insertText","selector":"input#weight"}
+{"t":6000,"tab":0,"type":"click","x":400,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"}}
+{"t":6010,"tab":0,"type":"submit","name":"pkg","selector":"form#pkg"}
+{"t":6100,"tab":0,"type":"mutations","count":5}

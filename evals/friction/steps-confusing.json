@@ -1,0 +1,15 @@
+[
+  {"click": {"role": "link", "name": "Orders"}},
+  {"wait": 2500},
+  {"clickText": "Status"},
+  {"wait": 600},
+  {"clickText": "Status"},
+  {"wait": 1500},
+  {"back": true},
+  {"wait": 1500},
+  {"press": "/"},
+  {"fill": {"label": "Search orders and pages", "value": "general"}},
+  {"click": {"role": "button", "name": "General settings"}},
+  {"fill": {"label": "Default package weight", "value": "3 kg"}},
+  {"press": "Enter"}
+]

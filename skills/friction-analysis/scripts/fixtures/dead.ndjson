@@ -1,0 +1,5 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings"}
+{"t":150,"tab":0,"type":"mutations","count":40}
+{"t":1000,"tab":0,"type":"click","x":500,"y":300,"button":0,"target":{"tag":"span","role":null,"name":"Package weight","selector":"main > span.plain"},"control":null}
+{"t":2500,"tab":0,"type":"click","x":520,"y":400,"button":0,"target":{"tag":"button","role":"button","name":"Edit","selector":"main > button"},"control":{"tag":"button","role":"button","name":"Edit","selector":"main > button"}}
+{"t":2700,"tab":0,"type":"mutations","count":12}

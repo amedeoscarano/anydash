@@ -1,0 +1,25 @@
+{
+  "name": "flawed-dashboard",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "16.4.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "tailwindcss": "4.3.3"
+  },
+  "overrides": {
+    "baseline-browser-mapping": "2.11.28",
+    "caniuse-lite": "1.0.30001815",
+    "@tailwindcss/postcss": {
+      "postcss": "8.5.30"
+    }
+  }
+}

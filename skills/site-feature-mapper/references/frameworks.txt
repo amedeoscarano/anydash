@@ -1,0 +1,4 @@
+placement-decision-tree
+settings-taxonomy
+page-templates
+global-chrome-map

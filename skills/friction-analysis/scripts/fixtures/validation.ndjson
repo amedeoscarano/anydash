@@ -1,0 +1,10 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/packages"}
+{"t":1000,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":1200,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"insertText","selector":"input#weight"}
+{"t":2000,"tab":0,"type":"click","x":400,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"}}
+{"t":2010,"tab":0,"type":"submit","name":"pkg","selector":"form#pkg"}
+{"t":2100,"tab":0,"type":"mutations","count":5}
+{"t":3000,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"insertText","selector":"input#weight"}
+{"t":4000,"tab":0,"type":"click","x":400,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"}}
+{"t":4010,"tab":0,"type":"submit","name":"pkg","selector":"form#pkg"}
+{"t":4100,"tab":0,"type":"mutations","count":5}

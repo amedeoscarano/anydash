@@ -1,0 +1,16 @@
+{"t":100,"tab":0,"type":"navigation","url":"http://127.0.0.1:3198/settings/packages"}
+{"t":1000,"tab":0,"type":"click","x":400,"y":200,"button":0,"target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"},"control":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":1001,"tab":0,"type":"focus","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":1100,"tab":0,"type":"input","field":"Default weight","length":1,"inputType":"insertText","selector":"input#weight"}
+{"t":1200,"tab":0,"type":"input","field":"Default weight","length":2,"inputType":"insertText","selector":"input#weight"}
+{"t":1300,"tab":0,"type":"input","field":"Default weight","length":3,"inputType":"insertText","selector":"input#weight"}
+{"t":1400,"tab":0,"type":"key","key":"Tab","shift":false,"target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":1401,"tab":0,"type":"blur","target":{"tag":"input","role":"textbox","name":"Default weight","selector":"input#weight"}}
+{"t":1402,"tab":0,"type":"focus","target":{"tag":"select","role":"combobox","name":"Weight unit","selector":"select#unit"}}
+{"t":1900,"tab":0,"type":"click","x":400,"y":260,"button":0,"target":{"tag":"select","role":"combobox","name":"Weight unit","selector":"select#unit"},"control":{"tag":"select","role":"combobox","name":"Weight unit","selector":"select#unit"}}
+{"t":2000,"tab":0,"type":"change","field":"Weight unit","selectedIndex":1,"selector":"select#unit"}
+{"t":3000,"tab":0,"type":"click","x":400,"y":320,"button":0,"target":{"tag":"input","role":"checkbox","name":"Archive fulfilled orders","selector":"input#archive"},"control":{"tag":"input","role":"checkbox","name":"Archive fulfilled orders","selector":"input#archive"}}
+{"t":3001,"tab":0,"type":"change","field":"Archive fulfilled orders","checked":true,"selector":"input#archive"}
+{"t":5000,"tab":0,"type":"click","x":400,"y":500,"button":0,"target":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"},"control":{"tag":"button","role":"button","name":"Save","selector":"form#pkg > button"}}
+{"t":5005,"tab":0,"type":"submit","name":"pkg","selector":"form#pkg"}
+{"t":5100,"tab":0,"type":"mutations","count":5}

@@ -1,0 +1,3 @@
+{"id":1,"tab":0,"start":200,"end":1700,"ms":1500,"method":"GET","type":"image","status":200,"failed":false,"host":"127.0.0.1:3198","path":"/logo.png"}
+{"id":2,"tab":0,"start":1010,"end":3500,"ms":2490,"method":"GET","type":"fetch","status":200,"failed":false,"host":"127.0.0.1:3198","path":"/api/orders"}
+{"id":3,"tab":0,"start":5110,"end":7500,"ms":2390,"method":"GET","type":"fetch","status":200,"failed":false,"host":"127.0.0.1:3198","path":"/api/orders/1001"}
