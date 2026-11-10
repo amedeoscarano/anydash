@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $friction.
+interface:
+  display_name: "Friction"
+  short_description: "Record a workflow and rank its bottlenecks"
+policy:
+  allow_implicit_invocation: false

@@ -5,7 +5,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: scripts/install.sh [--tool claude|codex|cursor|gemini]... [--link] [--dry-run] [--uninstall]
+Usage: scripts/install.sh [--tool claude|codex|cursor|gemini|copilot]... [--link] [--dry-run] [--uninstall]
 
   --tool <name>  Limit to one tool (repeatable). Default: every detected tool.
   --link         Symlink skill files to this repo instead of copying them.
@@ -36,6 +36,7 @@ target_dir() {
     codex)  echo "$HOME/.agents/skills" ;;
     cursor) echo "$HOME/.cursor/skills" ;;
     gemini) echo "$HOME/.gemini/skills" ;;
+    copilot) echo "$HOME/.copilot/skills" ;;
     *) return 1 ;;
   esac
 }
@@ -43,7 +44,7 @@ target_dir() {
 # Claude Code frontmatter keys the target does not document, so they are removed there.
 strip_keys() {
   case "$1" in
-    claude) echo "" ;;
+    claude|copilot) echo "" ;;  # VS Code Copilot documents all four
     cursor) echo "user-invocable argument-hint context" ;;  # Cursor documents disable-model-invocation
     *)      echo "disable-model-invocation user-invocable argument-hint context" ;;
   esac
@@ -111,7 +112,9 @@ uninstall_tool() { # <dest root>
 }
 
 if [ ${#TOOLS[@]} -eq 0 ]; then
-  for t in claude codex cursor gemini; do detected "$t" && TOOLS+=("$t"); done
+  for t in claude codex cursor gemini copilot; do detected "$t" && TOOLS+=("$t"); done
+  # Uninstall keeps every detected tool, so copies from an earlier --tool run are removed too.
+  if [ "$UNINSTALL" = 0 ]; then
   # Cursor also reads ~/.claude/skills and ~/.agents/skills: a third copy would show twice.
   case " ${TOOLS[*]:-} " in *" cursor "*)
     case " ${TOOLS[*]} " in *" claude "*|*" codex "*)
@@ -119,8 +122,18 @@ if [ ${#TOOLS[@]} -eq 0 ]; then
       kept=(); for t in "${TOOLS[@]}"; do [ "$t" = cursor ] || kept+=("$t"); done; TOOLS=("${kept[@]}") ;;
     esac ;;
   esac
+  # Copilot and Gemini CLI also read ~/.agents/skills: skip them when the Codex copy is there.
+  for dup in copilot gemini; do
+    case " ${TOOLS[*]:-} " in *" $dup "*)
+      case " ${TOOLS[*]} " in *" codex "*)
+        echo "$dup: reads ~/.agents/skills already, skipped (use --tool $dup to force)"
+        kept=(); for t in "${TOOLS[@]}"; do [ "$t" = "$dup" ] || kept+=("$t"); done; TOOLS=("${kept[@]}") ;;
+      esac ;;
+    esac
+  done
+  fi
 fi
-[ ${#TOOLS[@]} -gt 0 ] || { echo "no supported tool found (claude, codex, cursor, gemini); use --tool" >&2; exit 1; }
+[ ${#TOOLS[@]} -gt 0 ] || { echo "no supported tool found (claude, codex, cursor, gemini, copilot); use --tool" >&2; exit 1; }
 
 for t in "${TOOLS[@]}"; do
   root="$(target_dir "$t")" || { echo "unknown tool: $t" >&2; exit 2; }

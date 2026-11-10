@@ -25,12 +25,14 @@ test('dry-run changes nothing', () => {
   const r = run(h, '--dry-run');
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /would: write .*dash-build\/SKILL\.md/);
+  assert.match(r.stdout, /gemini: reads ~\/\.agents\/skills already, skipped/);
+  assert.doesNotMatch(r.stdout, /would: .*\.gemini\/skills/);
   assert.deepEqual(fs.readdirSync(h).sort(), ['.codex', '.gemini']);
 });
 
-test('installs per detected tool, rewrites name, strips Claude Code keys', () => {
+test('installs per tool, rewrites name, strips Claude Code keys', () => {
   const h = home('.codex', '.gemini');
-  assert.equal(run(h).status, 0);
+  assert.equal(run(h, '--tool', 'codex', '--tool', 'gemini').status, 0);
   for (const dir of ['.agents/skills', '.gemini/skills']) {
     assert.deepEqual(fs.readdirSync(path.join(h, dir)).sort(), skills.map((s) => `dash-${s}`).sort());
     const f = fm(path.join(h, dir, 'dash-review-live', 'SKILL.md'));
@@ -73,4 +75,22 @@ test('refuses to overwrite a foreign dash-<name> folder', () => {
 
 test('no tool detected exits 1', () => {
   assert.equal(run(home()).status, 1);
+});
+
+test('copilot keeps every key; skipped when codex is detected', () => {
+  const h = home('.copilot');
+  assert.equal(run(h).status, 0);
+  assert.match(fm(path.join(h, '.copilot/skills/dash-review-live/SKILL.md')), /^context: fork$/m);
+  assert.ok(fs.existsSync(path.join(h, '.copilot/skills/dash-build/agents/openai.yaml')));
+  const both = home('.copilot', '.codex');
+  const r = run(both);
+  assert.match(r.stdout, /copilot: reads ~\/\.agents\/skills already, skipped/);
+  assert.ok(!fs.existsSync(path.join(both, '.copilot/skills')));
+});
+
+test('uninstall also removes copies in tools that auto-detection skips', () => {
+  const h = home('.codex', '.gemini');
+  assert.equal(run(h, '--tool', 'gemini').status, 0);
+  assert.equal(run(h, '--uninstall').status, 0);
+  assert.deepEqual(fs.readdirSync(path.join(h, '.gemini/skills')), []);
 });

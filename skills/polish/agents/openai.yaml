@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $polish.
+interface:
+  display_name: "Polish"
+  short_description: "Audit and fix the visual layer, tokens first"
+policy:
+  allow_implicit_invocation: false

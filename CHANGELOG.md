@@ -2,6 +2,26 @@
 
 All notable changes to this project are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## 0.2.1 - 2026-11-09
+
+### Packaging for other agents
+
+- Native manifests next to `.claude-plugin/`, all pointing at the same `skills/` folder: `.codex-plugin/plugin.json` (Codex and the OpenAI plugin directory), `.cursor-plugin/plugin.json` and `.cursor-plugin/marketplace.json` (Cursor), `gemini-extension.json` (Gemini CLI), `.agents/plugins/marketplace.json` (native Codex catalog, Git URL source with the required `policy` and `category`). GitHub Copilot, Devin and Factory Droid read the existing `.claude-plugin/` files.
+- `skills/<command>/agents/openai.yaml` for the ten commands: Codex runs them only when called, like `disable-model-invocation` elsewhere.
+- `assets/logo.svg`, used by the Codex and Cursor listings.
+- `.claude-plugin/plugin.json` gains `author.url`, `homepage` and `repository`. The marketplace description moved to `metadata.description`, with `metadata.version`.
+
+### Validator
+
+- `scripts/validate` checks every manifest: valid JSON, name `dash`, the version and description of `.claude-plugin/plugin.json`, every `./` path present, Codex listing limits. It also checks that `disable-model-invocation` and `agents/openai.yaml` agree.
+
+### Install
+
+- `scripts/install.sh --tool copilot` writes to `~/.copilot/skills` and keeps all frontmatter keys. Auto-detection skips Copilot and Gemini CLI when Codex is present, because both read `~/.agents/skills`. `--uninstall` still covers every detected tool.
+- README: the four 0.2.0 commands and six analysis skills are listed; the "planned for v0.2" lines are gone.
+- `docs/install.md` rewritten per agent: native install from GitHub first, then the skills CLI and the script, how to invoke, what is not supported. New `docs/publishing.md` with the submission steps for each directory.
+- Install tested in sandboxed homes: Codex CLI 0.167.0 (`codex plugin marketplace add` + `codex plugin add dash@anydash`), Gemini CLI 0.67.0 (`gemini extensions install`) and Copilot CLI 1.0.108 (`copilot plugin marketplace add` + `copilot plugin install dash@anydash`) each load all 39 skills. Cursor is checked against its docs only.
+
 ## 0.2.0 - 2026-11-09
 
 - M4: `/dash:friction` with `session-recorder` (headed Playwright recording, masked event log, video and trace kept local) and `friction-analysis` (11 friction signals, KLM baseline, bottleneck ranking, ffmpeg frames, before/after compare). Eval: the seeded detour in the example ranks as the top bottleneck.

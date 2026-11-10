@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $review.
+interface:
+  display_name: "Review"
+  short_description: "Review code or a spec against the whole rulebook"
+policy:
+  allow_implicit_invocation: false

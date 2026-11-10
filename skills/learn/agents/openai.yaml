@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $learn.
+interface:
+  display_name: "Learn"
+  short_description: "Turn a new reference portal into candidate rules"
+policy:
+  allow_implicit_invocation: false

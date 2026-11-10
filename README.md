@@ -31,10 +31,12 @@ The marketplace is `anydash` and the plugin is `dash`. In Claude Code the comman
 | `/dash:review` | Static review of code, a spec or screenshots against the whole rulebook. No browser. | `/dash:review ./my-admin` |
 | `/dash:review-live` | Static review, then live checks in a browser, then a findability test of the settings. | `/dash:review-live http://localhost:3100` |
 | `/dash:polish` | Screenshots key pages at four widths, audits the visual layer and fixes tokens first. | `/dash:polish http://localhost:3100` |
+| `/dash:friction` | Records one person doing one workflow, then finds the steps that lose time against a KLM baseline. | `/dash:friction "create a product" http://localhost:3100` |
+| `/dash:clone` | Maps a web dashboard you can access, read-only, and turns it into a rebuild spec. | `/dash:clone https://admin.example.com` |
+| `/dash:reconcile` | Maps an API (api-surface.json, OpenAPI or GraphQL) onto your dashboard repo, field by field. | `/dash:reconcile openapi.yaml ./my-admin` |
+| `/dash:learn` | Applies the rulebook's research method to a new admin portal and proposes rule changes with evidence. | `/dash:learn https://admin.example.com` |
 
-Output goes to `dash-spec/` (design) or `dash-review/` (review) in your project.
-
-Planned for v0.2 (see [ROADMAP.md](ROADMAP.md)): `/dash:friction`, `/dash:clone`, `/dash:reconcile` and `/dash:learn`.
+Output goes to a `dash-*` folder in your project, for example `dash-spec/` (design) or `dash-review/` (review).
 
 ## Skills
 
@@ -72,6 +74,12 @@ The commands call these skills. Your agent can also use each one on its own.
 | `live-rule-audit` | Runs the live check of every rule in a browser. |
 | `visual-audit` | Finds visual inconsistencies from screenshots and computed styles, including real contrast. |
 | `browser-adapter` | Finds the browser tool in the session and runs live checks in own-app or read-only mode. |
+| `session-recorder` | Records one workflow: clicks, scrolls, masked typing, navigations, network timing, plus video and trace, kept local. |
+| `friction-analysis` | Splits a recording into steps, times them against a KLM baseline and ranks the bottlenecks. |
+| `site-feature-mapper` | Maps the sitemap, navigation, page templates, settings and feature list of a web app, read-only. |
+| `api-surface-capture` | Captures the endpoints and JSON shapes behind a web app, types only, never values. |
+| `api-ui-reconciliation` | Maps an API onto the dashboard UI and data model, field by field. |
+| `ui-pattern-mining` | Extracts candidate UI rules from one admin portal and writes a rule diff with evidence. |
 
 ## Requirements
 
@@ -79,7 +87,9 @@ The commands call these skills. Your agent can also use each one on its own.
 |---|---|
 | `/dash:build`, `/dash:states`, `/dash:onboard`, `/dash:review` | An agent that loads skills. Nothing else. |
 | `/dash:review-live`, `/dash:polish` | A browser tool (see below). |
-| v0.2 commands | REA and ffmpeg, only for `/dash:friction`, `/dash:clone`, `/dash:reconcile` and `/dash:learn`. Not needed for v0.1. |
+| `/dash:friction` | Node 20 or later, `playwright-core` 1.62.1 and Google Chrome to record. ffmpeg for bottleneck frames (optional). |
+| `/dash:clone`, `/dash:learn` | REA, or a browser tool as the fallback. |
+| `/dash:reconcile` | An agent that loads skills, plus Node 20 or later. |
 
 The live commands use the first browser tool they find, in this order:
 
@@ -94,22 +104,19 @@ If no browser tool is present, the live checks are listed as not checked.
 
 ## Install
 
-Short version. Full steps, paths and sources per tool are in [docs/install.md](docs/install.md).
+One repo, one `skills/` folder, a native manifest per agent. Full steps, what each agent does not support, and sources: [docs/install.md](docs/install.md).
 
-**Claude Code**
+| Agent | Install | Invoke |
+|---|---|---|
+| Claude Code | `/plugin marketplace add amedeoscarano/anydash`, then `/plugin install dash@anydash` | `/dash:review` |
+| Codex (CLI, app) | `codex plugin marketplace add amedeoscarano/anydash`, then `codex plugin add dash@anydash` | Pick the skill from `/skills`, or type `@` in the app |
+| Cursor | Customize > From GitHub Repository > `https://github.com/amedeoscarano/anydash` | `/` in Agent chat, pick `review` |
+| Gemini CLI | `gemini extensions install https://github.com/amedeoscarano/anydash` | Ask; Gemini activates the skill after you confirm |
+| GitHub Copilot (CLI, VS Code) | `copilot plugin marketplace add amedeoscarano/anydash`, then `copilot plugin install dash@anydash` | `/review` |
+| Devin, Factory Droid, Amp | See [docs/install.md](docs/install.md#other-agents) | |
+| Any other agent | `npx skills add amedeoscarano/anydash` | Depends on the agent |
 
-```
-/plugin marketplace add amedeoscarano/anydash
-/plugin install dash@anydash
-```
-
-**Codex, Cursor, Gemini CLI and other agents** (skills CLI)
-
-```
-npx skills add amedeoscarano/anydash
-```
-
-The skills CLI keeps the folder names (`review`, not `dash-review`). For the `dash-` prefix, use the install script:
+Without a plugin, the install script copies the skills as `dash-<name>` into every agent it detects (Claude Code, Codex, Gemini CLI; Cursor and Copilot only when no agent whose folder they already read is found):
 
 ```
 git clone https://github.com/amedeoscarano/anydash && cd anydash
@@ -117,25 +124,17 @@ scripts/install.sh --dry-run
 scripts/install.sh
 ```
 
-It detects Claude Code, Codex, Cursor and Gemini CLI. **Xcode**, **claude.ai** and every flag: see [docs/install.md](docs/install.md).
+Skills installed by the script are named `dash-<name>`: for example `$dash-review` in Codex or `/dash-review` in Cursor.
 
-## How to launch the commands
+**Xcode**, **claude.ai**, the Codex IDE extension and every flag: see [docs/install.md](docs/install.md). Listing in each agent's directory: [docs/publishing.md](docs/publishing.md).
 
-- **Claude Code:** type the command, for example `/dash:review ./my-admin`.
-- **Codex:** `$dash-review ./my-admin`, or pick the skill from `/skills`.
-- **Cursor:** type `/` in Agent chat and pick `dash-review`.
-- **Gemini CLI:** ask, for example "use dash-review on ./my-admin". Gemini activates the skill after you confirm.
-- **Any tool:** if you installed with the skills CLI, use the plain name (`review` instead of `dash-review`).
-
-Details per tool: [docs/install.md](docs/install.md).
-
-In Claude Code and Cursor the six commands run only when you call them. Codex and Gemini CLI do not support that setting, so there the agent may start a command on its own when a request matches.
+In Claude Code, Codex, Cursor and VS Code the ten commands run only when you call them. Gemini CLI does not support that setting, so there the agent may start a command on its own when a request matches.
 
 ## Security and privacy
 
 - **Your own app:** full interaction (typing test data, Save, blocked requests) runs only on `localhost`, `127.0.0.1`, `[::1]`, `*.localhost`, `*.test` or a staging host you name. Never on production.
 - **Third-party sites:** read-only. Navigation only, no Save, Create, Delete, Connect or any other change, no typing except in global search. Every click name passes a denylist. Dialogs are dismissed. Login, 2FA and CAPTCHA stop the run and hand control to you.
-- **Local only:** screenshots, snapshots and logs are written to `dash-review/` in your project. Recordings planned for v0.2 stay local too, with inputs masked.
+- **Local only:** screenshots, snapshots and logs are written to `dash-review/` in your project. Recordings from `/dash:friction` stay local too, with inputs masked.
 - **No data leaves your machine** except what your agent tool itself sends to its model provider.
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
@@ -153,7 +152,7 @@ Confidence matters. High means supported by three portals, or stated by a public
 
 New rules, fixes to rules and better checks are welcome. Each rule needs evidence. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-`/dash:learn`, a command that turns a new reference portal into candidate rules, is planned for v0.2.
+`/dash:learn` turns a new reference portal into candidate rules for a pull request.
 
 ## Independence
 
@@ -167,4 +166,4 @@ The rules are independent observations of public, logged-in admin UIs. No vendor
 
 anydash è un insieme di skill per agenti che aiuta a progettare, revisionare e testare dashboard di amministrazione. Le skill applicano un rulebook di 183 regole, ricavate da uno studio in sola lettura di quattro portali di riferimento. Le regole di navigazione e della struttura globale (sidebar, barra in alto, accesso alle impostazioni) usano anche il quarto portale. Ogni regola ha un ID, un livello di confidenza e un controllo verificabile.
 
-In Claude Code installi con `/plugin marketplace add amedeoscarano/anydash` e `/plugin install dash@anydash`, poi lanci per esempio `/dash:review`. Negli altri strumenti usi `npx skills add amedeoscarano/anydash` oppure `scripts/install.sh`, che installa le skill come `dash-<nome>`. I test dal vivo sui siti di terzi sono solo in lettura e i file restano sul tuo computer. Nessun fornitore approva o sponsorizza il progetto. Licenza MIT.
+Il repository contiene un plugin nativo per Claude Code, Codex, Cursor, Gemini CLI e GitHub Copilot. In Claude Code installi con `/plugin marketplace add amedeoscarano/anydash` e `/plugin install dash@anydash`, poi lanci per esempio `/dash:review`. In Codex usi `codex plugin marketplace add amedeoscarano/anydash` e `codex plugin add dash@anydash`, in Gemini CLI `gemini extensions install https://github.com/amedeoscarano/anydash`, in GitHub Copilot `copilot plugin marketplace add amedeoscarano/anydash` e `copilot plugin install dash@anydash`, in Cursor importi il repository da GitHub. Negli altri strumenti usi `npx skills add amedeoscarano/anydash` oppure `scripts/install.sh`, che installa le skill come `dash-<nome>`. I test dal vivo sui siti di terzi sono solo in lettura e i file restano sul tuo computer. Nessun fornitore approva o sponsorizza il progetto. Licenza MIT.

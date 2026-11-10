@@ -30,3 +30,15 @@ test('cited rule IDs must exist', () => {
   const dir = skill('ids', '---\nname: ids\ndescription: D.\n---\nApply NAV-001 and NAV-999.\n');
   assert.deepEqual(checkSkill(dir, new Set(['NAV-001'])), ['skills/ids/SKILL.md: unknown rule NAV-999']);
 });
+
+test('disable-model-invocation and agents/openai.yaml must agree', () => {
+  const dir = skill('manual', '---\nname: manual\ndescription: D.\ndisable-model-invocation: true\n---\n');
+  assert.match(checkSkill(dir).join('\n'), /needs agents\/openai\.yaml/);
+  fs.mkdirSync(path.join(dir, 'agents'));
+  fs.writeFileSync(path.join(dir, 'agents', 'openai.yaml'), 'interface:\n  display_name: M\npolicy:\n  allow_implicit_invocation: true\n');
+  const errs = checkSkill(dir).join('\n');
+  assert.match(errs, /interface\.short_description missing/);
+  assert.match(errs, /allow_implicit_invocation must be false/);
+  fs.writeFileSync(path.join(dir, 'agents', 'openai.yaml'), 'interface:\n  display_name: M\n  short_description: S\npolicy:\n  allow_implicit_invocation: false\n');
+  assert.deepEqual(checkSkill(dir), []);
+});

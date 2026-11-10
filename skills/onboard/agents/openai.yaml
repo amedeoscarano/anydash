@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $onboard.
+interface:
+  display_name: "Onboarding"
+  short_description: "Design or check the path from signup to first value"
+policy:
+  allow_implicit_invocation: false

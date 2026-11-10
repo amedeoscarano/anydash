@@ -1,8 +1,10 @@
 {
   "name": "dash",
   "description": "Agent skills to design, review and test admin dashboards, using UI rules reverse-engineered from best-in-class admin panels.",
-  "version": "0.2.0",
-  "author": { "name": "amedeoscarano" },
+  "version": "0.2.1",
+  "author": { "name": "amedeoscarano", "url": "https://github.com/amedeoscarano" },
+  "homepage": "https://github.com/amedeoscarano/anydash",
+  "repository": "https://github.com/amedeoscarano/anydash",
   "license": "MIT",
   "keywords": ["admin", "dashboard", "ui", "ux", "design-review", "skills"]
 }

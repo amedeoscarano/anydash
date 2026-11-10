@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $review-live.
+interface:
+  display_name: "Review live"
+  short_description: "Review a running app in a browser"
+policy:
+  allow_implicit_invocation: false

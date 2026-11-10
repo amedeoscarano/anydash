@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $build.
+interface:
+  display_name: "Build dashboard"
+  short_description: "Design and build an admin dashboard from a brief"
+policy:
+  allow_implicit_invocation: false

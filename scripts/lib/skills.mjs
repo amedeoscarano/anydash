@@ -22,6 +22,7 @@ export function checkSkill(dir, ids = null) {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(name) || name.length > 64) errors.push(`skills/${name}: name must be lowercase-hyphenated, max 64`);
   if (typeof fm.description !== 'string' || !fm.description.trim()) errors.push(`skills/${name}: description missing`);
   else if (fm.description.length > 1024) errors.push(`skills/${name}: description ${fm.description.length} chars, max 1024`);
+  errors.push(...codexPolicy(dir, name, fm['disable-model-invocation'] === true));
   const lines = text.split('\n').length;
   if (lines >= 500) errors.push(`skills/${name}: SKILL.md has ${lines} lines, max 499`);
   // Every backticked references/, scripts/ or assets/ path must exist inside the skill.
@@ -32,6 +33,20 @@ export function checkSkill(dir, ids = null) {
     for (const [id] of fs.readFileSync(f, 'utf8').matchAll(RULE_ID))
       if (!ids.has(id)) errors.push(`skills/${name}/${path.relative(dir, f)}: unknown rule ${id}`);
   }
+  return errors;
+}
+
+// Codex reads agents/openai.yaml, not disable-model-invocation: the two must agree.
+function codexPolicy(dir, name, manualOnly) {
+  const file = path.join(dir, 'agents', 'openai.yaml');
+  if (!fs.existsSync(file)) return manualOnly ? [`skills/${name}: disable-model-invocation needs agents/openai.yaml with policy.allow_implicit_invocation: false`] : [];
+  let y;
+  try { y = YAML.parse(fs.readFileSync(file, 'utf8')) ?? {}; } catch (e) { return [`skills/${name}/agents/openai.yaml: not YAML (${e.message})`]; }
+  const errors = [];
+  for (const f of ['display_name', 'short_description'])
+    if (typeof y.interface?.[f] !== 'string' || !y.interface[f]) errors.push(`skills/${name}/agents/openai.yaml: interface.${f} missing`);
+  if ((y.policy?.allow_implicit_invocation === false) !== manualOnly)
+    errors.push(`skills/${name}/agents/openai.yaml: policy.allow_implicit_invocation must be ${!manualOnly} to match SKILL.md`);
   return errors;
 }
 

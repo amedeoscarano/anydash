@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $clone.
+interface:
+  display_name: "Clone"
+  short_description: "Turn a dashboard you can access into a rebuild spec"
+policy:
+  allow_implicit_invocation: false

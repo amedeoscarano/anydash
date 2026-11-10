@@ -3,7 +3,10 @@
   "owner": {
     "name": "amedeoscarano"
   },
-  "description": "Agent skills to design, review and test admin dashboards.",
+  "metadata": {
+    "description": "Agent skills to design, review and test admin dashboards.",
+    "version": "0.2.1"
+  },
   "plugins": [
     {
       "name": "dash",

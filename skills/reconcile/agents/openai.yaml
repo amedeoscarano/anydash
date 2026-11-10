@@ -1,0 +1,6 @@
+# Codex metadata. Mirrors disable-model-invocation in SKILL.md: run only when called with $reconcile.
+interface:
+  display_name: "Reconcile"
+  short_description: "Reconcile an API surface with a dashboard repo"
+policy:
+  allow_implicit_invocation: false

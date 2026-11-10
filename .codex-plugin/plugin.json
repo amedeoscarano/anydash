@@ -1,0 +1,27 @@
+{
+  "name": "dash",
+  "version": "0.2.1",
+  "description": "Agent skills to design, review and test admin dashboards, using UI rules reverse-engineered from best-in-class admin panels.",
+  "author": { "name": "amedeoscarano", "url": "https://github.com/amedeoscarano" },
+  "homepage": "https://github.com/amedeoscarano/anydash",
+  "repository": "https://github.com/amedeoscarano/anydash",
+  "license": "MIT",
+  "keywords": ["admin", "dashboard", "ui", "ux", "design-review", "skills"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "anydash",
+    "shortDescription": "Admin dashboard UI skills",
+    "longDescription": "Agent skills to design, review and test admin dashboards. Build screens from a brief, add empty, loading and error states, design onboarding, review a codebase or a running app, and polish the visual layer, using 183 UI rules reverse-engineered from public, logged-in admin panels. Every finding cites a rule ID. Skills only: no MCP server, no hooks. Independent project; no vendor endorses it.",
+    "developerName": "amedeoscarano",
+    "category": "Developer Tools",
+    "capabilities": [],
+    "websiteURL": "https://github.com/amedeoscarano/anydash",
+    "defaultPrompt": [
+      "Build an admin users table with filters",
+      "Review this dashboard against the anydash rules",
+      "Add empty, loading and error states to this page"
+    ],
+    "logo": "./assets/logo.svg",
+    "composerIcon": "./assets/logo.svg"
+  }
+}
